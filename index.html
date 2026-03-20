@@ -2326,7 +2326,8 @@
           headers: authHeaders(),
           body: JSON.stringify({
             old_password: oldPass,
-            new_password: newPass
+            new_password: newPass,
+            confirm_new_password: confirmPass
           })
         });
 
@@ -2337,6 +2338,8 @@
             showMsg("passwordMsg", "Mật khẩu cũ không đúng.", false);
           } else if (data.error === "password_too_short") {
             showMsg("passwordMsg", "Mật khẩu mới phải có ít nhất 4 ký tự.", false);
+          } else if (data.error === "confirm_password_not_match") {
+            showMsg("passwordMsg", "Xác nhận mật khẩu mới không khớp.", false);
           } else if (data.error === "same_as_old_password") {
             showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
           } else {
@@ -2345,15 +2348,13 @@
           return;
         }
 
-        sessionLoginPassword = newPass;
-
-        showMsg("passwordMsg", "Đổi mật khẩu thành công.", true);
+        showMsg("passwordMsg", "Đổi mật khẩu thành công. Từ giờ hãy đăng nhập bằng mật khẩu mới.", true);
         logSys("Người dùng đã cập nhật mật khẩu.");
 
         setTimeout(() => {
           cancelPasswordChange();
           clearMsg("passwordMsg");
-        }, 1200);
+        }, 1500);
       } catch (e) {
         showMsg("passwordMsg", `Lỗi đổi mật khẩu: ${e}`, false);
       }
