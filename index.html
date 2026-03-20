@@ -603,6 +603,97 @@
       background:rgba(255,255,255,.03);
     }
 
+    .product-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .product-card {
+      position: relative;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: .18s ease;
+      overflow: hidden;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(79,140,255,.45);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+    }
+
+    .product-card.active {
+      border-color: rgba(79,140,255,.9);
+      box-shadow: 0 0 0 3px rgba(79,140,255,.14);
+      background: linear-gradient(180deg, rgba(79,140,255,.10), rgba(255,255,255,.04));
+    }
+
+    .product-thumb {
+      width: 100%;
+      aspect-ratio: 1.4 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .product-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .product-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .product-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(8,12,24,.86);
+      border: 1px solid var(--line);
+      color: white;
+      font-size: 12px;
+      opacity: 0;
+      transform: scale(.9);
+      transition: .18s ease;
+    }
+
+    .product-card.active .product-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @media (max-width: 640px) {
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 1000px) {
       .auth-card { grid-template-columns:1fr; }
       .auth-hero { display:none; }
@@ -1014,12 +1105,45 @@
 
       <div class="field-inline">
         <label>Sản phẩm</label>
-        <select id="product-select">
-          <option value="Nước giải khát">Nước giải khát</option>
-          <option value="Thuốc y tế">Thuốc y tế</option>
-          <option value="Đồ ăn nhanh">Đồ ăn nhanh</option>
-          <option value="Tài liệu khẩn">Tài liệu khẩn</option>
-        </select>
+        <input id="admin-product-select" type="hidden" value="Nước giải khát" />
+
+        <div class="product-grid">
+          <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'admin-product-select')">
+            <div class="product-check">✓</div>
+            <div class="product-thumb">
+              <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
+            </div>
+            <div class="product-name">Nước giải khát</div>
+            <div class="product-desc">Đơn giao nhẹ, dễ vận chuyển bằng drone.</div>
+          </div>
+
+          <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'admin-product-select')">
+            <div class="product-check">✓</div>
+            <div class="product-thumb">
+              <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
+            </div>
+            <div class="product-name">Thuốc y tế</div>
+            <div class="product-desc">Ưu tiên giao nhanh cho trường hợp cần thiết.</div>
+          </div>
+
+          <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'admin-product-select')">
+            <div class="product-check">✓</div>
+            <div class="product-thumb">
+              <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
+            </div>
+            <div class="product-name">Đồ ăn nhanh</div>
+            <div class="product-desc">Dễ quan sát và phù hợp giao trong khu vực gần.</div>
+          </div>
+
+          <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'admin-product-select')">
+            <div class="product-check">✓</div>
+            <div class="product-thumb">
+              <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
+            </div>
+            <div class="product-name">Tài liệu khẩn</div>
+            <div class="product-desc">Phù hợp vận chuyển hồ sơ hoặc chứng từ gấp.</div>
+          </div>
+        </div>
       </div>
 
       <div class="field-inline">
@@ -1064,12 +1188,45 @@
 
             <div class="field-inline">
               <label>Sản phẩm</label>
-              <select id="admin-product-select">
-                <option value="Nước giải khát">Nước giải khát</option>
-                <option value="Thuốc y tế">Thuốc y tế</option>
-                <option value="Đồ ăn nhanh">Đồ ăn nhanh</option>
-                <option value="Tài liệu khẩn">Tài liệu khẩn</option>
-              </select>
+              <input id="product-select" type="hidden" value="Nước giải khát" />
+
+              <div class="product-grid">
+                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
+                  </div>
+                  <div class="product-name">Nước giải khát</div>
+                  <div class="product-desc">Phù hợp đơn giao nhanh, nhẹ và phổ biến.</div>
+                </div>
+
+                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
+                  </div>
+                  <div class="product-name">Thuốc y tế</div>
+                  <div class="product-desc">Ưu tiên giao nhanh cho nhu cầu khẩn cấp.</div>
+                </div>
+
+                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
+                  </div>
+                  <div class="product-name">Đồ ăn nhanh</div>
+                  <div class="product-desc">Đặt món tiện lợi, dễ chọn và dễ quan sát.</div>
+                </div>
+
+                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
+                  </div>
+                  <div class="product-name">Tài liệu khẩn</div>
+                  <div class="product-desc">Phù hợp hồ sơ, giấy tờ cần chuyển gấp.</div>
+                </div>
+              </div>
             </div>
 
             <div class="field-inline">
@@ -1264,6 +1421,23 @@
         Math.sin(dLat / 2) ** 2 +
         Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
       return 2 * R * Math.asin(Math.sqrt(a));
+    }
+    
+    function selectProductCard(cardEl, inputId) {
+      const hiddenInput = document.getElementById(inputId);
+      if (!cardEl || !hiddenInput) return;
+
+      const group = cardEl.parentElement;
+      if (!group) return;
+
+      group.querySelectorAll(".product-card").forEach(card => {
+        card.classList.remove("active");
+      });
+
+      cardEl.classList.add("active");
+      hiddenInput.value = cardEl.dataset.value || "";
+
+      logSys(`Đã chọn sản phẩm: ${hiddenInput.value}`);
     }
 
     function escapeHtml(str) {
