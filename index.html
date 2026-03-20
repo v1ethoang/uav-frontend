@@ -1238,7 +1238,7 @@
               <input id="admin-order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
             </div>
 
-            <button class="btn btn-primary" style="width:100%;" onclick="createOrderAndMission()">
+            <button class="btn btn-primary" style="width:100%;" onclick="createAdminOrderOnly()">
               Tạo đơn
             </button>
 
@@ -2453,7 +2453,7 @@
       const maybeNote = parts.length > 1 ? parts.slice(1).join(" | ") : "";
 
       if (knownProducts.includes(maybeProduct)) {
-        document.getElementById("product-select").value = maybeProduct;
+        document.getElementById("user-product-select").value = maybeProduct;
         document.getElementById("order-note").value = maybeNote;
       } else {
         document.getElementById("order-note").value = raw;
