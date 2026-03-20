@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAV Delivery Control</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root{
+      --bg:#08101f;
+      --bg-2:#0e1830;
+      --panel:rgba(15,22,40,.84);
+      --panel-2:rgba(19,28,52,.92);
+      --card:rgba(255,255,255,.05);
+      --line:rgba(255,255,255,.08);
+      --text:#edf3ff;
+      --muted:#a5b2cc;
+      --primary:#4f8cff;
+      --primary-2:#7168ff;
+      --success:#18c37e;
+      --danger:#ff5f74;
+      --warning:#ffb649;
+      --shadow:0 16px 40px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+
+    * { box-sizing:border-box; }
+
+    html, body {
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family: Inter, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(79,140,255,.16), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(24,195,126,.12), transparent 24%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+    }
+
+    .hidden { display:none !important; }
+
+    .btn {
+      border:none;
+      border-radius:14px;
+      padding:13px 16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .btn:hover { transform:translateY(-1px); }
+
+    .btn-primary {
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      color:white;
+    }
+
+    .btn-success {
+      background:linear-gradient(135deg, #12b877, #1ec989);
+      color:white;
+    }
+
+    .btn-dark {
+      background:rgba(255,255,255,.06);
+      color:white;
+      border:1px solid var(--line);
+    }
+
+    .btn-danger {
+      background:linear-gradient(135deg, #ff4e68, #ff6d61);
+      color:white;
+    }
+
+    .auth-wrap {
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .auth-card {
+      width:min(100%, 1020px);
+      display:grid;
+      grid-template-columns: 1.08fr .92fr;
+      background:rgba(9,14,28,.72);
+      border:1px solid var(--line);
+      border-radius:28px;
+      overflow:hidden;
+      backdrop-filter:blur(14px);
+      box-shadow:var(--shadow);
+    }
+
+    .auth-hero {
+      padding:42px;
+      border-right:1px solid var(--line);
+      background:
+        radial-gradient(circle at top left, rgba(79,140,255,.22), transparent 33%),
+        radial-gradient(circle at bottom right, rgba(24,195,126,.14), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+
+    .auth-hero h1 {
+      margin:0 0 14px;
+      font-size:38px;
+      line-height:1.15;
+    }
+
+    .auth-hero p {
+      margin:0 0 24px;
+      color:var(--muted);
+      line-height:1.7;
+      max-width:580px;
+    }
+
+    .hero-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+      margin-top:26px;
+    }
+
+    .hero-chip {
+      padding:16px;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    .hero-chip-title {
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .hero-chip-sub {
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .auth-form-wrap {
+      padding:34px 30px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .brand-badge {
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow:0 10px 24px rgba(79,140,255,.32);
+    }
+
+    .tabs {
+      display:flex;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:6px;
+      margin-bottom:18px;
+    }
+
+    .tab {
+      flex:1;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      padding:12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .tab.active {
+      background:rgba(79,140,255,.18);
+      color:white;
+    }
+
+    .form-title {
+      margin:4px 0 6px;
+      font-size:28px;
+      font-weight:800;
+    }
+
+    .form-sub {
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .field { margin-bottom:14px; }
+
+    .field label {
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      color:#dbe4fb;
+    }
+
+    .field input {
+      width:100%;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:white;
+      outline:none;
+      font-size:15px;
+    }
+
+    .field input:focus,
+    .field-inline input:focus,
+    .field-inline select:focus {
+      border-color:rgba(79,140,255,.8);
+      box-shadow:0 0 0 4px rgba(79,140,255,.14);
+    }
+
+    .msg {
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:14px;
+      display:none;
+    }
+
+    .msg.ok {
+      display:block;
+      background:rgba(24,195,126,.14);
+      color:#8cf0be;
+      border:1px solid rgba(24,195,126,.22);
+    }
+
+    .msg.err {
+      display:block;
+      background:rgba(255,95,116,.13);
+      color:#ffacb8;
+      border:1px solid rgba(255,95,116,.22);
+    }
+
+    .muted { color:var(--muted); }
+
+    .app {
+      height:100vh;
+      display:grid;
+      grid-template-columns: 390px 1fr;
+    }
+
+    .sidebar {
+      background:rgba(8,12,24,.92);
+      border-right:1px solid var(--line);
+      padding:18px;
+      overflow-y:auto;
+    }
+
+    .title-main {
+      font-size:24px;
+      font-weight:800;
+      margin:0;
+    }
+
+    .subtitle {
+      color:var(--muted);
+      margin-top:4px;
+      font-size:13px;
+    }
+
+    .user-box,
+    .panel {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-top:16px;
+    }
+
+    .user-box .role,
+    .profile-role-badge {
+      display:inline-block;
+      margin-top:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background:rgba(79,140,255,.18);
+      color:#b7d1ff;
+      border:1px solid rgba(79,140,255,.28);
+    }
+
+    .panel h3 {
+      margin:0 0 14px;
+      font-size:16px;
+    }
+
+    .sidebar-tabs-wrap {
+      padding:10px;
+    }
+
+    .sidebar-tabs {
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:8px;
+    }
+
+    .sidebar-tab {
+      border:none;
+      border-radius:12px;
+      padding:12px 10px;
+      font-weight:700;
+      cursor:pointer;
+      background:rgba(255,255,255,.05);
+      color:var(--muted);
+      border:1px solid var(--line);
+      transition:.18s ease;
+    }
+
+    .sidebar-tab:hover {
+      transform:translateY(-1px);
+      color:white;
+    }
+
+    .sidebar-tab.active {
+      background:linear-gradient(135deg, rgba(79,140,255,.22), rgba(113,104,255,.18));
+      color:white;
+      border-color:rgba(79,140,255,.35);
+      box-shadow:0 8px 18px rgba(79,140,255,.16);
+    }
+
+    .sidebar-tab-panel {
+      display:none;
+    }
+
+    .sidebar-tab-panel.active {
+      display:block;
+    }
+
+    .stat-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .stat {
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .stat .label {
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+    }
+
+    .stat .value {
+      font-size:18px;
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .field-inline { margin-bottom:12px; }
+
+    .field-inline label {
+      display:block;
+      margin-bottom:7px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .field-inline input,
+    .field-inline select {
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:white;
+      outline:none;
+      font-size:14px;
+    }
+
+    .field-inline select option {
+      background:#0f1730;
+      color:white;
+    }
+
+    .row-2 {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .main {
+      display:grid;
+      grid-template-rows:auto 1fr;
+      min-height:100vh;
+    }
+
+    .topbar {
+      padding:16px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--line);
+      background:rgba(12,18,34,.72);
+      backdrop-filter:blur(10px);
+    }
+
+    .topbar h2 {
+      margin:0;
+      font-size:22px;
+    }
+
+    .topbar p {
+      margin:6px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .top-actions {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    #map {
+      width:100%;
+      height:100%;
+      min-height:560px;
+    }
+
+    .map-wrap {
+      position:relative;
+      height:100%;
+    }
+
+    .floating-cards {
+      position:absolute;
+      right:18px;
+      top:18px;
+      z-index:900;
+      display:grid;
+      gap:12px;
+      width:min(360px, calc(100% - 36px));
+    }
+
+    .float-card {
+      background:rgba(10,16,32,.82);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      backdrop-filter:blur(10px);
+      box-shadow:var(--shadow);
+    }
+
+    .float-card h4 {
+      margin:0 0 10px;
+      font-size:15px;
+    }
+
+    .list-box {
+      max-height:230px;
+      overflow-y:auto;
+      display:grid;
+      gap:10px;
+    }
+
+    .list-box.large {
+      max-height:320px;
+    }
+
+    .list-item {
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .list-item .head {
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .log-box {
+      max-height:180px;
+      overflow-y:auto;
+      display:flex;
+      flex-direction:column-reverse;
+      gap:8px;
+    }
+
+    .log-item {
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      color:#dde7fb;
+    }
+
+    .status-online { color:#7df3b1; }
+    .status-offline { color:#ff98a8; }
+    .status-busy { color:#ffd27b; }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background:#0f1730;
+      color:white;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .drone-marker-wrap {
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:rgba(16, 29, 56, .95);
+      border:2px solid rgba(79,140,255,.75);
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+
+    .user-marker-wrap {
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#23d18b;
+      border:3px solid rgba(255,255,255,.95);
+      box-shadow:0 4px 12px rgba(35,209,139,.45);
+    }
+
+    .warehouse-marker-wrap {
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#ffb649;
+      border:3px solid rgba(255,255,255,.95);
+      box-shadow:0 4px 12px rgba(255,182,73,.45);
+    }
+
+    .drop-marker-wrap {
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#ff5f74;
+      border:3px solid rgba(255,255,255,.95);
+      box-shadow:0 4px 12px rgba(255,95,116,.45);
+    }
+
+    .profile-head {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .profile-name {
+      font-size:18px;
+      font-weight:800;
+      margin:0 0 4px;
+    }
+
+    .section-note {
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      margin-top:-2px;
+      margin-bottom:12px;
+    }
+
+    .order-mini-actions {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .empty-box {
+      padding:14px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+    }
+
+    @media (max-width: 1000px) {
+      .auth-card { grid-template-columns:1fr; }
+      .auth-hero { display:none; }
+      .app { grid-template-columns:1fr; height:auto; }
+      .sidebar { order:2; }
+      .main { order:1; min-height:60vh; }
+      .floating-cards {
+        position:static;
+        width:100%;
+        padding:12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sidebar-tabs {
+        grid-template-columns:1fr;
+      }
+
+      .row-2,
+      .stat-grid,
+      .order-mini-actions {
+        grid-template-columns:1fr;
+      }
+    }
+
+    .avatar-wrap {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+    }
+
+    .avatar-upload-label {
+      display: block;
+      width: 56px;
+      height: 56px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .profile-avatar {
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      position: relative;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+      font-weight:800;
+      background:linear-gradient(135deg, rgba(79,140,255,.35), rgba(113,104,255,.26));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 10px 22px rgba(0,0,0,.25);
+    }
+
+    .profile-avatar-img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .profile-avatar-fallback {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+    }
+
+    .avatar-edit-badge {
+      position: absolute;
+      right: -2px;
+      bottom: -2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      border: 2px solid #0b1326;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH -->
+  <div id="authPage" class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-hero">
+        <h1>UAV Delivery</h1>
+        <p>
+          Hệ thống giám sát và điều phối drone giao hàng theo thời gian thực.
+          Người dùng có thể tự đăng ký, đăng nhập, chọn vị trí giao bằng GPS hoặc địa chỉ,
+          còn quản trị viên có thể điều phối mission và theo dõi tiến trình bay trên bản đồ.
+        </p>
+
+        <div class="hero-grid">
+          <div class="hero-chip">
+            <div class="hero-chip-title">Bản đồ tương tác</div>
+            <div class="hero-chip-sub">Chọn điểm giao bằng click, vị trí hiện tại hoặc tìm theo địa chỉ.</div>
+          </div>
+
+          <div class="hero-chip">
+            <div class="hero-chip-title">Theo dõi realtime</div>
+            <div class="hero-chip-sub">Hiển thị mode, tốc độ, độ cao, pin và ETA trực tiếp trên dashboard.</div>
+          </div>
+
+          <div class="hero-chip">
+            <div class="hero-chip-title">Quản lý phân quyền</div>
+            <div class="hero-chip-sub">Admin quản lý mission. User thường có thể tạo tài khoản và đặt đơn.</div>
+          </div>
+
+          <div class="hero-chip">
+            <div class="hero-chip-title">Đường bay trực quan</div>
+            <div class="hero-chip-sub">Vẽ tuyến nét đứt từ drone đến waypoint giao hàng hiện tại.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-form-wrap">
+        <div class="brand">
+          <div class="brand-badge">🚁</div>
+          <div>UAV Delivery</div>
+        </div>
+
+        <div class="tabs">
+          <button id="tabLogin" class="tab active" onclick="switchTab('login')">Đăng nhập</button>
+          <button id="tabRegister" class="tab" onclick="switchTab('register')">Đăng ký</button>
+        </div>
+
+        <div id="loginForm">
+          <div class="form-title">Đăng nhập hệ thống</div>
+          <div class="form-sub">
+            Đăng nhập để theo dõi trạng thái drone, tạo đơn hàng hoặc quản lý mission.
+          </div>
+
+          <div class="field">
+            <label>Tên đăng nhập</label>
+            <input id="loginUsername" type="text" placeholder="Nhập tên đăng nhập..." />
+          </div>
+
+          <div class="field">
+            <label>Mật khẩu</label>
+            <input id="loginPassword" type="password" placeholder="Nhập mật khẩu..." />
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;" onclick="login()">Đăng nhập</button>
+          <div id="loginMsg" class="msg"></div>
+        </div>
+
+        <div id="registerForm" class="hidden">
+          <div class="form-title">Tạo tài khoản mới</div>
+          <div class="form-sub">
+            Người dùng thường có thể tự đăng ký tài khoản để đặt đơn giao hàng.
+          </div>
+
+          <div class="field">
+            <label>Tên đăng nhập</label>
+            <input id="regUsername" type="text" placeholder="Ví dụ: user01" />
+          </div>
+
+          <div class="field">
+            <label>Mật khẩu</label>
+            <input id="regPassword" type="password" placeholder="Tối thiểu 4 ký tự" />
+          </div>
+
+          <button class="btn btn-success" style="width:100%;" onclick="registerUser()">Đăng ký</button>
+          <div id="registerMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appPage" class="app hidden">
+    <aside class="sidebar">
+      <div>
+        <div class="title-main">🚁 Drone Control</div>
+        <div class="subtitle">Theo dõi trạng thái bay và điều phối mission</div>
+      </div>
+
+      <div class="panel sidebar-tabs-wrap">
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab active" onclick="switchSidebarTab('user')">Người dùng</button>
+          <button class="sidebar-tab" onclick="switchSidebarTab('drone')">Drone</button>
+          <button class="sidebar-tab" onclick="switchSidebarTab('order')">Đặt hàng</button>
+        </div>
+      </div>
+
+      <div id="sidebar-tab-user" class="sidebar-tab-panel active">
+        <div class="panel">
+          <div class="profile-head">
+            <div class="avatar-wrap">
+              <label for="avatarUpload" class="avatar-upload-label">
+                <div id="profileAvatar" class="profile-avatar">
+                  <img id="profileAvatarImg" class="profile-avatar-img hidden" alt="Avatar" />
+                  <span id="profileAvatarFallback" class="profile-avatar-fallback">U</span>
+                </div>
+                <div class="avatar-edit-badge">✎</div>
+              </label>
+              <input id="avatarUpload" type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
+            </div>
+
+            <div>
+              <div id="profileTitleName" class="profile-name">Người dùng</div>
+              <div class="muted">Quản lý hồ sơ cá nhân và lịch sử tạo đơn</div>
+              <div id="profileRoleBadge" class="profile-role-badge">USER</div>
+            </div>
+          </div>
+
+          <div class="stat-grid" style="margin-bottom:14px;">
+            <div class="stat">
+              <div class="label">Tổng đơn</div>
+              <div id="u-total-orders" class="value">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Đang xử lý</div>
+              <div id="u-processing-orders" class="value">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Hoàn tất</div>
+              <div id="u-completed-orders" class="value">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">Chờ xử lý</div>
+              <div id="u-pending-orders" class="value">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Thông tin người dùng</h3>
+          <div class="section-note">
+            Nếu backend của bạn chưa có API cập nhật hồ sơ thì phần này sẽ lưu tạm trên frontend để demo giao diện.
+          </div>
+
+          <div class="field-inline">
+            <label>Tên đăng nhập</label>
+            <input id="profile-username" type="text" readonly />
+          </div>
+
+          <div class="field-inline">
+            <label>Vai trò</label>
+            <input id="profile-role" type="text" readonly />
+          </div>
+
+          <div class="field-inline">
+            <label>Họ và tên</label>
+            <input id="profile-fullname" type="text" placeholder="Nhập họ và tên..." readonly />
+          </div>
+
+          <div class="field-inline">
+            <label>Email</label>
+            <input id="profile-email" type="email" placeholder="Nhập email..." readonly />
+          </div>
+
+          <div class="field-inline">
+            <label>Số điện thoại</label>
+            <input id="profile-phone" type="text" placeholder="Nhập số điện thoại..." readonly />
+          </div>
+
+          <div class="field-inline">
+            <label>Địa chỉ mặc định</label>
+            <input id="profile-address" type="text" placeholder="Nhập địa chỉ mặc định..." readonly />
+          </div>
+
+          <div style="margin-top:10px;">
+            <button id="btn-edit-profile" class="btn btn-primary" style="width:100%;" onclick="toggleProfileEdit()">
+              Chỉnh sửa thông tin
+            </button>
+          </div>
+
+          <div id="profileActionRow" class="row-2 hidden" style="margin-top:10px;">
+            <button class="btn btn-success" onclick="saveProfile()">Lưu thay đổi</button>
+            <button class="btn btn-dark" onclick="cancelProfileEdit()">Hủy</button>
+          </div>
+
+          <div style="margin-top:10px;">
+            <button class="btn btn-dark" style="width:100%;" onclick="logout()">Đăng xuất</button>
+          </div>
+
+          <div id="profileMsg" class="msg"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Đổi mật khẩu</h3>
+          <div class="section-note">
+            Form đổi mật khẩu chỉ hiển thị khi bạn chủ động bấm vào thao tác đổi mật khẩu.
+          </div>
+
+          <button id="btn-toggle-password" class="btn btn-dark" style="width:100%;" onclick="togglePasswordBox()">
+            Đổi mật khẩu
+          </button>
+
+          <div id="passwordFormWrap" class="hidden" style="margin-top:12px;">
+            <div class="field-inline">
+              <label>Mật khẩu cũ</label>
+              <input id="current-password" type="password" placeholder="Nhập mật khẩu cũ..." />
+            </div>
+
+            <div class="field-inline">
+              <label>Mật khẩu mới</label>
+              <input id="new-password" type="password" placeholder="Nhập mật khẩu mới..." />
+            </div>
+
+            <div class="field-inline">
+              <label>Xác nhận mật khẩu mới</label>
+              <input id="confirm-password" type="password" placeholder="Nhập lại mật khẩu mới..." />
+            </div>
+
+            <div class="row-2" style="margin-top:10px;">
+              <button class="btn btn-success" onclick="changePassword()">Cập nhật mật khẩu</button>
+              <button class="btn btn-dark" onclick="cancelPasswordChange()">Hủy</button>
+            </div>
+          </div>
+
+          <div id="passwordMsg" class="msg"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Lịch sử đơn hàng</h3>
+          <div class="section-note">
+            Xem lại các đơn đã tạo, trạng thái xử lý và chọn nhanh vị trí giao cũ để đặt lại.
+          </div>
+
+          <div id="myOrdersBox" class="list-box large">
+            <div class="empty-box">Đang tải lịch sử đơn hàng...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB DRONE -->
+      <div id="sidebar-tab-drone" class="sidebar-tab-panel">
+        <div class="panel">
+          <h3>Trạng thái drone</h3>
+          <div class="stat-grid">
+            <div class="stat">
+              <div class="label">Status</div>
+              <div id="t-status" class="value status-offline">OFFLINE</div>
+            </div>
+            <div class="stat">
+              <div class="label">Mode</div>
+              <div id="t-mode" class="value">--</div>
+            </div>
+            <div class="stat">
+              <div class="label">Độ cao</div>
+              <div id="t-alt" class="value">0.0 m</div>
+            </div>
+            <div class="stat">
+              <div class="label">Vận tốc</div>
+              <div id="t-speed" class="value">0.0 m/s</div>
+            </div>
+            <div class="stat">
+              <div class="label">Pin</div>
+              <div id="t-battery" class="value">--</div>
+            </div>
+            <div class="stat">
+              <div class="label">Thời gian giao dự kiến</div>
+              <div id="t-eta" class="value">--</div>
+            </div>
+            <div class="stat">
+              <div class="label">Armed</div>
+              <div id="t-armed" class="value">False</div>
+            </div>
+            <div class="stat">
+              <div class="label">Drone</div>
+              <div id="t-drone-id" class="value">drone_1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Log hệ thống</h3>
+          <div id="sys-log" class="log-box"></div>
+        </div>
+      </div>
+
+      <!-- TAB ORDER -->
+<div id="sidebar-tab-order" class="sidebar-tab-panel">
+  <!-- Giao diện cho USER -->
+  <div id="user-order-panel">
+    <div class="panel">
+      <h3>Đặt đơn hàng</h3>
+
+      <div class="field-inline">
+        <label>Địa chỉ giao hàng</label>
+        <input id="address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
+      </div>
+
+      <div class="row-2" style="margin-bottom:12px;">
+        <button class="btn btn-dark" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
+        <button class="btn btn-dark" onclick="searchAddress()">Tìm địa chỉ</button>
+      </div>
+
+      <div class="field-inline">
+        <label>Latitude</label>
+        <input id="drop-lat" type="text" readonly />
+      </div>
+
+      <div class="field-inline">
+        <label>Longitude</label>
+        <input id="drop-lng" type="text" readonly />
+      </div>
+
+      <div class="field-inline">
+        <label>Sản phẩm</label>
+        <select id="product-select">
+          <option value="Nước giải khát">Nước giải khát</option>
+          <option value="Thuốc y tế">Thuốc y tế</option>
+          <option value="Đồ ăn nhanh">Đồ ăn nhanh</option>
+          <option value="Tài liệu khẩn">Tài liệu khẩn</option>
+        </select>
+      </div>
+
+      <div class="field-inline">
+        <label>Ghi chú</label>
+        <input id="order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+      </div>
+
+      <button id="btn-place-order" class="btn btn-primary" style="width:100%;" onclick="placeOrderOnly()">
+        Đặt đơn
+      </button>
+
+      <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
+        Người dùng chỉ được đặt đơn. Admin sẽ tiếp nhận, gán mission và điều phối drone.
+      </div>
+    </div>
+  </div>
+
+        <!-- Giao diện cho ADMIN -->
+        <div id="admin-order-panel" class="hidden">
+          <div class="panel">
+            <h3>Điều phối đơn hàng</h3>
+
+            <div class="field-inline">
+              <label>Địa chỉ giao hàng</label>
+              <input id="admin-address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
+            </div>
+
+            <div class="row-2" style="margin-bottom:12px;">
+              <button class="btn btn-dark" onclick="useMyLocationAdmin()">Lấy vị trí hiện tại</button>
+              <button class="btn btn-dark" onclick="searchAddressAdmin()">Tìm địa chỉ</button>
+            </div>
+
+            <div class="field-inline">
+              <label>Latitude</label>
+              <input id="admin-drop-lat" type="text" readonly />
+            </div>
+
+            <div class="field-inline">
+              <label>Longitude</label>
+              <input id="admin-drop-lng" type="text" readonly />
+            </div>
+
+            <div class="field-inline">
+              <label>Sản phẩm</label>
+              <select id="admin-product-select">
+                <option value="Nước giải khát">Nước giải khát</option>
+                <option value="Thuốc y tế">Thuốc y tế</option>
+                <option value="Đồ ăn nhanh">Đồ ăn nhanh</option>
+                <option value="Tài liệu khẩn">Tài liệu khẩn</option>
+              </select>
+            </div>
+
+            <div class="field-inline">
+              <label>Ghi chú</label>
+              <input id="admin-order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;" onclick="createOrderAndMission()">
+              Tạo đơn & gán mission
+            </button>
+
+            <button id="btn-start" class="btn btn-success" style="width:100%; margin-top:10px;" onclick="startMission()" disabled>
+              Bắt đầu bay
+            </button>
+
+            <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
+              Admin có thể tạo đơn, gán mission và điều phối chuyến bay cho drone.
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>Bản đồ điều phối bay</h2>
+          <p>Chọn điểm giao, theo dõi đơn hàng và trạng thái drone theo thời gian thực.</p>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-dark" onclick="centerMap()">Về kho</button>
+          <button class="btn btn-dark" onclick="loadOrders()">Làm mới orders</button>
+          <button class="btn btn-dark" onclick="loadMissions()">Làm mới missions</button>
+        </div>
+      </div>
+
+      <div class="map-wrap">
+        <div id="map"></div>
+
+        <div class="floating-cards">
+          <div class="float-card">
+            <h4>Đơn hàng</h4>
+            <div id="ordersBox" class="list-box"></div>
+          </div>
+
+          <div class="float-card">
+            <h4>Mission</h4>
+            <div id="missionsBox" class="list-box"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "https://uav-backend-zbti.onrender.com";
+    const WAREHOUSE_LAT = 10.850602;
+    const WAREHOUSE_LNG = 106.771948;
+    const DRONE_ID = "drone_1";
+
+    let token = localStorage.getItem("token") || "";
+    let currentUser = null;
+    let currentOrderId = null;
+    let currentMissionId = null;
+
+    let map = null;
+    let warehouseMarker = null;
+    let droneMarker = null;
+    let dropoffMarker = null;
+    let userMarker = null;
+    let flightLine = null;
+
+    let activeMissions = [];
+    let activeOrders = [];
+    let droneConnectedBefore = false;
+
+    let isProfileEditing = false;
+    let isPasswordChanging = false;
+    let sessionLoginPassword = "";
+    let profileDraftBackup = {};
+    let appSettings = {
+      displayName: "",
+      accent: "blue",
+      theme: "dark",
+      notify: true,
+      avatar: ""
+    };
+
+    function authHeaders() {
+      return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      };
+    }
+
+    function showMsg(id, text, ok = false) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = ok ? "msg ok" : "msg err";
+      el.textContent = text;
+    }
+
+    function clearMsg(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = "msg";
+      el.textContent = "";
+    }
+
+    function logSys(msg) {
+      const box = document.getElementById("sys-log");
+      if (!box) return;
+      const t = new Date().toLocaleTimeString();
+      box.innerHTML = `<div class="log-item">[${t}] ${msg}</div>` + box.innerHTML;
+    }
+
+    function switchTab(tab) {
+      const login = tab === "login";
+      document.getElementById("loginForm").classList.toggle("hidden", !login);
+      document.getElementById("registerForm").classList.toggle("hidden", login);
+      document.getElementById("tabLogin").classList.toggle("active", login);
+      document.getElementById("tabRegister").classList.toggle("active", !login);
+    }
+
+    function switchSidebarTab(tabName) {
+      document.querySelectorAll(".sidebar-tab").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      document.querySelectorAll(".sidebar-tab-panel").forEach(panel => {
+        panel.classList.remove("active");
+      });
+
+      const tabMap = { user: 0, drone: 1, order: 2 };
+      const buttons = document.querySelectorAll(".sidebar-tab");
+      if (buttons[tabMap[tabName]]) {
+        buttons[tabMap[tabName]].classList.add("active");
+      }
+
+      const target = document.getElementById(`sidebar-tab-${tabName}`);
+      if (target) target.classList.add("active");
+    }
+
+    function makeDivIcon(className, innerHtml, size = [42, 42], anchor = [21, 21]) {
+      return L.divIcon({
+        html: `<div class="${className}">${innerHtml}</div>`,
+        className: "",
+        iconSize: size,
+        iconAnchor: anchor,
+        popupAnchor: [0, -18]
+      });
+    }
+
+    const droneSvg = `
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8" stroke="#91C8FF" stroke-width="4"/>
+        <circle cx="52" cy="12" r="8" stroke="#91C8FF" stroke-width="4"/>
+        <circle cx="12" cy="52" r="8" stroke="#91C8FF" stroke-width="4"/>
+        <circle cx="52" cy="52" r="8" stroke="#91C8FF" stroke-width="4"/>
+        <line x1="18" y1="18" x2="28" y2="28" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
+        <line x1="46" y1="18" x2="36" y2="28" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
+        <line x1="18" y1="46" x2="28" y2="36" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
+        <line x1="46" y1="46" x2="36" y2="36" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
+        <rect x="24" y="24" width="16" height="16" rx="4" fill="#4F8CFF"/>
+        <rect x="28" y="40" width="8" height="10" rx="2" fill="#BFD7FF"/>
+      </svg>
+    `;
+
+    const droneIcon = makeDivIcon("drone-marker-wrap", droneSvg, [42, 42], [21, 21]);
+    const userIcon = makeDivIcon("user-marker-wrap", "", [18, 18], [9, 9]);
+    const warehouseIcon = makeDivIcon("warehouse-marker-wrap", "", [20, 20], [10, 10]);
+    const dropoffIcon = makeDivIcon("drop-marker-wrap", "", [18, 18], [9, 9]);
+
+    function formatEta(seconds) {
+      if (seconds == null || !isFinite(seconds) || seconds < 0) return "--";
+      if (seconds < 60) return `${Math.ceil(seconds)}s`;
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.ceil(seconds % 60);
+      if (mins < 60) return `${mins}m ${secs}s`;
+      const hours = Math.floor(mins / 60);
+      return `${hours}h ${mins % 60}m`;
+    }
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = deg => deg * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getInitialChar(name) {
+      const s = String(name || "U").trim();
+      return s ? s.charAt(0).toUpperCase() : "U";
+    }
+
+    function getRelevantMission() {
+      if (!Array.isArray(activeMissions) || activeMissions.length === 0) return null;
+
+      const preferred = activeMissions.find(m =>
+        m.drone_id === DRONE_ID &&
+        ["RUNNING", "START_REQUESTED", "ASSIGNED", "IN_FLIGHT"].includes(m.status)
+      );
+
+      if (preferred) return preferred;
+
+      const anyForDrone = activeMissions.find(m => m.drone_id === DRONE_ID);
+      return anyForDrone || null;
+    }
+
+    function getWaypointFromMission(mission) {
+      if (!mission || !Array.isArray(mission.waypoints) || mission.waypoints.length === 0) return null;
+      const wp = mission.waypoints[0];
+      return {
+        lat: Number(wp.lat),
+        lng: Number(wp.lng),
+        alt_m: Number(wp.alt_m || 0)
+      };
+    }
+
+    function removeAvatar() {
+      appSettings.avatar = "";
+      saveUserPreferences();
+      localStorage.removeItem(getUserStorageKey("avatar"));
+      applyAvatarToUI();
+      showMsg("profileMsg", "Đã xóa ảnh đại diện.", true);
+      logSys("Người dùng đã xóa ảnh đại diện.");
+    }
+
+    function updateFlightLine(droneLat, droneLng) {
+      const mission = getRelevantMission();
+      const wp = getWaypointFromMission(mission);
+
+      if (!map || !wp || !isFinite(droneLat) || !isFinite(droneLng)) {
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        return;
+      }
+
+      const points = [
+        [droneLat, droneLng],
+        [wp.lat, wp.lng]
+      ];
+
+      if (!flightLine) {
+        flightLine = L.polyline(points, {
+          color: "#7fb5ff",
+          weight: 3,
+          opacity: 0.9,
+          dashArray: "8, 10"
+        }).addTo(map);
+      } else {
+        flightLine.setLatLngs(points);
+      }
+    }
+
+    function isAdminRole() {
+      return String(currentUser?.role || "").toLowerCase() === "admin";
+    }
+
+    function updateOrderTabByRole() {
+      const userPanel = document.getElementById("user-order-panel");
+      const adminPanel = document.getElementById("admin-order-panel");
+
+      if (!userPanel || !adminPanel) return;
+
+      if (isAdminRole()) {
+        userPanel.classList.add("hidden");
+        adminPanel.classList.remove("hidden");
+      } else {
+        adminPanel.classList.add("hidden");
+        userPanel.classList.remove("hidden");
+      }
+    }
+
+    function getUserStorageKey(key) {
+      const username = currentUser?.username || "guest";
+      return `uav_${key}_${username}`;
+    }
+
+    function loadUserPreferences() {
+      if (!currentUser) return;
+
+      const savedSettings = localStorage.getItem(getUserStorageKey("settings"));
+      if (savedSettings) {
+        try {
+          appSettings = {
+            ...appSettings,
+            ...JSON.parse(savedSettings)
+          };
+        } catch (_) {}
+      }
+
+      const avatar = localStorage.getItem(getUserStorageKey("avatar"));
+      if (avatar) {
+        appSettings.avatar = avatar;
+      }
+    }
+
+    function saveUserPreferences() {
+      if (!currentUser) return;
+      localStorage.setItem(getUserStorageKey("settings"), JSON.stringify(appSettings));
+      if (appSettings.avatar) {
+        localStorage.setItem(getUserStorageKey("avatar"), appSettings.avatar);
+      }
+    }
+    
+    function loadStoredProfile() {
+      if (!currentUser) return;
+
+      const savedProfile = localStorage.getItem(getUserStorageKey("profile"));
+      if (!savedProfile) return;
+
+      try {
+        const profile = JSON.parse(savedProfile);
+        currentUser = {
+          ...currentUser,
+          ...profile
+        };
+      } catch (_) {}
+    }
+
+    function saveStoredProfile() {
+      if (!currentUser) return;
+
+      const profileData = {
+        full_name: currentUser.full_name || "",
+        email: currentUser.email || "",
+        phone: currentUser.phone || "",
+        address: currentUser.address || ""
+      };
+
+      localStorage.setItem(getUserStorageKey("profile"), JSON.stringify(profileData));
+    }
+    function applyAvatarToUI() {
+      const imgEl = document.getElementById("profileAvatarImg");
+      const fallbackEl = document.getElementById("profileAvatarFallback");
+      if (!imgEl || !fallbackEl) return;
+
+      const profileName = currentUser?.full_name || currentUser?.username || "U";
+
+      if (appSettings.avatar) {
+        imgEl.src = appSettings.avatar;
+        imgEl.classList.remove("hidden");
+        fallbackEl.classList.add("hidden");
+        fallbackEl.textContent = getInitialChar(profileName);
+      } else {
+        imgEl.src = "";
+        imgEl.classList.add("hidden");
+        fallbackEl.classList.remove("hidden");
+        fallbackEl.textContent = getInitialChar(profileName);
+      }
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        showMsg("profileMsg", "Vui lòng chọn file ảnh hợp lệ.", false);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        appSettings.avatar = e.target.result;
+        saveUserPreferences();
+        applyAvatarToUI();
+        showMsg("profileMsg", "Đã cập nhật ảnh đại diện.", true);
+        logSys("Người dùng đã cập nhật ảnh đại diện.");
+        event.target.value = "";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setDropLocation(lat, lng, label = "Điểm giao hàng", updateInputAddress = false) {
+      if (!map) return;
+
+      document.getElementById("drop-lat").value = Number(lat).toFixed(6);
+      document.getElementById("drop-lng").value = Number(lng).toFixed(6);
+
+      if (dropoffMarker) {
+        map.removeLayer(dropoffMarker);
+      }
+
+      dropoffMarker = L.marker([lat, lng], { icon: dropoffIcon })
+        .addTo(map)
+        .bindPopup(`<b>${escapeHtml(label)}</b>`)
+        .openPopup();
+
+      map.setView([lat, lng], 17);
+      logSys(`Đã chọn điểm giao: ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`);
+
+      if (updateInputAddress) {
+        reverseGeocode(lat, lng);
+      }
+    }
+
+    async function reverseGeocode(lat, lng) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
+        );
+        const data = await res.json();
+        if (data && data.display_name) {
+          document.getElementById("address-input").value = data.display_name;
+        }
+      } catch (_) {}
+    }
+
+    function initMap() {
+      map = L.map("map").setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      warehouseMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: warehouseIcon })
+        .addTo(map)
+        .bindPopup("<b>Kho hàng</b>");
+
+      droneMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: droneIcon })
+        .addTo(map)
+        .bindPopup("<b>Drone</b>");
+
+      map.on("click", function(e) {
+        switchSidebarTab("order");
+        setDropLocationForRole(e.latlng.lat, e.latlng.lng, "Điểm giao hàng", true);
+      });
+    }
+
+    function centerMap() {
+      if (map) {
+        map.setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
+      }
+    }
+
+    async function registerUser() {
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+
+      clearMsg("registerMsg");
+
+      if (!username || !password) {
+        showMsg("registerMsg", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.", false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          showMsg("registerMsg", `Đăng ký thất bại: ${data.error}`, false);
+          return;
+        }
+
+        showMsg("registerMsg", "Đăng ký thành công. Bạn có thể đăng nhập ngay bây giờ.", true);
+        document.getElementById("regUsername").value = "";
+        document.getElementById("regPassword").value = "";
+        switchTab("login");
+      } catch (e) {
+        showMsg("registerMsg", `Không kết nối được tới server: ${e}`, false);
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      clearMsg("loginMsg");
+
+      if (!username || !password) {
+        showMsg("loginMsg", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.", false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.error || !data.token) {
+          showMsg("loginMsg", "Sai tên đăng nhập hoặc mật khẩu.", false);
+          return;
+        }
+
+        token = data.token;
+        localStorage.setItem("token", token);
+        currentUser = data.user || { username };
+        sessionLoginPassword = password;
+        showApp();
+      } catch (e) {
+        showMsg("loginMsg", `Không kết nối được tới server: ${e}`, false);
+      }
+    }
+
+    async function fetchMe() {
+      if (!token) return false;
+
+      try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.error || !data.user) return false;
+        currentUser = data.user;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    async function logout() {
+      try {
+        if (token) {
+          await fetch(`${API_URL}/auth/logout`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+        }
+      } catch (_) {}
+
+      token = "";
+      currentUser = null;
+      currentOrderId = null;
+      currentMissionId = null;
+      localStorage.removeItem("token");
+
+      document.getElementById("appPage").classList.add("hidden");
+      document.getElementById("authPage").classList.remove("hidden");
+
+      clearMsg("loginMsg");
+      clearMsg("profileMsg");
+      clearMsg("passwordMsg");
+      isProfileEditing = false;
+      isPasswordChanging = false;
+      sessionLoginPassword = "";
+      profileDraftBackup = {};
+    }
+
+    function populateProfile() {
+      if (!currentUser) return;
+
+      document.getElementById("meName")?.replaceChildren?.();
+      const meName = document.getElementById("meName");
+      if (meName) meName.textContent = currentUser.username || "--";
+
+      const meRole = document.getElementById("meRole");
+      if (meRole) meRole.textContent = String(currentUser.role || "user").toUpperCase();
+
+      const profileName = currentUser.full_name || currentUser.username || "Người dùng";
+      document.getElementById("profileTitleName").textContent = profileName;
+      document.getElementById("profileRoleBadge").textContent = String(currentUser.role || "user").toUpperCase();
+
+      document.getElementById("profile-username").value = currentUser.username || "";
+      document.getElementById("profile-role").value = currentUser.role || "";
+      document.getElementById("profile-fullname").value = currentUser.full_name || "";
+      document.getElementById("profile-email").value = currentUser.email || "";
+      document.getElementById("profile-phone").value = currentUser.phone || "";
+      document.getElementById("profile-address").value = currentUser.address || "";
+
+      setProfileInputsReadonly(true);
+      document.getElementById("profileActionRow")?.classList.add("hidden");
+      document.getElementById("btn-edit-profile") && (document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin");
+      document.getElementById("btn-edit-profile") && (document.getElementById("btn-edit-profile").disabled = false);
+    }
+
+    function setProfileInputsReadonly(readonly) {
+      ["profile-fullname", "profile-email", "profile-phone", "profile-address"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.readOnly = readonly;
+      });
+    }
+
+    function toggleProfileEdit() {
+      clearMsg("profileMsg");
+
+      isProfileEditing = !isProfileEditing;
+
+      if (isProfileEditing) {
+        profileDraftBackup = {
+          full_name: document.getElementById("profile-fullname").value,
+          email: document.getElementById("profile-email").value,
+          phone: document.getElementById("profile-phone").value,
+          address: document.getElementById("profile-address").value
+        };
+
+        setProfileInputsReadonly(false);
+        document.getElementById("profileActionRow").classList.remove("hidden");
+        document.getElementById("btn-edit-profile").textContent = "Đang chỉnh sửa...";
+        document.getElementById("btn-edit-profile").disabled = true;
+        document.getElementById("profile-fullname").focus();
+      } else {
+        setProfileInputsReadonly(true);
+        document.getElementById("profileActionRow").classList.add("hidden");
+        document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
+        document.getElementById("btn-edit-profile").disabled = false;
+      }
+    }
+
+    function cancelProfileEdit() {
+      clearMsg("profileMsg");
+
+      document.getElementById("profile-fullname").value = profileDraftBackup.full_name || "";
+      document.getElementById("profile-email").value = profileDraftBackup.email || "";
+      document.getElementById("profile-phone").value = profileDraftBackup.phone || "";
+      document.getElementById("profile-address").value = profileDraftBackup.address || "";
+
+      isProfileEditing = false;
+      setProfileInputsReadonly(true);
+      document.getElementById("profileActionRow").classList.add("hidden");
+      document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
+      document.getElementById("btn-edit-profile").disabled = false;
+    }
+
+    function togglePasswordBox() {
+      clearMsg("passwordMsg");
+
+      isPasswordChanging = !isPasswordChanging;
+      document.getElementById("passwordFormWrap").classList.toggle("hidden", !isPasswordChanging);
+      document.getElementById("btn-toggle-password").textContent = isPasswordChanging
+        ? "Đang đổi mật khẩu..."
+        : "Đổi mật khẩu";
+
+      if (isPasswordChanging) {
+        document.getElementById("current-password").focus();
+      } else {
+        clearPasswordForm();
+      }
+    }
+
+    function cancelPasswordChange() {
+      clearMsg("passwordMsg");
+      isPasswordChanging = false;
+      document.getElementById("passwordFormWrap").classList.add("hidden");
+      document.getElementById("btn-toggle-password").textContent = "Đổi mật khẩu";
+      clearPasswordForm();
+    }
+
+    function clearPasswordForm() {
+      document.getElementById("current-password").value = "";
+      document.getElementById("new-password").value = "";
+      document.getElementById("confirm-password").value = "";
+    }
+
+    function showApp() {
+      document.getElementById("authPage").classList.add("hidden");
+      document.getElementById("appPage").classList.remove("hidden");
+
+      loadUserPreferences();
+      loadStoredProfile();
+      populateProfile();
+      updateOrderTabByRole();
+
+      if (!map) initMap();
+
+      switchSidebarTab("user");
+
+      if (!isAdminRole()) {
+        logSys("Đã đăng nhập bằng tài khoản người dùng. Bạn đã có thể đặt đơn hàng.");
+      } else {
+        logSys("Đã đăng nhập bằng tài khoản quản trị viên.");
+      }
+
+      loadOrders();
+      loadMyOrders();
+      loadMissions();
+      fetchTelemetry();
+      applyAvatarToUI();
+    }
+
+    function useMyLocation() {
+      if (!navigator.geolocation) {
+        alert("Trình duyệt hiện tại không hỗ trợ định vị. Vui lòng nhập địa chỉ hoặc chọn trực tiếp trên bản đồ.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+
+          userMarker = L.marker([lat, lng], { icon: userIcon })
+            .addTo(map)
+            .bindPopup("<b>Vị trí hiện tại của bạn</b>")
+            .openPopup();
+
+          switchSidebarTab("order");
+          setDropLocationForRole(lat, lng, "Điểm giao từ vị trí hiện tại", true);
+          logSys("Đã lấy vị trí hiện tại của người dùng.");
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+
+          if (error.code === 1) {
+            alert("Bạn đã từ chối quyền truy cập vị trí. Vui lòng nhập địa chỉ hoặc click trực tiếp lên bản đồ.");
+          } else if (error.code === 2) {
+            alert("Không lấy được vị trí hiện tại. Vui lòng thử lại hoặc nhập địa chỉ.");
+          } else if (error.code === 3) {
+            alert("Đã hết thời gian lấy vị trí. Vui lòng thử lại hoặc nhập địa chỉ.");
+          } else {
+            alert("Không thể truy cập vị trí. Vui lòng nhập địa chỉ thủ công.");
+          }
+
+          document.getElementById("address-input").focus();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    async function placeOrderOnly() {
+      if (isAdminRole()) {
+        logSys("Tài khoản admin không dùng luồng đặt đơn của người dùng.");
+        return;
+      }
+
+      const lat = parseFloat(document.getElementById("drop-lat").value);
+      const lng = parseFloat(document.getElementById("drop-lng").value);
+      const product = document.getElementById("product-select").value;
+      const noteInput = document.getElementById("order-note").value.trim();
+      const note = noteInput ? `${product} | ${noteInput}` : product;
+
+      if (!isFinite(lat) || !isFinite(lng)) {
+        alert("Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.");
+        return;
+      }
+
+      try {
+        logSys("Đang tạo đơn hàng...");
+
+        const resOrder = await fetch(`${API_URL}/orders`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            dropoff: { lat, lng },
+            note
+          })
+        });
+
+        const orderData = await resOrder.json();
+
+        if (orderData.error) {
+          logSys(`Tạo order thất bại: ${orderData.error}`);
+          return;
+        }
+
+        currentOrderId = orderData.id;
+        logSys("Đặt đơn thành công. Đơn hàng đang chờ admin tiếp nhận và điều phối.");
+
+        loadOrders();
+        loadMyOrders();
+      } catch (e) {
+        logSys(`Lỗi tạo đơn hàng: ${e}`);
+      }
+    }
+
+    function setDropLocationForRole(lat, lng, label = "Điểm giao hàng", updateInputAddress = false) {
+      if (!map) return;
+
+      if (isAdminRole()) {
+        document.getElementById("admin-drop-lat").value = Number(lat).toFixed(6);
+        document.getElementById("admin-drop-lng").value = Number(lng).toFixed(6);
+      } else {
+        document.getElementById("drop-lat").value = Number(lat).toFixed(6);
+        document.getElementById("drop-lng").value = Number(lng).toFixed(6);
+      }
+
+      if (dropoffMarker) {
+        map.removeLayer(dropoffMarker);
+      }
+
+      dropoffMarker = L.marker([lat, lng], { icon: dropoffIcon })
+        .addTo(map)
+        .bindPopup(`<b>${escapeHtml(label)}</b>`)
+        .openPopup();
+
+      map.setView([lat, lng], 17);
+      logSys(`Đã chọn điểm giao: ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`);
+
+      if (updateInputAddress) {
+        reverseGeocodeForRole(lat, lng);
+      }
+    }
+
+    async function reverseGeocodeForRole(lat, lng) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
+        );
+        const data = await res.json();
+        if (data && data.display_name) {
+          const inputId = isAdminRole() ? "admin-address-input" : "address-input";
+          const input = document.getElementById(inputId);
+          if (input) input.value = data.display_name;
+        }
+      } catch (_) {}
+    }
+
+    async function searchAddressAdmin() {
+      const input = document.getElementById("admin-address-input");
+      const address = input.value.trim();
+
+      if (!address) {
+        alert("Vui lòng nhập địa chỉ trước.");
+        return;
+      }
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+        const res = await fetch(url, {
+          headers: { "Accept": "application/json" }
+        });
+
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          alert("Không tìm thấy địa chỉ này.");
+          return;
+        }
+
+        const place = data[0];
+        const lat = parseFloat(place.lat);
+        const lng = parseFloat(place.lon);
+
+        setDropLocationForRole(lat, lng, "Điểm giao từ địa chỉ", false);
+        input.value = place.display_name || address;
+        logSys("Admin đã tìm thấy địa chỉ và cập nhật điểm giao.");
+      } catch (e) {
+        console.error(e);
+        alert("Có lỗi khi tìm địa chỉ.");
+      }
+    }
+
+    function useMyLocationAdmin() {
+      if (!navigator.geolocation) {
+        alert("Trình duyệt hiện tại không hỗ trợ định vị.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+
+          userMarker = L.marker([lat, lng], { icon: userIcon })
+            .addTo(map)
+            .bindPopup("<b>Vị trí hiện tại</b>")
+            .openPopup();
+
+          switchSidebarTab("order");
+          setDropLocationForRole(lat, lng, "Điểm giao từ vị trí hiện tại", true);
+          logSys("Admin đã lấy vị trí hiện tại.");
+        },
+        () => {
+          alert("Không lấy được vị trí hiện tại.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    async function searchAddress() {
+      const address = document.getElementById("address-input").value.trim();
+
+      if (!address) {
+        alert("Vui lòng nhập địa chỉ trước.");
+        return;
+      }
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+        const res = await fetch(url, {
+          headers: { "Accept": "application/json" }
+        });
+
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          alert("Không tìm thấy địa chỉ này.");
+          return;
+        }
+
+        const place = data[0];
+        const lat = parseFloat(place.lat);
+        const lng = parseFloat(place.lon);
+
+        setDropLocationForRole(lat, lng, "Điểm giao từ địa chỉ", false);
+        document.getElementById("address-input").value = place.display_name || address;
+        logSys("Đã tìm thấy địa chỉ và cập nhật điểm giao.");
+      } catch (e) {
+        console.error(e);
+        alert("Có lỗi khi tìm địa chỉ.");
+      }
+    }
+
+    async function createOrderAndMission() {
+      if (!isAdminRole()) {
+        logSys("Bạn không có quyền tạo mission. Chức năng này chỉ dành cho admin.");
+        return;
+      }
+
+      const lat = parseFloat(document.getElementById("admin-drop-lat").value);
+      const lng = parseFloat(document.getElementById("admin-drop-lng").value);
+      const product = document.getElementById("admin-product-select").value;
+      const noteInput = document.getElementById("admin-order-note").value.trim();
+      const note = noteInput ? `${product} | ${noteInput}` : product;
+
+      if (!isFinite(lat) || !isFinite(lng)) {
+        alert("Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.");
+        return;
+      }
+
+      try {
+        logSys("Đang tạo order...");
+
+        const resOrder = await fetch(`${API_URL}/orders`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            dropoff: { lat, lng },
+            note
+          })
+        });
+
+        const orderData = await resOrder.json();
+
+        if (orderData.error) {
+          logSys(`Tạo order thất bại: ${orderData.error}`);
+          return;
+        }
+
+        currentOrderId = orderData.id;
+        logSys(`Đã tạo order: ${currentOrderId}`);
+
+        logSys("Đang tạo mission cho drone...");
+
+        const resMission = await fetch(`${API_URL}/missions`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            order_id: currentOrderId,
+            drone_id: DRONE_ID,
+            altitude_m: 20.0,
+            warehouse_lat: WAREHOUSE_LAT,
+            warehouse_lng: WAREHOUSE_LNG
+          })
+        });
+
+        const missionData = await resMission.json();
+
+        if (missionData.error) {
+          logSys(`Tạo mission thất bại: ${missionData.error}`);
+          return;
+        }
+
+        currentMissionId = missionData.id;
+        document.getElementById("btn-start").disabled = false;
+        logSys(`Đã tạo mission: ${currentMissionId}`);
+
+        loadOrders();
+        loadMyOrders();
+        loadMissions();
+      } catch (e) {
+        logSys(`Lỗi tạo order/mission: ${e}`);
+      }
+    }
+
+    async function startMission() {
+      if (!currentMissionId) return;
+
+      if ((currentUser.role || "").toLowerCase() !== "admin") {
+        logSys("Không đủ quyền để khởi động mission.");
+        return;
+      }
+
+      try {
+        logSys("Đang gửi lệnh START mission...");
+
+        const res = await fetch(`${API_URL}/missions/${currentMissionId}/start`, {
+          method: "POST",
+          headers: authHeaders()
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          logSys(`Khởi động mission thất bại: ${data.error}`);
+          return;
+        }
+
+        document.getElementById("btn-start").disabled = true;
+        logSys("Mission đã được gửi tới drone.");
+        loadMissions();
+      } catch (e) {
+        logSys(`Lỗi khi start mission: ${e}`);
+      }
+    }
+
+    async function loadOrders() {
+      try {
+        const res = await fetch(`${API_URL}/orders`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        const box = document.getElementById("ordersBox");
+
+        if (!Array.isArray(data)) {
+          box.innerHTML = `<div class="list-item">Không tải được danh sách orders.</div>`;
+          return;
+        }
+
+        activeOrders = data;
+
+        if (data.length === 0) {
+          box.innerHTML = `<div class="list-item">Chưa có order nào.</div>`;
+          return;
+        }
+
+        box.innerHTML = data.slice().reverse().map(o => `
+          <div class="list-item">
+            <div class="head">${escapeHtml(o.id)}</div>
+            <div><strong>Status:</strong> ${escapeHtml(o.status || "--")}</div>
+            <div><strong>User:</strong> ${escapeHtml(o.created_by ?? "--")}</div>
+            <div><strong>Drop:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
+            <div><strong>Note:</strong> ${escapeHtml(o.note ?? "")}</div>
+          </div>
+        `).join("");
+      } catch (_) {
+        document.getElementById("ordersBox").innerHTML = `<div class="list-item">Lỗi tải orders.</div>`;
+      }
+    }
+
+    async function loadMyOrders() {
+      const box = document.getElementById("myOrdersBox");
+      if (!box || !currentUser) return;
+
+      try {
+        const res = await fetch(`${API_URL}/orders`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          box.innerHTML = `<div class="list-item">Không tải được lịch sử đơn hàng.</div>`;
+          updateUserStats([]);
+          return;
+        }
+
+        const myOrders = data
+          .filter(o => (o.created_by || "").toLowerCase() === (currentUser.username || "").toLowerCase())
+          .reverse();
+
+        updateUserStats(myOrders);
+
+        if (myOrders.length === 0) {
+          box.innerHTML = `<div class="empty-box">Bạn chưa có đơn hàng nào.</div>`;
+          return;
+        }
+
+        box.innerHTML = myOrders.map(o => `
+          <div class="list-item">
+            <div class="head">${escapeHtml(o.id)}</div>
+            <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
+            <div><strong>Tọa độ giao:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
+            <div><strong>Ghi chú:</strong> ${escapeHtml(o.note || "--")}</div>
+            <div><strong>Người tạo:</strong> ${escapeHtml(o.created_by || "--")}</div>
+            <div class="order-mini-actions">
+              <button class="btn btn-dark" onclick="focusOrderOnMap(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})">
+                Xem trên map
+              </button>
+              <button class="btn btn-dark" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeHtml(String(o.note || "").replace(/'/g, "\\'"))}')">
+                Đặt lại
+              </button>
+            </div>
+          </div>
+        `).join("");
+      } catch (_) {
+        box.innerHTML = `<div class="list-item">Lỗi tải lịch sử đơn hàng.</div>`;
+        updateUserStats([]);
+      }
+    }
+
+    function updateUserStats(orders) {
+      const total = orders.length;
+      const processing = orders.filter(o =>
+        ["ASSIGNED", "RUNNING", "IN_FLIGHT", "START_REQUESTED", "BUSY"].includes(String(o.status || "").toUpperCase())
+      ).length;
+      const completed = orders.filter(o =>
+        ["DELIVERED", "COMPLETED", "DONE", "SUCCESS"].includes(String(o.status || "").toUpperCase())
+      ).length;
+      const pending = orders.filter(o =>
+        ["PENDING", "CREATED", "WAITING"].includes(String(o.status || "").toUpperCase())
+      ).length;
+
+      document.getElementById("u-total-orders").textContent = total;
+      document.getElementById("u-processing-orders").textContent = processing;
+      document.getElementById("u-completed-orders").textContent = completed;
+      document.getElementById("u-pending-orders").textContent = pending;
+    }
+
+    function focusOrderOnMap(lat, lng) {
+      if (!isFinite(lat) || !isFinite(lng) || !map) return;
+      switchSidebarTab("order");
+      setDropLocation(lat, lng, "Điểm giao từ lịch sử đơn", false);
+      map.setView([lat, lng], 17);
+    }
+
+    function reuseOrder(lat, lng, note) {
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      switchSidebarTab("order");
+      setDropLocation(lat, lng, "Điểm giao đặt lại", false);
+
+      const raw = String(note || "");
+      const parts = raw.split("|").map(s => s.trim()).filter(Boolean);
+
+      const knownProducts = [
+        "Nước giải khát",
+        "Thuốc y tế",
+        "Đồ ăn nhanh",
+        "Tài liệu khẩn"
+      ];
+
+      const maybeProduct = parts[0];
+      const maybeNote = parts.length > 1 ? parts.slice(1).join(" | ") : "";
+
+      if (knownProducts.includes(maybeProduct)) {
+        document.getElementById("product-select").value = maybeProduct;
+        document.getElementById("order-note").value = maybeNote;
+      } else {
+        document.getElementById("order-note").value = raw;
+      }
+
+      logSys("Đã nạp lại thông tin từ lịch sử đơn.");
+    }
+
+    async function saveProfile() {
+      clearMsg("profileMsg");
+
+      const fullName = document.getElementById("profile-fullname").value.trim();
+      const email = document.getElementById("profile-email").value.trim();
+      const phone = document.getElementById("profile-phone").value.trim();
+      const address = document.getElementById("profile-address").value.trim();
+
+      try {
+        currentUser = {
+          ...currentUser,
+          full_name: fullName,
+          email,
+          phone,
+          address
+        };
+
+        saveStoredProfile();
+        populateProfile();
+
+        isProfileEditing = false;
+        setProfileInputsReadonly(true);
+        document.getElementById("profileActionRow").classList.add("hidden");
+        document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
+        document.getElementById("btn-edit-profile").disabled = false;
+
+        showMsg("profileMsg", "Đã cập nhật thông tin người dùng.", true);
+        logSys("Người dùng đã cập nhật hồ sơ cá nhân.");
+      } catch (e) {
+        showMsg("profileMsg", `Lỗi cập nhật hồ sơ: ${e}`, false);
+      }
+    }
+
+    async function changePassword() {
+      clearMsg("passwordMsg");
+
+      const oldPass = document.getElementById("current-password").value.trim();
+      const newPass = document.getElementById("new-password").value.trim();
+      const confirmPass = document.getElementById("confirm-password").value.trim();
+
+      if (!oldPass) {
+        showMsg("passwordMsg", "Vui lòng nhập mật khẩu cũ.", false);
+        return;
+      }
+
+      if (!newPass || newPass.length < 4) {
+        showMsg("passwordMsg", "Mật khẩu mới phải có ít nhất 4 ký tự.", false);
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        showMsg("passwordMsg", "Mật khẩu xác nhận không khớp.", false);
+        return;
+      }
+
+      if (oldPass !== sessionLoginPassword) {
+        showMsg("passwordMsg", "Mật khẩu cũ không đúng.", false);
+        return;
+      }
+
+      if (oldPass === newPass) {
+        showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
+        return;
+      }
+
+      try {
+        /*
+        Nếu backend có API thì dùng đoạn này:
+
+        const res = await fetch(`${API_URL}/auth/change-password`, {
+          method: "PUT",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            old_password: oldPass,
+            new_password: newPass
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          showMsg("passwordMsg", `Đổi mật khẩu thất bại: ${data.error}`, false);
+          return;
+        }
+        */
+
+        sessionLoginPassword = newPass;
+
+        showMsg("passwordMsg", "Đổi mật khẩu thành công.", true);
+        logSys("Người dùng đã cập nhật mật khẩu.");
+
+        setTimeout(() => {
+          cancelPasswordChange();
+          clearMsg("passwordMsg");
+        }, 1200);
+      } catch (e) {
+        showMsg("passwordMsg", `Lỗi đổi mật khẩu: ${e}`, false);
+      }
+    }
+
+    async function loadMissions() {
+      try {
+        const res = await fetch(`${API_URL}/missions`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        const box = document.getElementById("missionsBox");
+
+        if (!Array.isArray(data)) {
+          box.innerHTML = `<div class="list-item">Không tải được danh sách missions.</div>`;
+          return;
+        }
+
+        activeMissions = data;
+
+        if (data.length === 0) {
+          box.innerHTML = `<div class="list-item">Chưa có mission nào.</div>`;
+          return;
+        }
+
+        box.innerHTML = data.slice().reverse().map(m => `
+          <div class="list-item">
+            <div class="head">${escapeHtml(m.id)}</div>
+            <div><strong>Status:</strong> ${escapeHtml(m.status || "--")}</div>
+            <div><strong>Order:</strong> ${escapeHtml(m.order_id || "--")}</div>
+            <div><strong>Drone:</strong> ${escapeHtml(m.drone_id || "--")}</div>
+            <div><strong>Alt:</strong> ${escapeHtml(m.altitude_m ?? "--")} m</div>
+          </div>
+        `).join("");
+      } catch (_) {
+        document.getElementById("missionsBox").innerHTML = `<div class="list-item">Lỗi tải missions.</div>`;
+      }
+    }
+
+    async function fetchTelemetry() {
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_URL}/drones/${DRONE_ID}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const droneData = await res.json();
+        if (droneData.error) throw new Error(droneData.error);
+
+        if (droneData && droneData.last) {
+          const t = droneData.last;
+
+          document.getElementById("t-mode").textContent = t.mode ?? "--";
+          document.getElementById("t-alt").textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
+          document.getElementById("t-speed").textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
+          document.getElementById("t-armed").textContent = String(t.armed);
+          document.getElementById("t-drone-id").textContent = droneData.id || DRONE_ID;
+
+          const batteryVal = t.battery_percent;
+          document.getElementById("t-battery").textContent =
+            batteryVal == null ? "--" : `${Number(batteryVal).toFixed(0)}%`;
+
+          const statusEl = document.getElementById("t-status");
+          statusEl.textContent = droneData.status || "OFFLINE";
+          statusEl.className = "value";
+
+          if (droneData.status === "IDLE") {
+            statusEl.classList.add("status-online");
+          } else if (droneData.status === "BUSY") {
+            statusEl.classList.add("status-busy");
+          } else {
+            statusEl.classList.add("status-offline");
+          }
+
+          if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
+            droneMarker.setLatLng([t.lat, t.lng]);
+
+            const mission = getRelevantMission();
+            const wp = getWaypointFromMission(mission);
+            if (wp) {
+              const speed = Number(t.groundspeed_mps || 0);
+              const dist = haversine(Number(t.lat), Number(t.lng), wp.lat, wp.lng);
+              const etaSeconds = speed > 0.2 ? dist / speed : null;
+              document.getElementById("t-eta").textContent = formatEta(etaSeconds);
+            } else {
+              document.getElementById("t-eta").textContent = "--";
+            }
+
+            updateFlightLine(Number(t.lat), Number(t.lng));
+          }
+
+          if (!droneConnectedBefore) {
+            logSys("Đã kết nối realtime tới backend.");
+            droneConnectedBefore = true;
+          }
+        }
+      } catch (e) {
+        document.getElementById("t-status").textContent = "OFFLINE";
+        document.getElementById("t-status").className = "value status-offline";
+        document.getElementById("t-eta").textContent = "--";
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+      }
+    }
+
+    setInterval(() => {
+      if (!document.getElementById("appPage").classList.contains("hidden")) {
+        fetchTelemetry();
+        loadOrders();
+        loadMyOrders();
+        loadMissions();
+      }
+    }, 2000);
+
+    (async function boot() {
+      const ok = await fetchMe();
+      if (ok) {
+        showApp();
+      }
+    })();
+  </script>
+</body>
+</html>
