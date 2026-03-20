@@ -2257,22 +2257,34 @@
       const address = document.getElementById("profile-address").value.trim();
 
       try {
-        currentUser = {
-          ...currentUser,
-          full_name: fullName,
-          email,
-          phone,
-          address
-        };
+        const res = await fetch(`${API_URL}/users/me`, {
+          method: "PUT",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            full_name: fullName,
+            email,
+            phone,
+            address
+          })
+        });
 
-        saveStoredProfile();
-        populateProfile();
+        const data = await res.json();
+
+        if (data.error) {
+          showMsg("profileMsg", `Cập nhật thất bại: ${data.error}`, false);
+          return;
+        }
+
+        currentUser = data.user;
 
         isProfileEditing = false;
         setProfileInputsReadonly(true);
         document.getElementById("profileActionRow").classList.add("hidden");
         document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
         document.getElementById("btn-edit-profile").disabled = false;
+
+        populateProfile();
+        applyAvatarToUI();
 
         showMsg("profileMsg", "Đã cập nhật thông tin người dùng.", true);
         logSys("Người dùng đã cập nhật hồ sơ cá nhân.");
@@ -2303,20 +2315,12 @@
         return;
       }
 
-      if (oldPass !== sessionLoginPassword) {
-        showMsg("passwordMsg", "Mật khẩu cũ không đúng.", false);
-        return;
-      }
-
       if (oldPass === newPass) {
         showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
         return;
       }
 
       try {
-        /*
-        Nếu backend có API thì dùng đoạn này:
-
         const res = await fetch(`${API_URL}/auth/change-password`, {
           method: "PUT",
           headers: authHeaders(),
@@ -2329,10 +2333,17 @@
         const data = await res.json();
 
         if (data.error) {
-          showMsg("passwordMsg", `Đổi mật khẩu thất bại: ${data.error}`, false);
+          if (data.error === "wrong_old_password") {
+            showMsg("passwordMsg", "Mật khẩu cũ không đúng.", false);
+          } else if (data.error === "password_too_short") {
+            showMsg("passwordMsg", "Mật khẩu mới phải có ít nhất 4 ký tự.", false);
+          } else if (data.error === "same_as_old_password") {
+            showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
+          } else {
+            showMsg("passwordMsg", `Đổi mật khẩu thất bại: ${data.error}`, false);
+          }
           return;
         }
-        */
 
         sessionLoginPassword = newPass;
 
