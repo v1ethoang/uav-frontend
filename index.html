@@ -1102,8 +1102,7 @@
 
         <div class="top-actions">
           <button class="btn btn-dark" onclick="centerMap()">Về kho</button>
-          <button class="btn btn-dark" onclick="loadOrders()">Làm mới orders</button>
-          <button class="btn btn-dark" onclick="loadMissions()">Làm mới missions</button>
+          <button class="btn btn-dark" onclick="centerDrone()">Vị trí drone</button>
         </div>
       </div>
 
@@ -1137,6 +1136,8 @@
     let dropoffMarker = null;
     let userMarker = null;
     let flightLine = null;
+    let latestDroneLat = null;
+    let latestDroneLng = null;
 
     let activeMissions = [];
     let activeOrders = [];
@@ -1531,6 +1532,30 @@
       if (map) {
         map.setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
       }
+    }
+
+    function centerDrone() {
+      if (!map || !droneMarker) {
+        alert("Bản đồ hoặc marker drone chưa sẵn sàng.");
+        return;
+      }
+
+      if (!isFinite(latestDroneLat) || !isFinite(latestDroneLng)) {
+        const pos = droneMarker.getLatLng();
+        if (!pos || !isFinite(pos.lat) || !isFinite(pos.lng)) {
+          alert("Chưa có vị trí drone hợp lệ.");
+          return;
+        }
+
+        map.setView([pos.lat, pos.lng], 18);
+        droneMarker.openPopup();
+        logSys(`Đã chuyển bản đồ tới vị trí drone: ${Number(pos.lat).toFixed(5)}, ${Number(pos.lng).toFixed(5)}`);
+        return;
+      }
+
+      map.setView([latestDroneLat, latestDroneLng], 18);
+      droneMarker.openPopup();
+      logSys(`Đã chuyển bản đồ tới vị trí drone: ${latestDroneLat.toFixed(5)}, ${latestDroneLng.toFixed(5)}`);
     }
 
     async function registerUser() {
@@ -2480,7 +2505,9 @@
           }
 
           if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
-            droneMarker.setLatLng([t.lat, t.lng]);
+            latestDroneLat = Number(t.lat);
+            latestDroneLng = Number(t.lng);
+            droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
 
             const mission = getRelevantMission();
             const wp = getWaypointFromMission(mission);
