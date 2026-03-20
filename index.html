@@ -1111,12 +1111,7 @@
         <div id="map"></div>
 
         <div class="floating-cards">
-          <div class="float-card">
-            <h4>Đơn hàng</h4>
-            <div id="ordersBox" class="list-box"></div>
-          </div>
-
-          <div class="float-card">
+          <div id="missionFloatCard" class="float-card hidden">
             <h4>Mission</h4>
             <div id="missionsBox" class="list-box"></div>
           </div>
@@ -1315,6 +1310,17 @@
       applyAvatarToUI();
       showMsg("profileMsg", "Đã xóa ảnh đại diện.", true);
       logSys("Người dùng đã xóa ảnh đại diện.");
+    }
+
+    function updateFloatingPanelsByRole() {
+      const missionCard = document.getElementById("missionFloatCard");
+      if (!missionCard) return;
+
+      if (isAdminRole()) {
+        missionCard.classList.remove("hidden");
+      } else {
+        missionCard.classList.add("hidden");
+      }
     }
 
     function updateFlightLine(droneLat, droneLng) {
@@ -1754,6 +1760,7 @@
       loadStoredProfile();
       populateProfile();
       updateOrderTabByRole();
+      updateFloatingPanelsByRole();
 
       if (!map) initMap();
 
@@ -1767,7 +1774,17 @@
 
       loadOrders();
       loadMyOrders();
-      loadMissions();
+
+      if (isAdminRole()) {
+        loadMissions();
+      } else {
+        activeMissions = [];
+        const missionsBox = document.getElementById("missionsBox");
+        if (missionsBox) {
+          missionsBox.innerHTML = `<div class="list-item">Chỉ admin mới xem mission.</div>`;
+        }
+      }
+
       fetchTelemetry();
       applyAvatarToUI();
     }
@@ -2157,38 +2174,16 @@
         });
 
         const data = await res.json();
-        const box = document.getElementById("ordersBox");
-
-        if (!Array.isArray(data)) {
-          box.innerHTML = `<div class="list-item">Không tải được danh sách orders.</div>`;
-          return;
-        }
+          if (!Array.isArray(data)) {
+            activeOrders = [];
+            return;
+          }
 
         activeOrders = data;
-
-        if (data.length === 0) {
-          box.innerHTML = `<div class="list-item">Chưa có order nào.</div>`;
-          return;
-        }
-
-        box.innerHTML = data.slice().reverse().map(o => `
-          <div class="list-item">
-            <div class="head">${escapeHtml(o.id)}</div>
-            <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
-            <div><strong>User:</strong> ${escapeHtml(o.created_by ?? "--")}</div>
-            <div><strong>Drop:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
-            <div><strong>Note:</strong> ${escapeHtml(o.note ?? "")}</div>
-            ${canCancelOrder(o.status) && (currentUser?.role === "admin" || o.created_by === currentUser?.username) ? `
-              <div style="margin-top:10px;">
-                <button class="btn btn-danger" style="width:100%;" onclick="cancelOrder('${escapeHtml(o.id)}')">
-                  Hủy đơn
-                </button>
-              </div>
-            ` : ""}
-          </div>
-        `).join("");
-      } catch (_) {
-        document.getElementById("ordersBox").innerHTML = `<div class="list-item">Lỗi tải orders.</div>`;
+      } 
+      
+      catch (_) {
+        activeOrders = [];
       }
     }
 
@@ -2522,7 +2517,10 @@
         fetchTelemetry();
         loadOrders();
         loadMyOrders();
-        loadMissions();
+
+        if (isAdminRole()) {
+          loadMissions();
+        }
       }
     }, 2000);
 
