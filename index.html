@@ -1214,6 +1214,11 @@
       if (target) target.classList.add("active");
     }
 
+    function canCancelOrder(status) {
+      const s = String(status || "").toUpperCase();
+      return !["DELIVERED", "COMPLETED", "DONE", "CANCELLED"].includes(s);
+    }
+
     function makeDivIcon(className, innerHtml, size = [42, 42], anchor = [21, 21]) {
       return L.divIcon({
         html: `<div class="${className}">${innerHtml}</div>`,
@@ -1887,6 +1892,42 @@
         reverseGeocodeForRole(lat, lng);
       }
     }
+    
+    async function cancelOrder(orderId) {
+      if (!orderId) return;
+
+      const ok = confirm(`Bạn có chắc muốn hủy đơn ${orderId} không?`);
+      if (!ok) return;
+
+      try {
+        const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
+          method: "POST",
+          headers: authHeaders()
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          if (data.error === "cannot_cancel_order") {
+            alert("Đơn này không thể hủy vì đã giao xong hoặc đã hoàn tất.");
+          } else if (data.error === "forbidden") {
+            alert("Bạn không có quyền hủy đơn này.");
+          } else if (data.error === "order_not_found") {
+            alert("Không tìm thấy đơn hàng.");
+          } else {
+            alert(`Hủy đơn thất bại: ${data.error}`);
+          }
+          return;
+        }
+
+        logSys(`Đã hủy đơn ${orderId}.`);
+        loadOrders();
+        loadMyOrders();
+        loadMissions();
+      } catch (e) {
+        alert(`Lỗi hủy đơn: ${e}`);
+      }
+    }
 
     async function reverseGeocodeForRole(lat, lng) {
       try {
@@ -2133,10 +2174,17 @@
         box.innerHTML = data.slice().reverse().map(o => `
           <div class="list-item">
             <div class="head">${escapeHtml(o.id)}</div>
-            <div><strong>Status:</strong> ${escapeHtml(o.status || "--")}</div>
+            <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
             <div><strong>User:</strong> ${escapeHtml(o.created_by ?? "--")}</div>
             <div><strong>Drop:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
             <div><strong>Note:</strong> ${escapeHtml(o.note ?? "")}</div>
+            ${canCancelOrder(o.status) && (currentUser?.role === "admin" || o.created_by === currentUser?.username) ? `
+              <div style="margin-top:10px;">
+                <button class="btn btn-danger" style="width:100%;" onclick="cancelOrder('${escapeHtml(o.id)}')">
+                  Hủy đơn
+                </button>
+              </div>
+            ` : ""}
           </div>
         `).join("");
       } catch (_) {
@@ -2186,6 +2234,11 @@
               <button class="btn btn-dark" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeHtml(String(o.note || "").replace(/'/g, "\\'"))}')">
                 Đặt lại
               </button>
+              ${canCancelOrder(o.status) ? `
+                <button class="btn btn-danger" style="grid-column:1 / -1;" onclick="cancelOrder('${escapeHtml(o.id)}')">
+                  Hủy đơn
+                </button>
+              ` : ""}
             </div>
           </div>
         `).join("");
