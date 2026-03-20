@@ -1109,10 +1109,10 @@
 
       <div class="field-inline">
         <label>Sản phẩm</label>
-        <input id="admin-product-select" type="hidden" value="Nước giải khát" />
+        <input id="user-product-select" type="hidden" value="Nước giải khát" />
 
         <div class="product-grid">
-          <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'admin-product-select')">
+          <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'user-product-select')">
             <div class="product-check">✓</div>
             <div class="product-thumb">
               <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
@@ -1121,7 +1121,7 @@
             <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
           </div>
 
-          <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'admin-product-select')">
+          <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'user-product-select')">
             <div class="product-check">✓</div>
             <div class="product-thumb">
               <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
@@ -1130,7 +1130,7 @@
             <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
           </div>
 
-          <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'admin-product-select')">
+          <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'user-product-select')">
             <div class="product-check">✓</div>
             <div class="product-thumb">
               <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
@@ -1139,7 +1139,7 @@
             <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
           </div>
 
-          <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'admin-product-select')">
+          <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'user-product-select')">
             <div class="product-check">✓</div>
             <div class="product-thumb">
               <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
@@ -1201,7 +1201,7 @@
                     <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
                   </div>
                   <div class="product-name">Nước giải khát</div>
-                  <div class="product-desc">Phù hợp đơn giao nhanh, nhẹ và phổ biến.</div>
+                  <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
                 </div>
 
                 <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'product-select')">
@@ -1210,7 +1210,7 @@
                     <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
                   </div>
                   <div class="product-name">Thuốc y tế</div>
-                  <div class="product-desc">Ưu tiên giao nhanh cho nhu cầu khẩn cấp.</div>
+                  <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
                 </div>
 
                 <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'product-select')">
@@ -1219,7 +1219,7 @@
                     <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
                   </div>
                   <div class="product-name">Đồ ăn nhanh</div>
-                  <div class="product-desc">Đặt món tiện lợi, dễ chọn và dễ quan sát.</div>
+                  <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
                 </div>
 
                 <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'product-select')">
@@ -1228,7 +1228,7 @@
                     <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
                   </div>
                   <div class="product-name">Tài liệu khẩn</div>
-                  <div class="product-desc">Phù hợp hồ sơ, giấy tờ cần chuyển gấp.</div>
+                  <div class="product-desc">Đừng gửi thư tình, bị lộ đấy nhá.</div>
                 </div>
               </div>
             </div>
@@ -2047,7 +2047,7 @@
 
       const lat = parseFloat(document.getElementById("drop-lat").value);
       const lng = parseFloat(document.getElementById("drop-lng").value);
-      const product = document.getElementById("product-select").value;
+      const product = document.getElementById("user-product-select").value;
       const noteInput = document.getElementById("order-note").value.trim();
       const note = noteInput ? `${product} | ${noteInput}` : product;
 
@@ -2407,39 +2407,60 @@
           return;
         }
 
-        const myOrders = data
-          .filter(o => (o.created_by || "").toLowerCase() === (currentUser.username || "").toLowerCase())
-          .reverse();
+        const ordersToShow = [...data].reverse();
 
-        updateUserStats(myOrders);
+        updateUserStats(ordersToShow);
 
-        if (myOrders.length === 0) {
-          box.innerHTML = `<div class="empty-box">Bạn chưa có đơn hàng nào.</div>`;
+        if (ordersToShow.length === 0) {
+          box.innerHTML = `<div class="empty-box">Chưa có đơn hàng nào.</div>`;
           return;
         }
 
-        box.innerHTML = myOrders.map(o => `
-          <div class="list-item">
-            <div class="head">${escapeHtml(o.id)}</div>
-            <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
-            <div><strong>Tọa độ giao:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
-            <div><strong>Ghi chú:</strong> ${escapeHtml(o.note || "--")}</div>
-            <div><strong>Người tạo:</strong> ${escapeHtml(o.created_by || "--")}</div>
-            <div class="order-mini-actions">
-              <button class="btn btn-dark" onclick="focusOrderOnMap(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})">
-                Xem trên map
-              </button>
-              <button class="btn btn-dark" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeHtml(String(o.note || "").replace(/'/g, "\\'"))}')">
-                Đặt lại
-              </button>
-              ${canCancelOrder(o.status) ? `
-                <button class="btn btn-danger" style="grid-column:1 / -1;" onclick="cancelOrder('${escapeHtml(o.id)}')">
-                  Hủy đơn
+        box.innerHTML = ordersToShow.map(o => {
+          const status = String(o.status || "").toUpperCase();
+          const isAdmin = isAdminRole();
+          const canDispatch = isAdmin && ["CREATED", "QUEUED", "WAITING", "PENDING"].includes(status);
+          const canCancel = isAdmin
+            ? !["DELIVERED", "COMPLETED", "DONE", "CANCELLED", "IN_FLIGHT", "RUNNING", "ARRIVED"].includes(status)
+            : canCancelOrder(status);
+
+          return `
+            <div class="list-item">
+              <div class="head">${escapeHtml(o.id)}</div>
+              <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
+              <div><strong>Tọa độ giao:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
+              <div><strong>Ghi chú:</strong> ${escapeHtml(o.note || "--")}</div>
+              <div><strong>Người tạo:</strong> ${escapeHtml(o.created_by || "--")}</div>
+
+              <div class="order-mini-actions">
+                <button class="btn btn-dark" onclick="focusOrderOnMap(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})">
+                  Xem trên map
                 </button>
-              ` : ""}
+
+                ${
+                  !isAdmin ? `
+                    <button class="btn btn-dark" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeHtml(String(o.note || "").replace(/'/g, "\\'"))}')">
+                      Đặt lại
+                    </button>
+                  ` : `
+                    <button class="btn btn-primary" onclick="dispatchOrder('${o.id}')"
+                      ${canDispatch ? "" : "disabled"}>
+                      Tiến hành giao
+                    </button>
+                  `
+                }
+
+                ${
+                  canCancel ? `
+                    <button class="btn btn-danger" style="grid-column:1 / -1;" onclick="cancelOrder('${o.id}')">
+                      Hủy đơn
+                    </button>
+                  ` : ""
+                }
+              </div>
             </div>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       } catch (_) {
         box.innerHTML = `<div class="list-item">Lỗi tải lịch sử đơn hàng.</div>`;
         updateUserStats([]);
@@ -2448,14 +2469,17 @@
 
     function updateUserStats(orders) {
       const total = orders.length;
+
       const processing = orders.filter(o =>
-        ["ASSIGNED", "RUNNING", "IN_FLIGHT", "START_REQUESTED", "BUSY"].includes(String(o.status || "").toUpperCase())
+        ["ASSIGNED", "RUNNING", "IN_FLIGHT", "START_REQUESTED", "BUSY", "ARRIVED"].includes(String(o.status || "").toUpperCase())
       ).length;
+
       const completed = orders.filter(o =>
         ["DELIVERED", "COMPLETED", "DONE", "SUCCESS"].includes(String(o.status || "").toUpperCase())
       ).length;
+
       const pending = orders.filter(o =>
-        ["PENDING", "CREATED", "WAITING"].includes(String(o.status || "").toUpperCase())
+        ["PENDING", "CREATED", "WAITING", "QUEUED"].includes(String(o.status || "").toUpperCase())
       ).length;
 
       document.getElementById("u-total-orders").textContent = total;
@@ -2497,6 +2521,51 @@
       }
 
       logSys("Đã nạp lại thông tin từ lịch sử đơn.");
+    }
+    
+    async function dispatchOrder(orderId) {
+      if (!isAdminRole()) {
+        alert("Chỉ admin mới có quyền cho phép drone giao hàng.");
+        return;
+      }
+
+      try {
+        logSys(`Admin đang xử lý đơn ${orderId}...`);
+
+        const res = await fetch(`${API_URL}/orders/${orderId}/dispatch`, {
+          method: "POST",
+          headers: authHeaders()
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          if (data.error === "order_not_found") {
+            alert("Không tìm thấy đơn hàng.");
+          } else if (data.error === "forbidden") {
+            alert("Chỉ admin mới được phép tiến hành giao.");
+          } else if (data.error === "order_cancelled") {
+            alert("Đơn này đã bị hủy.");
+          } else if (data.error === "order_completed") {
+            alert("Đơn này đã hoàn tất.");
+          } else if (data.error === "mission_already_exists") {
+            alert("Đơn này đã có mission đang xử lý.");
+          } else {
+            alert(`Tiến hành giao thất bại: ${data.error}`);
+          }
+          return;
+        }
+
+        currentMissionId = data.mission?.id || null;
+        logSys(`Admin đã cho phép drone giao đơn ${orderId}.`);
+
+        loadOrders();
+        loadMyOrders();
+        loadMissions();
+        fetchTelemetry();
+      } catch (e) {
+        alert(`Lỗi tiến hành giao: ${e}`);
+      }
     }
 
     async function saveProfile() {
