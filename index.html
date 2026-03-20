@@ -1168,7 +1168,7 @@
         <!-- Giao diện cho ADMIN -->
         <div id="admin-order-panel" class="hidden">
           <div class="panel">
-            <h3>Điều phối đơn hàng</h3>
+            <h3>ĐIỀU PHỐI ĐƠN HÀNG</h3>
 
             <div class="field-inline">
               <label>Địa chỉ giao hàng</label>
@@ -1192,10 +1192,10 @@
 
             <div class="field-inline">
               <label>Sản phẩm</label>
-              <input id="product-select" type="hidden" value="Nước giải khát" />
+              <input id="admin-product-select" type="hidden" value="Nước giải khát" />
 
               <div class="product-grid">
-                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'product-select')">
+                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'admin-product-select')">
                   <div class="product-check">✓</div>
                   <div class="product-thumb">
                     <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
@@ -1204,7 +1204,7 @@
                   <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
                 </div>
 
-                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'product-select')">
+                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'admin-product-select')">
                   <div class="product-check">✓</div>
                   <div class="product-thumb">
                     <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
@@ -1213,7 +1213,7 @@
                   <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
                 </div>
 
-                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'product-select')">
+                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'admin-product-select')">
                   <div class="product-check">✓</div>
                   <div class="product-thumb">
                     <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
@@ -1222,7 +1222,7 @@
                   <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
                 </div>
 
-                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'product-select')">
+                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'admin-product-select')">
                   <div class="product-check">✓</div>
                   <div class="product-thumb">
                     <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
@@ -1239,11 +1239,7 @@
             </div>
 
             <button class="btn btn-primary" style="width:100%;" onclick="createOrderAndMission()">
-              Tạo đơn & gán mission
-            </button>
-
-            <button id="btn-start" class="btn btn-success" style="width:100%; margin-top:10px;" onclick="startMission()" disabled>
-              Bắt đầu bay
+              Tạo đơn
             </button>
 
             <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
@@ -2267,9 +2263,9 @@
       }
     }
 
-    async function createOrderAndMission() {
+    async function createAdminOrderOnly() {
       if (!isAdminRole()) {
-        logSys("Bạn không có quyền tạo mission. Chức năng này chỉ dành cho admin.");
+        logSys("Bạn không có quyền tạo đơn admin.");
         return;
       }
 
@@ -2285,7 +2281,7 @@
       }
 
       try {
-        logSys("Đang tạo order...");
+        logSys("Admin đang tạo đơn hàng...");
 
         const resOrder = await fetch(`${API_URL}/orders`, {
           method: "POST",
@@ -2304,69 +2300,12 @@
         }
 
         currentOrderId = orderData.id;
-        logSys(`Đã tạo order: ${currentOrderId}`);
-
-        logSys("Đang tạo mission cho drone...");
-
-        const resMission = await fetch(`${API_URL}/missions`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            order_id: currentOrderId,
-            drone_id: DRONE_ID,
-            altitude_m: 20.0,
-            warehouse_lat: WAREHOUSE_LAT,
-            warehouse_lng: WAREHOUSE_LNG
-          })
-        });
-
-        const missionData = await resMission.json();
-
-        if (missionData.error) {
-          logSys(`Tạo mission thất bại: ${missionData.error}`);
-          return;
-        }
-
-        currentMissionId = missionData.id;
-        document.getElementById("btn-start").disabled = false;
-        logSys(`Đã tạo mission: ${currentMissionId}`);
+        logSys(`Đã tạo đơn: ${currentOrderId}. Hãy vào lịch sử đơn hàng để tiến hành giao.`);
 
         loadOrders();
         loadMyOrders();
-        loadMissions();
-      } catch (e) {
-        logSys(`Lỗi tạo order/mission: ${e}`);
-      }
-    }
-
-    async function startMission() {
-      if (!currentMissionId) return;
-
-      if ((currentUser.role || "").toLowerCase() !== "admin") {
-        logSys("Không đủ quyền để khởi động mission.");
-        return;
-      }
-
-      try {
-        logSys("Đang gửi lệnh START mission...");
-
-        const res = await fetch(`${API_URL}/missions/${currentMissionId}/start`, {
-          method: "POST",
-          headers: authHeaders()
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          logSys(`Khởi động mission thất bại: ${data.error}`);
-          return;
-        }
-
-        document.getElementById("btn-start").disabled = true;
-        logSys("Mission đã được gửi tới drone.");
-        loadMissions();
-      } catch (e) {
-        logSys(`Lỗi khi start mission: ${e}`);
+        } catch (e) {
+        logSys(`Lỗi tạo đơn hàng admin: ${e}`);
       }
     }
 
