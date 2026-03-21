@@ -1022,17 +1022,6 @@
           <div id="passwordMsg" class="msg"></div>
         </div>
 
-        <div class="panel">
-          <h3>LỊCH SỬ ĐƠN HÀNG</h3>
-          <div class="section-note">
-            Xem lại các đơn đã tạo, trạng thái xử lý và chọn nhanh vị trí giao cũ để đặt lại.
-          </div>
-
-          <div id="myOrdersBox" class="list-box large">
-            <div class="empty-box">Đang tải lịch sử đơn hàng...</div>
-          </div>
-        </div>
-      </div>
 
       <!-- TAB DRONE -->
       <div id="sidebar-tab-drone" class="sidebar-tab-panel">
@@ -1080,90 +1069,89 @@
         </div>
       </div>
 
-      <!-- TAB ORDER -->
-<div id="sidebar-tab-order" class="sidebar-tab-panel">
-  <!-- Giao diện cho USER -->
-  <div id="user-order-panel">
-    <div class="panel">
-      <h3>ĐẶT ĐƠN GIAO HÀNG</h3>
+      <div id="sidebar-tab-order" class="sidebar-tab-panel">
+        <!-- Giao diện cho USER -->
+        <div id="user-order-panel">
+          <div class="panel">
+            <h3>ĐẶT ĐƠN GIAO HÀNG</h3>
 
-      <div class="field-inline">
-        <label>Địa chỉ giao hàng</label>
-        <input id="address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
-      </div>
-
-      <div class="row-2" style="margin-bottom:12px;">
-        <button class="btn btn-dark" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
-        <button class="btn btn-dark" onclick="searchAddress()">Tìm địa chỉ</button>
-      </div>
-
-      <div class="field-inline">
-        <label>Latitude</label>
-        <input id="drop-lat" type="text" readonly />
-      </div>
-
-      <div class="field-inline">
-        <label>Longitude</label>
-        <input id="drop-lng" type="text" readonly />
-      </div>
-
-      <div class="field-inline">
-        <label>Sản phẩm</label>
-        <input id="user-product-select" type="hidden" value="Nước giải khát" />
-
-        <div class="product-grid">
-          <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'user-product-select')">
-            <div class="product-check">✓</div>
-            <div class="product-thumb">
-              <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
+            <div class="field-inline">
+              <label>Địa chỉ giao hàng</label>
+              <input id="address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
             </div>
-            <div class="product-name">Nước giải khát</div>
-            <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
-          </div>
 
-          <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'user-product-select')">
-            <div class="product-check">✓</div>
-            <div class="product-thumb">
-              <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
+            <div class="row-2" style="margin-bottom:12px;">
+              <button class="btn btn-dark" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
+              <button class="btn btn-dark" onclick="searchAddress()">Tìm địa chỉ</button>
             </div>
-            <div class="product-name">Thuốc y tế</div>
-            <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
-          </div>
 
-          <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'user-product-select')">
-            <div class="product-check">✓</div>
-            <div class="product-thumb">
-              <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
+            <div class="field-inline">
+              <label>Latitude</label>
+              <input id="drop-lat" type="text" readonly />
             </div>
-            <div class="product-name">Đồ ăn nhanh</div>
-            <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
-          </div>
 
-          <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'user-product-select')">
-            <div class="product-check">✓</div>
-            <div class="product-thumb">
-              <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
+            <div class="field-inline">
+              <label>Longitude</label>
+              <input id="drop-lng" type="text" readonly />
             </div>
-            <div class="product-name">Tài liệu khẩn</div>
-            <div class="product-desc">Đừng gửi thư tình, bị lộ đấy nhá.</div>
+
+            <div class="field-inline">
+              <label>Sản phẩm</label>
+              <input id="user-product-select" type="hidden" value="Nước giải khát" />
+
+              <div class="product-grid">
+                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'user-product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
+                  </div>
+                  <div class="product-name">Nước giải khát</div>
+                  <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
+                </div>
+
+                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'user-product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
+                  </div>
+                  <div class="product-name">Thuốc y tế</div>
+                  <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
+                </div>
+
+                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'user-product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
+                  </div>
+                  <div class="product-name">Đồ ăn nhanh</div>
+                  <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
+                </div>
+
+                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'user-product-select')">
+                  <div class="product-check">✓</div>
+                  <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
+                  </div>
+                  <div class="product-name">Tài liệu khẩn</div>
+                  <div class="product-desc">Đừng gửi thư tình, bị lộ đấy nhá.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-inline">
+              <label>Ghi chú</label>
+              <input id="order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+            </div>
+
+            <button id="btn-place-order" class="btn btn-primary" style="width:100%;" onclick="placeOrderOnly()">
+              Đặt đơn
+            </button>
+
+            <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
+              Người dùng chỉ được đặt đơn. Admin sẽ tiếp nhận, gán mission và điều phối drone.
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="field-inline">
-        <label>Ghi chú</label>
-        <input id="order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
-      </div>
-
-      <button id="btn-place-order" class="btn btn-primary" style="width:100%;" onclick="placeOrderOnly()">
-        Đặt đơn
-      </button>
-
-      <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
-        Người dùng chỉ được đặt đơn. Admin sẽ tiếp nhận, gán mission và điều phối drone.
-      </div>
-    </div>
-  </div>
 
         <!-- Giao diện cho ADMIN -->
         <div id="admin-order-panel" class="hidden">
@@ -1247,6 +1235,19 @@
             </div>
           </div>
         </div>
+
+        <!-- LỊCH SỬ CHUNG CHO CẢ USER VÀ ADMIN -->
+        <div class="panel">
+          <h3>LỊCH SỬ ĐƠN HÀNG</h3>
+          <div class="section-note">
+            Theo dõi toàn bộ đơn hàng ngay trong tab đặt hàng để dễ tạo đơn, kiểm tra trạng thái và thao tác nhanh.
+          </div>
+
+          <div id="myOrdersBox" class="list-box large">
+            <div class="empty-box">Đang tải lịch sử đơn hàng...</div>
+          </div>
+        </div>
+      </div>
       </div>
     </aside>
 
@@ -1972,7 +1973,7 @@
       }
 
       loadOrders();
-      loadMyOrders();
+      loadOrderHistory();
 
       if (isAdminRole()) {
         loadMissions();
@@ -2075,7 +2076,7 @@
         logSys("Đặt đơn thành công. Đơn hàng đang chờ admin tiếp nhận và điều phối.");
 
         loadOrders();
-        loadMyOrders();
+        loadOrderHistory();
       } catch (e) {
         logSys(`Lỗi tạo đơn hàng: ${e}`);
       }
@@ -2138,7 +2139,7 @@
 
         logSys(`Đã hủy đơn ${orderId}.`);
         loadOrders();
-        loadMyOrders();
+        loadOrderHistory();
         loadMissions();
       } catch (e) {
         alert(`Lỗi hủy đơn: ${e}`);
@@ -2303,7 +2304,7 @@
         logSys(`Đã tạo đơn: ${currentOrderId}. Hãy vào lịch sử đơn hàng để tiến hành giao.`);
 
         loadOrders();
-        loadMyOrders();
+        loadOrderHistory();
         } catch (e) {
         logSys(`Lỗi tạo đơn hàng admin: ${e}`);
       }
@@ -2329,7 +2330,11 @@
       }
     }
 
-    async function loadMyOrders() {
+    async function loadOrderHistory() {
+      const orderHistoryTitle = document.getElementById("orderHistoryTitle");
+      if (orderHistoryTitle) {
+        orderHistoryTitle.textContent = isAdminRole() ? "QUẢN LÝ ĐƠN HÀNG" : "LỊCH SỬ ĐƠN HÀNG";
+      }
       const box = document.getElementById("myOrdersBox");
       if (!box || !currentUser) return;
 
@@ -2499,7 +2504,7 @@
         logSys(`Admin đã cho phép drone giao đơn ${orderId}.`);
 
         loadOrders();
-        loadMyOrders();
+        loadOrderHistory();
         loadMissions();
         fetchTelemetry();
       } catch (e) {
@@ -2729,7 +2734,7 @@
       if (!document.getElementById("appPage").classList.contains("hidden")) {
         fetchTelemetry();
         loadOrders();
-        loadMyOrders();
+        loadOrderHistory();
 
         if (isAdminRole()) {
           loadMissions();
