@@ -1021,7 +1021,7 @@
 
           <div id="passwordMsg" class="msg"></div>
         </div>
-      <div>
+      </div>
 
       <!-- TAB DRONE -->
       <div id="sidebar-tab-drone" class="sidebar-tab-panel">
@@ -1261,7 +1261,9 @@
         <div class="top-actions">
           <button class="btn btn-dark" onclick="centerMap()">Về kho</button>
           <button class="btn btn-dark" onclick="centerDrone()">Vị trí drone</button>
-          <button class="btn btn-danger" onclick="clearFinishedMissions()">Clear missions</button>
+          <button id="btn-clear-missions" class="btn btn-danger hidden" onclick="clearFinishedMissions()">
+            Clear missions
+          </button>
         </div>
       </div>
 
@@ -1493,6 +1495,17 @@
         missionCard.classList.remove("hidden");
       } else {
         missionCard.classList.add("hidden");
+      }
+    }
+
+    function updateTopbarByRole() {
+      const clearBtn = document.getElementById("btn-clear-missions");
+      if (!clearBtn) return;
+
+      if (isAdminRole()) {
+        clearBtn.classList.remove("hidden");
+      } else {
+        clearBtn.classList.add("hidden");
       }
     }
 
@@ -1763,11 +1776,16 @@
     }
 
     function clearFinishedMissions() {
+      if (!isAdminRole()) {
+        alert("Chỉ admin mới được phép clear missions.");
+        return;
+      }
+
       hideFinishedMissions = true;
       activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
       loadMissions();
       updateFlightLine(latestDroneLat, latestDroneLng);
-      logSys("Đã ẩn các mission bị hủy hoặc đã hoàn thành.");
+      logSys("Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.");
     }
 
     async function registerUser() {
@@ -1998,6 +2016,7 @@
       populateProfile();
       updateOrderTabByRole();
       updateFloatingPanelsByRole();
+      updateTopbarByRole();
 
       if (!map) initMap();
 
