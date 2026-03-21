@@ -1021,7 +1021,8 @@
 
           <div id="passwordMsg" class="msg"></div>
         </div>
-        
+      <div>
+
       <!-- TAB DRONE -->
       <div id="sidebar-tab-drone" class="sidebar-tab-panel">
         <div class="panel">
@@ -1237,7 +1238,7 @@
 
         <!-- LỊCH SỬ CHUNG CHO CẢ USER VÀ ADMIN -->
         <div class="panel">
-          <h3>LỊCH SỬ ĐƠN HÀNG</h3>
+          <h3 id="orderHistoryTitle">LỊCH SỬ ĐƠN HÀNG</h3>
           <div class="section-note">
             Theo dõi toàn bộ đơn hàng ngay trong tab đặt hàng để dễ tạo đơn, kiểm tra trạng thái và thao tác nhanh.
           </div>
@@ -1260,6 +1261,7 @@
         <div class="top-actions">
           <button class="btn btn-dark" onclick="centerMap()">Về kho</button>
           <button class="btn btn-dark" onclick="centerDrone()">Vị trí drone</button>
+          <button class="btn btn-danger" onclick="clearFinishedMissions()">Clear missions</button>
         </div>
       </div>
 
@@ -1311,6 +1313,7 @@
       notify: true,
       avatar: ""
     };
+    let hideFinishedMissions = false;
 
     function authHeaders() {
       return {
@@ -1457,15 +1460,10 @@
     function getRelevantMission() {
       if (!Array.isArray(activeMissions) || activeMissions.length === 0) return null;
 
-      const preferred = activeMissions.find(m =>
+      return activeMissions.find(m =>
         m.drone_id === DRONE_ID &&
-        ["RUNNING", "START_REQUESTED", "ASSIGNED", "IN_FLIGHT"].includes(m.status)
-      );
-
-      if (preferred) return preferred;
-
-      const anyForDrone = activeMissions.find(m => m.drone_id === DRONE_ID);
-      return anyForDrone || null;
+        ["RUNNING", "START_REQUESTED", "ASSIGNED", "IN_FLIGHT", "BUSY"].includes(String(m.status || "").toUpperCase())
+      ) || null;
     }
 
     function getWaypointFromMission(mission) {
@@ -1498,11 +1496,37 @@
       }
     }
 
+    function getTargetPointFromMission(mission) {
+      if (!mission) return null;
+
+      if (Array.isArray(mission.waypoints) && mission.waypoints.length > 0) {
+        const wp = mission.waypoints[0];
+        if (isFinite(Number(wp.lat)) && isFinite(Number(wp.lng))) {
+          return {
+            lat: Number(wp.lat),
+            lng: Number(wp.lng),
+            alt_m: Number(wp.alt_m || 0)
+          };
+        }
+      }
+
+      const linkedOrder = activeOrders.find(o => o.id === mission.order_id);
+      if (linkedOrder && linkedOrder.dropoff) {
+        const lat = Number(linkedOrder.dropoff.lat);
+        const lng = Number(linkedOrder.dropoff.lng);
+        if (isFinite(lat) && isFinite(lng)) {
+          return { lat, lng, alt_m: 0 };
+        }
+      }
+
+      return null;
+    }
+
     function updateFlightLine(droneLat, droneLng) {
       const mission = getRelevantMission();
-      const wp = getWaypointFromMission(mission);
+      const target = getTargetPointFromMission(mission);
 
-      if (!map || !wp || !isFinite(droneLat) || !isFinite(droneLng)) {
+      if (!map || !target || !isFinite(droneLat) || !isFinite(droneLng)) {
         if (flightLine && map) {
           map.removeLayer(flightLine);
           flightLine = null;
@@ -1512,7 +1536,7 @@
 
       const points = [
         [droneLat, droneLng],
-        [wp.lat, wp.lng]
+        [target.lat, target.lng]
       ];
 
       if (!flightLine) {
@@ -1730,6 +1754,20 @@
       map.setView([latestDroneLat, latestDroneLng], 18);
       droneMarker.openPopup();
       logSys(`Đã chuyển bản đồ tới vị trí drone: ${latestDroneLat.toFixed(5)}, ${latestDroneLng.toFixed(5)}`);
+    }
+
+    function isFinishedMissionStatus(status) {
+      return ["CANCELLED", "COMPLETED", "DONE", "DELIVERED", "FAILED"].includes(
+        String(status || "").toUpperCase()
+      );
+    }
+
+    function clearFinishedMissions() {
+      hideFinishedMissions = true;
+      activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
+      loadMissions();
+      updateFlightLine(latestDroneLat, latestDroneLng);
+      logSys("Đã ẩn các mission bị hủy hoặc đã hoàn thành.");
     }
 
     async function registerUser() {
@@ -2434,7 +2472,7 @@
     function focusOrderOnMap(lat, lng) {
       if (!isFinite(lat) || !isFinite(lng) || !map) return;
       switchSidebarTab("order");
-      setDropLocation(lat, lng, "Điểm giao từ lịch sử đơn", false);
+      setDropLocationForRole(lat, lng, "Điểm giao từ lịch sử đơn", false);
       map.setView([lat, lng], 17);
     }
 
@@ -2637,14 +2675,16 @@
           return;
         }
 
-        activeMissions = data;
+        activeMissions = hideFinishedMissions
+          ? data.filter(m => !isFinishedMissionStatus(m.status))
+          : data;
 
-        if (data.length === 0) {
+        if (activeMissions.length === 0) {
           box.innerHTML = `<div class="list-item">Chưa có mission nào.</div>`;
           return;
         }
 
-        box.innerHTML = data.slice().reverse().map(m => `
+        box.innerHTML = activeMissions.slice().reverse().map(m => `
           <div class="list-item">
             <div class="head">${escapeHtml(m.id)}</div>
             <div><strong>Status:</strong> ${escapeHtml(m.status || "--")}</div>
@@ -2700,10 +2740,11 @@
             droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
 
             const mission = getRelevantMission();
-            const wp = getWaypointFromMission(mission);
-            if (wp) {
+            const target = getTargetPointFromMission(mission);
+
+            if (target) {
               const speed = Number(t.groundspeed_mps || 0);
-              const dist = haversine(Number(t.lat), Number(t.lng), wp.lat, wp.lng);
+              const dist = haversine(Number(t.lat), Number(t.lng), target.lat, target.lng);
               const etaSeconds = speed > 0.2 ? dist / speed : null;
               document.getElementById("t-eta").textContent = formatEta(etaSeconds);
             } else {
