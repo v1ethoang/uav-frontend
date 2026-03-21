@@ -1248,7 +1248,7 @@
           </div>
         </div>
       </div>
-      
+
     </aside>
 
     <main class="main">
@@ -2407,7 +2407,7 @@
           return;
         }
 
-        const ordersToShow = [...data].reverse();
+        const ordersToShow = [...data].sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0));
 
         updateUserStats(ordersToShow);
 
