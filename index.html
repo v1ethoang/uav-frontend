@@ -1610,12 +1610,123 @@
       }
     }
 
-    function updateMissionVisuals(droneLat, droneLng) {
-    const mission = getRelevantMission();
-    const target = getTargetPointFromMission(mission);
-    const hasDrone = isFinite(droneLat) && isFinite(droneLng);
+    function updateMissionVisuals(droneLat, droneLng, droneMode = "") {
+      const mission = getRelevantMission();
+      const target = getTargetPointFromMission(mission);
+      const hasDrone = isFinite(droneLat) && isFinite(droneLng);
 
-    if (!map || !mission || !hasDrone) {
+      if (!map || !hasDrone) {
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+        clearActiveDropoffMarker();
+        return;
+      }
+
+      if (!mission) {
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+        clearActiveDropoffMarker();
+        return;
+      }
+
+      const missionStatus = String(mission.status || "").toUpperCase();
+      const mode = String(droneMode || "").toUpperCase();
+
+      const distToTarget = target
+        ? haversine(droneLat, droneLng, target.lat, target.lng)
+        : Infinity;
+
+      const isReturnMode =
+        ["RTL", "RETURN", "LAND"].includes(mode);
+
+      const reachedDropoff =
+        target && distToTarget <= 12;
+
+      const returningHome =
+        isReturnMode ||
+        ["DELIVERED", "COMPLETED", "DONE"].includes(missionStatus);
+
+      const goingToDropoff =
+        !returningHome &&
+        target &&
+        ["START_REQUESTED", "RUNNING", "IN_FLIGHT", "ASSIGNED", "BUSY", "ARRIVED"].includes(missionStatus);
+
+      if (goingToDropoff && target) {
+        showActiveDropoffMarker(target.lat, target.lng, "Điểm giao đang thực hiện");
+
+        const routePoints = [
+          [droneLat, droneLng],
+          [target.lat, target.lng]
+        ];
+
+        if (!flightLine) {
+          flightLine = L.polyline(routePoints, {
+            color: "#148a4b",
+            weight: 4,
+            opacity: 0.95,
+            dashArray: "10, 8"
+          }).addTo(map);
+        } else {
+          flightLine.setStyle({
+            color: "#148a4b",
+            weight: 4,
+            opacity: 0.95,
+            dashArray: "10, 8"
+          });
+          flightLine.setLatLngs(routePoints);
+        }
+
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+        return;
+      }
+
+      if (returningHome || reachedDropoff) {
+        clearActiveDropoffMarker();
+
+        const returnPoints = [
+          [droneLat, droneLng],
+          [WAREHOUSE_LAT, WAREHOUSE_LNG]
+        ];
+
+        if (!returnLine) {
+          returnLine = L.polyline(returnPoints, {
+            color: "#ffcc33",
+            weight: 4,
+            opacity: 0.95,
+            dashArray: "12, 10"
+          }).addTo(map);
+        } else {
+          returnLine.setStyle({
+            color: "#ffcc33",
+            weight: 4,
+            opacity: 0.95,
+            dashArray: "12, 10"
+          });
+          returnLine.setLatLngs(returnPoints);
+        }
+
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        return;
+      }
+
       if (flightLine && map) {
         map.removeLayer(flightLine);
         flightLine = null;
@@ -1625,87 +1736,7 @@
         returnLine = null;
       }
       clearActiveDropoffMarker();
-      return;
     }
-
-    const missionStatus = String(mission.status || "").toUpperCase();
-
-    const goingToDropoff = ["START_REQUESTED", "RUNNING", "IN_FLIGHT", "ASSIGNED", "BUSY"].includes(missionStatus);
-    const returningHome = ["ARRIVED", "DELIVERED", "COMPLETED", "DONE"].includes(missionStatus);
-
-    if (goingToDropoff && target) {
-      showActiveDropoffMarker(target.lat, target.lng, "Điểm giao đang thực hiện");
-
-      const routePoints = [
-        [droneLat, droneLng],
-        [target.lat, target.lng]
-      ];
-
-      if (!flightLine) {
-        flightLine = L.polyline(routePoints, {
-          color: "#148a4b",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "10, 8"
-        }).addTo(map);
-      } else {
-        flightLine.setStyle({
-          color: "#148a4b",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "10, 8"
-        });
-        flightLine.setLatLngs(routePoints);
-      }
-
-      if (returnLine && map) {
-        map.removeLayer(returnLine);
-        returnLine = null;
-      }
-      return;
-    }
-
-    if (returningHome) {
-      clearActiveDropoffMarker();
-
-      const returnPoints = [
-        [droneLat, droneLng],
-        [WAREHOUSE_LAT, WAREHOUSE_LNG]
-      ];
-
-      if (!returnLine) {
-        returnLine = L.polyline(returnPoints, {
-          color: "#ffcc33",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "12, 10"
-        }).addTo(map);
-      } else {
-        returnLine.setStyle({
-          color: "#ffcc33",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "12, 10"
-        });
-        returnLine.setLatLngs(returnPoints);
-      }
-
-      if (flightLine && map) {
-        map.removeLayer(flightLine);
-        flightLine = null;
-      }
-      return;
-    }
-
-    if (flightLine && map) {
-      map.removeLayer(flightLine);
-      flightLine = null;
-    }
-    if (returnLine && map) {
-      map.removeLayer(returnLine);
-      returnLine = null;
-    }
-  }
   
 
     function isAdminRole() {
@@ -2932,7 +2963,7 @@
               document.getElementById("t-eta").textContent = "--";
             }
 
-            updateMissionVisuals(Number(t.lat), Number(t.lng));
+            updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ""));
           }
 
           if (!droneConnectedBefore) {
