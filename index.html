@@ -1474,21 +1474,21 @@
     function getRelevantMission() {
       if (!Array.isArray(activeMissions) || activeMissions.length === 0) return null;
 
-      return activeMissions.find(m =>
-        m.drone_id === DRONE_ID &&
-        [
-          "RUNNING",
-          "START_REQUESTED",
-          "ASSIGNED",
-          "IN_FLIGHT",
-          "BUSY",
-          "ARRIVED",
-          "DELIVERED",
-          "COMPLETED",
-          "DONE"
-        ].includes(String(m.status || "").toUpperCase())
-      ) || null;
-    }
+      const missions = activeMissions
+        .filter(m => m.drone_id === DRONE_ID)
+        .sort((a, b) => Number(b.created_ts || b.updated_ts || 0) - Number(a.created_ts || a.updated_ts || 0));
+
+      const activeMission = missions.find(m =>
+        ["START_REQUESTED", "ASSIGNED", "RUNNING", "IN_FLIGHT", "BUSY", "ARRIVED"].includes(
+          String(m.status || "").toUpperCase()
+        )
+      );
+
+  if (activeMission) return activeMission;
+
+  const latestMission = missions[0] || null;
+  return latestMission;
+}
 
     function getWaypointFromMission(mission) {
       if (!mission || !Array.isArray(mission.waypoints) || mission.waypoints.length === 0) return null;
@@ -2987,17 +2987,17 @@
       }
     }
 
-    setInterval(() => {
-      if (!document.getElementById("appPage").classList.contains("hidden")) {
-        fetchTelemetry();
-        loadOrders();
-        loadOrderHistory();
-
-        if (isAdminRole()) {
-          loadMissions();
-        }
+    setInterval(async () => {
+    if (!document.getElementById("appPage").classList.contains("hidden")) {
+      if (isAdminRole()) {
+        await loadMissions();
       }
-    }, 2000);
+
+      await fetchTelemetry();
+      await loadOrders();
+      await loadOrderHistory();
+    }
+  }, 2000);
 
     (async function boot() {
       const ok = await fetchMe();
