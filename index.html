@@ -568,6 +568,15 @@
       box-shadow:0 4px 12px rgba(255,95,116,.45);
     }
 
+    .active-drop-marker-wrap {
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#0159fc;
+      border:4px solid rgba(255,255,255,.98);
+      box-shadow:0 0 0 8px rgba(79,140,255,.18), 0 6px 18px rgba(79,140,255,.5);
+    }
+
     .profile-head {
       display:flex;
       align-items:center;
@@ -1299,6 +1308,8 @@
     let flightLine = null;
     let latestDroneLat = null;
     let latestDroneLng = null;
+    let activeDropoffMarker = null;
+    let returnLine = null;
 
     let activeMissions = [];
     let activeOrders = [];
@@ -1406,6 +1417,7 @@
     const userIcon = makeDivIcon("user-marker-wrap", "", [18, 18], [9, 9]);
     const warehouseIcon = makeDivIcon("warehouse-marker-wrap", "", [20, 20], [10, 10]);
     const dropoffIcon = makeDivIcon("drop-marker-wrap", "", [18, 18], [9, 9]);
+    const activeDropoffIcon = makeDivIcon("active-drop-marker-wrap", "", [20, 20], [10, 10]);
 
     function formatEta(seconds) {
       if (seconds == null || !isFinite(seconds) || seconds < 0) return "--";
@@ -1523,6 +1535,176 @@
         }
       }
 
+      function getOrderStatusInfo(status) {
+        const s = String(status || "").toUpperCase();
+
+        if (["DELIVERED", "COMPLETED", "DONE"].includes(s)) {
+          return {
+            text: "Đã giao",
+            className: "btn btn-success",
+            disabled: true
+          };
+        }
+
+        if (["IN_FLIGHT", "RUNNING", "ARRIVED", "START_REQUESTED"].includes(s)) {
+          return {
+            text: "Đang giao",
+            className: "btn btn-danger",
+            disabled: true
+          };
+        }
+
+        if (["CANCELLED", "FAILED"].includes(s)) {
+          return {
+            text: "Không khả dụng",
+            className: "btn btn-dark",
+            disabled: true
+          };
+        }
+
+        return {
+          text: "Tiến hành giao",
+          className: "btn btn-primary",
+          disabled: false
+        };
+      }
+
+
+      function showActiveDropoffMarker(lat, lng, label = "Điểm giao đang xử lý") {
+        if (!map || !isFinite(lat) || !isFinite(lng)) return;
+
+        if (activeDropoffMarker) {
+          map.removeLayer(activeDropoffMarker);
+        }
+
+        activeDropoffMarker = L.marker([lat, lng], { icon: activeDropoffIcon })
+          .addTo(map)
+          .bindPopup(`<b>${escapeHtml(label)}</b>`);
+      }
+
+
+      function clearActiveDropoffMarker() {
+        if (map && activeDropoffMarker) {
+          map.removeLayer(activeDropoffMarker);
+          activeDropoffMarker = null;
+        }
+      }
+
+
+      function updateMissionVisuals(droneLat, droneLng) {
+        const mission = getRelevantMission();
+        const target = getTargetPointFromMission(mission);
+
+        const hasDrone = isFinite(droneLat) && isFinite(droneLng);
+
+        if (!map || !mission || !target || !hasDrone) {
+          if (flightLine && map) {
+            map.removeLayer(flightLine);
+            flightLine = null;
+          }
+          if (returnLine && map) {
+            map.removeLayer(returnLine);
+            returnLine = null;
+          }
+          clearActiveDropoffMarker();
+          return;
+        }
+
+        const missionStatus = String(mission.status || "").toUpperCase();
+
+        showActiveDropoffMarker(target.lat, target.lng, "Điểm giao đang thực hiện");
+
+        const goingToDropoff = ["START_REQUESTED", "RUNNING"].includes(missionStatus);
+        const returningHome = ["ARRIVED", "DELIVERED"].includes(missionStatus);
+
+        if (goingToDropoff) {
+          const routePoints = [
+            [WAREHOUSE_LAT, WAREHOUSE_LNG],
+            [target.lat, target.lng]
+          ];
+
+          if (!flightLine) {
+            flightLine = L.polyline(routePoints, {
+              color: "#148a4b",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "10, 8"
+            }).addTo(map);
+          } else {
+            flightLine.setStyle({
+              color: "#148a4b",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "10, 8"
+            });
+            flightLine.setLatLngs(routePoints);
+          }
+
+          if (returnLine && map) {
+            map.removeLayer(returnLine);
+            returnLine = null;
+          }
+          return;
+        }
+
+        if (returningHome) {
+          if (flightLine) {
+            flightLine.setStyle({
+              color: "#148a4b",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "10, 8"
+            });
+            flightLine.setLatLngs([
+              [WAREHOUSE_LAT, WAREHOUSE_LNG],
+              [target.lat, target.lng]
+            ]);
+          } else {
+            flightLine = L.polyline([
+              [WAREHOUSE_LAT, WAREHOUSE_LNG],
+              [target.lat, target.lng]
+            ], {
+              color: "#148a4b",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "10, 8"
+            }).addTo(map);
+          }
+
+          const returnPoints = [
+            [droneLat, droneLng],
+            [WAREHOUSE_LAT, WAREHOUSE_LNG]
+          ];
+
+          if (!returnLine) {
+            returnLine = L.polyline(returnPoints, {
+              color: "#ffcc33",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "12, 10"
+            }).addTo(map);
+          } else {
+            returnLine.setStyle({
+              color: "#ffcc33",
+              weight: 4,
+              opacity: 0.95,
+              dashArray: "12, 10"
+            });
+            returnLine.setLatLngs(returnPoints);
+          }
+          return;
+        }
+
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+      }
+
       const linkedOrder = activeOrders.find(o => o.id === mission.order_id);
       if (linkedOrder && linkedOrder.dropoff) {
         const lat = Number(linkedOrder.dropoff.lat);
@@ -1535,17 +1717,6 @@
       return null;
     }
 
-    function updateFlightLine(droneLat, droneLng) {
-      const mission = getRelevantMission();
-      const target = getTargetPointFromMission(mission);
-
-      if (!map || !target || !isFinite(droneLat) || !isFinite(droneLng)) {
-        if (flightLine && map) {
-          map.removeLayer(flightLine);
-          flightLine = null;
-        }
-        return;
-      }
 
       const points = [
         [droneLat, droneLng],
@@ -1562,7 +1733,6 @@
       } else {
         flightLine.setLatLngs(points);
       }
-    }
 
     function isAdminRole() {
       return String(currentUser?.role || "").toLowerCase() === "admin";
@@ -1784,7 +1954,7 @@
       hideFinishedMissions = true;
       activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
       loadMissions();
-      updateFlightLine(latestDroneLat, latestDroneLng);
+      updateMissionVisuals(latestDroneLat, latestDroneLng);
       logSys("Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.");
     }
 
@@ -2035,6 +2205,17 @@
         loadMissions();
       } else {
         activeMissions = [];
+        clearActiveDropoffMarker();
+
+        if (flightLine && map) {
+          map.removeLayer(flightLine);
+          flightLine = null;
+        }
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+
         const missionsBox = document.getElementById("missionsBox");
         if (missionsBox) {
           missionsBox.innerHTML = `<div class="list-item">Chỉ admin mới xem mission.</div>`;
@@ -2419,7 +2600,8 @@
         box.innerHTML = ordersToShow.map(o => {
           const status = String(o.status || "").toUpperCase();
           const isAdmin = isAdminRole();
-          const canDispatch = isAdmin && ["CREATED", "QUEUED", "WAITING", "PENDING"].includes(status);
+          const dispatchInfo = getOrderStatusInfo(status);
+          const canDispatch = isAdmin && !dispatchInfo.disabled;
           const canCancel = isAdmin
             ? !["DELIVERED", "COMPLETED", "DONE", "CANCELLED", "IN_FLIGHT", "RUNNING", "ARRIVED"].includes(status)
             : canCancelOrder(status);
@@ -2443,9 +2625,9 @@
                       Đặt lại
                     </button>
                   ` : `
-                    <button class="btn btn-primary" onclick="dispatchOrder('${o.id}')"
+                    <button class="${dispatchInfo.className}" onclick="dispatchOrder('${o.id}', ${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})"
                       ${canDispatch ? "" : "disabled"}>
-                      Tiến hành giao
+                      ${dispatchInfo.text}
                     </button>
                   `
                 }
@@ -2523,7 +2705,7 @@
       logSys("Đã nạp lại thông tin từ lịch sử đơn.");
     }
     
-    async function dispatchOrder(orderId) {
+    async function dispatchOrder(orderId, lat, lng) {
       if (!isAdminRole()) {
         alert("Chỉ admin mới có quyền cho phép drone giao hàng.");
         return;
@@ -2557,12 +2739,18 @@
         }
 
         currentMissionId = data.mission?.id || null;
+
+        if (isFinite(lat) && isFinite(lng)) {
+          showActiveDropoffMarker(lat, lng, "Điểm giao đang thực hiện");
+          map.setView([lat, lng], 17);
+        }
+
         logSys(`Admin đã cho phép drone giao đơn ${orderId}.`);
 
-        loadOrders();
-        loadOrderHistory();
-        loadMissions();
-        fetchTelemetry();
+        await loadOrders();
+        await loadOrderHistory();
+        await loadMissions();
+        await fetchTelemetry();
       } catch (e) {
         alert(`Lỗi tiến hành giao: ${e}`);
       }
@@ -2770,7 +2958,7 @@
               document.getElementById("t-eta").textContent = "--";
             }
 
-            updateFlightLine(Number(t.lat), Number(t.lng));
+            updateMissionVisuals(Number(t.lat), Number(t.lng));
           }
 
           if (!droneConnectedBefore) {
@@ -2786,6 +2974,11 @@
           map.removeLayer(flightLine);
           flightLine = null;
         }
+        if (returnLine && map) {
+          map.removeLayer(returnLine);
+          returnLine = null;
+        }
+        clearActiveDropoffMarker();
       }
     }
 
