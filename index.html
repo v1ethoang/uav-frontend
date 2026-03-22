@@ -1303,12 +1303,10 @@
     let map = null;
     let warehouseMarker = null;
     let droneMarker = null;
-    let dropoffMarker = null;
     let userMarker = null;
     let flightLine = null;
     let latestDroneLat = null;
     let latestDroneLng = null;
-    let activeDropoffMarker = null;
     let returnLine = null;
 
     let activeMissions = [];
@@ -2658,7 +2656,7 @@
         currentMissionId = data.mission?.id || null;
 
         if (isFinite(lat) && isFinite(lng)) {
-          showActiveDropoffMarker(lat, lng, "Điểm giao đang thực hiện");
+          showMissionDropoffMarker(lat, lng, "Điểm giao đang thực hiện");
           map.setView([lat, lng], 17);
         }
 
@@ -2891,17 +2889,19 @@
         document.getElementById("t-status").textContent = "OFFLINE";
         document.getElementById("t-status").className = "value status-offline";
         document.getElementById("t-eta").textContent = "--";
+
         if (flightLine && map) {
           map.removeLayer(flightLine);
           flightLine = null;
         }
+
         if (returnLine && map) {
           map.removeLayer(returnLine);
           returnLine = null;
         }
-        clearActiveDropoffMarker();
+
+        clearMissionDropoffMarker();
       }
-    }
 
     setInterval(async () => {
       if (document.getElementById("appPage").classList.contains("hidden")) return;
