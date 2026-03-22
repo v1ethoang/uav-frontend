@@ -1600,23 +1600,28 @@
       const activeOrder = getActiveDeliveryOrder();
       const mode = String(droneMode || "").toUpperCase();
 
-      const isReturningHome = ["RTL", "RETURN", "LAND"].includes(mode);
+      const distToHome = haversine(droneLat, droneLng, WAREHOUSE_LAT, WAREHOUSE_LNG);
+      const isNearHome = distToHome < 8;
 
-      // Luôn reset trước khi vẽ lại để không bị giữ line cũ
+      const isReturningHome =
+        ["RTL", "RETURN", "LAND"].includes(mode) ||
+        (!activeOrder && !isNearHome);
+
       clearRealtimeVisuals();
 
       if (isReturningHome) {
-        const returnPoints = [
-          [droneLat, droneLng],
-          [WAREHOUSE_LAT, WAREHOUSE_LNG]
-        ];
-
-        returnLine = L.polyline(returnPoints, {
-          color: "#ffcc33",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "12, 10"
-        }).addTo(map);
+        returnLine = L.polyline(
+          [
+            [droneLat, droneLng],
+            [WAREHOUSE_LAT, WAREHOUSE_LNG]
+          ],
+          {
+            color: "#ffcc33",
+            weight: 4,
+            opacity: 0.95,
+            dashArray: "12, 10"
+          }
+        ).addTo(map);
 
         return;
       }
@@ -1634,15 +1639,18 @@
 
       showMissionDropoffMarker(targetLat, targetLng, `Điểm giao ${escapeHtml(activeOrder.id || "")}`);
 
-      flightLine = L.polyline([
-        [droneLat, droneLng],
-        [targetLat, targetLng]
-      ], {
-        color: "#148a4b",
-        weight: 4,
-        opacity: 0.95,
-        dashArray: "10, 8"
-      }).addTo(map);
+      flightLine = L.polyline(
+        [
+          [droneLat, droneLng],
+          [targetLat, targetLng]
+        ],
+        {
+          color: "#148a4b",
+          weight: 4,
+          opacity: 0.95,
+          dashArray: "10, 8"
+        }
+      ).addTo(map);
     }
 
     function isAdminRole() {
@@ -2800,7 +2808,11 @@
           return;
         }
 
-        box.innerHTML = activeMissions.slice().reverse().map(m => `
+        const missionsToShow = [...activeMissions].sort((a, b) => {
+          return Number(b.created_ts || 0) - Number(a.created_ts || 0);
+        });
+
+        box.innerHTML = missionsToShow.map(m => `
           <div class="list-item">
             <div class="head">${escapeHtml(m.id)}</div>
             <div><strong>Status:</strong> ${escapeHtml(m.status || "--")}</div>
