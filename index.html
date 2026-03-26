@@ -522,6 +522,7 @@
     .status-online { color:#7df3b1; }
     .status-offline { color:#ff98a8; }
     .status-busy { color:#ffd27b; }
+    .status-stale { color:#ffb649; }
 
     .leaflet-popup-content-wrapper,
     .leaflet-popup-tip {
@@ -1071,6 +1072,14 @@
               <div class="label">Drone</div>
               <div id="t-drone-id" class="value">drone_1</div>
             </div>
+            <div class="stat">
+              <div class="label">Nguồn tele</div>
+              <div id="t-source" class="value">--</div>
+            </div>
+            <div class="stat">
+              <div class="label">Độ trễ tele</div>
+              <div id="t-age" class="value">--</div>
+            </div>
           </div>
         </div>
 
@@ -1328,7 +1337,9 @@
     };
     let hideFinishedMissions = false;
     let selectedDropoffMarker = null;   
-    let missionDropoffMarker = null;   
+    let missionDropoffMarker = null;  
+    let lastTelemetryStatus = "";
+    let lastTelemetrySource = ""; 
 
     function authHeaders() {
       return {
@@ -1429,6 +1440,19 @@
       if (mins < 60) return `${mins}m ${secs}s`;
       const hours = Math.floor(mins / 60);
       return `${hours}h ${mins % 60}m`;
+    }
+
+    function formatTelemetryAge(ageMs) {
+      if (ageMs == null || !isFinite(ageMs) || ageMs < 0) return "--";
+      if (ageMs < 1000) return `${Math.round(ageMs)} ms`;
+      return `${(ageMs / 1000).toFixed(1)} s`;
+    }
+
+    function formatTelemetrySource(source) {
+      const s = String(source || "").toLowerCase();
+      if (s === "ground_relay") return "GROUND 433";
+      if (s === "pi_bridge") return "PI / WIFI";
+      return source || "--";
     }
 
     function haversine(lat1, lon1, lat2, lon2) {
@@ -2842,91 +2866,128 @@
         const droneData = await res.json();
         if (droneData.error) throw new Error(droneData.error);
 
-        if (droneData && droneData.last) {
-          const t = droneData.last;
+        const t = droneData.last || {};
+        const status = String(droneData.status || "OFFLINE").toUpperCase();
+        const source = droneData.telemetry_source || t.source || "--";
+        const ageMs = Number(droneData.telemetry_age_ms ?? -1);
 
-          document.getElementById("t-mode").textContent = t.mode ?? "--";
-          document.getElementById("t-alt").textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
-          document.getElementById("t-speed").textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
-          document.getElementById("t-armed").textContent = String(t.armed);
-          document.getElementById("t-drone-id").textContent = droneData.id || DRONE_ID;
+        document.getElementById("t-mode").textContent = t.mode ?? "--";
+        document.getElementById("t-alt").textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
+        document.getElementById("t-speed").textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
+        document.getElementById("t-armed").textContent = String(t.armed);
+        document.getElementById("t-drone-id").textContent = droneData.id || DRONE_ID;
 
-          const batteryVal = t.battery_percent;
-          document.getElementById("t-battery").textContent =
-            batteryVal == null ? "--" : `${Number(batteryVal).toFixed(0)}%`;
+        const batteryVal = t.battery_percent;
+        document.getElementById("t-battery").textContent =
+          batteryVal == null ? "--" : `${Number(batteryVal).toFixed(0)}%`;
 
-          const statusEl = document.getElementById("t-status");
-          statusEl.textContent = droneData.status || "OFFLINE";
-          statusEl.className = "value";
+        const sourceEl = document.getElementById("t-source");
+        if (sourceEl) sourceEl.textContent = formatTelemetrySource(source);
 
-          if (droneData.status === "IDLE") {
-            statusEl.classList.add("status-online");
-          } else if (droneData.status === "BUSY") {
-            statusEl.classList.add("status-busy");
-          } else {
-            statusEl.classList.add("status-offline");
-          }
+        const ageEl = document.getElementById("t-age");
+        if (ageEl) ageEl.textContent = formatTelemetryAge(ageMs);
 
-          if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
-            latestDroneLat = Number(t.lat);
-            latestDroneLng = Number(t.lng);
-            droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
+        const statusEl = document.getElementById("t-status");
+        statusEl.textContent = status;
+        statusEl.className = "value";
 
-            const activeOrder = getActiveDeliveryOrder();
+        if (status === "IDLE") {
+          statusEl.classList.add("status-online");
+        } else if (status === "BUSY") {
+          statusEl.classList.add("status-busy");
+        } else if (status === "STALE") {
+          statusEl.classList.add("status-stale");
+        } else {
+          statusEl.classList.add("status-offline");
+        }
 
-            if (activeOrder?.dropoff) {
-              const speed = Number(t.groundspeed_mps || 0);
-              const dist = haversine(
-                Number(t.lat),
-                Number(t.lng),
-                Number(activeOrder.dropoff.lat),
-                Number(activeOrder.dropoff.lng)
-              );
-              const etaSeconds = speed > 0.2 ? dist / speed : null;
-              document.getElementById("t-eta").textContent = formatEta(etaSeconds);
-            } else {
-              document.getElementById("t-eta").textContent = "--";
-            }
+        if (status !== lastTelemetryStatus || source !== lastTelemetrySource) {
+          logSys(`Telemetry: ${status} | nguồn: ${formatTelemetrySource(source)}`);
+          lastTelemetryStatus = status;
+          lastTelemetrySource = source;
+        }
 
+        if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
+          latestDroneLat = Number(t.lat);
+          latestDroneLng = Number(t.lng);
+          droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
+        }
+
+        if (status === "OFFLINE") {
+          document.getElementById("t-eta").textContent = "--";
+          clearRealtimeVisuals();
+          return;
+        }
+
+        const activeOrder = getActiveDeliveryOrder();
+
+        if (
+          activeOrder?.dropoff &&
+          isFinite(t.lat) &&
+          isFinite(t.lng) &&
+          status !== "STALE"
+        ) {
+          const speed = Number(t.groundspeed_mps || 0);
+          const dist = haversine(
+            Number(t.lat),
+            Number(t.lng),
+            Number(activeOrder.dropoff.lat),
+            Number(activeOrder.dropoff.lng)
+          );
+          const etaSeconds = speed > 0.2 ? dist / speed : null;
+          document.getElementById("t-eta").textContent = formatEta(etaSeconds);
+
+          updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ""));
+        } else {
+          document.getElementById("t-eta").textContent = "--";
+
+          if (status === "BUSY" || status === "IDLE") {
             updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ""));
           }
-
-          if (!droneConnectedBefore) {
-            logSys("Đã kết nối realtime tới backend.");
-            droneConnectedBefore = true;
-          }
         }
+
+        if (!droneConnectedBefore) {
+          logSys("Đã kết nối realtime tới backend.");
+          droneConnectedBefore = true;
+        }
+
       } catch (e) {
         document.getElementById("t-status").textContent = "OFFLINE";
         document.getElementById("t-status").className = "value status-offline";
         document.getElementById("t-eta").textContent = "--";
 
-        if (flightLine && map) {
-          map.removeLayer(flightLine);
-          flightLine = null;
-        }
+        const sourceEl = document.getElementById("t-source");
+        if (sourceEl) sourceEl.textContent = "--";
 
-        if (returnLine && map) {
-          map.removeLayer(returnLine);
-          returnLine = null;
-        }
+        const ageEl = document.getElementById("t-age");
+        if (ageEl) ageEl.textContent = "--";
 
-        clearMissionDropoffMarker();
+        clearRealtimeVisuals();
       }
     }
 
-    setInterval(async () => {
-      if (document.getElementById("appPage").classList.contains("hidden")) return;
+    let pollBusy = false;
+    async function pollLoop() {
+      if (!document.getElementById("appPage").classList.contains("hidden") && !pollBusy) {
+        pollBusy = true;
+        try {
+          await loadOrders();
 
-      await loadOrders();
+          if (isAdminRole()) {
+            await loadMissions();
+          }
 
-      if (isAdminRole()) {
-        await loadMissions();
+          await fetchTelemetry();
+          await loadOrderHistory();
+        } finally {
+          pollBusy = false;
+        }
       }
 
-      await fetchTelemetry();
-      await loadOrderHistory();
-    }, 2000);
+      setTimeout(pollLoop, 2000);
+    }
+
+    pollLoop();
 
     (async function boot() {
       const ok = await fetchMe();
