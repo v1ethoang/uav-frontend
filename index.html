@@ -1449,10 +1449,20 @@
       return `${(ageMs / 1000).toFixed(1)} s`;
     }
 
-    function formatTelemetrySource(source) {
+    function formatTelemetrySource(source, reason = "") {
       const s = String(source || "").toLowerCase();
-      if (s === "ground_relay") return "GROUND 433";
-      if (s === "pi_bridge") return "PI / WIFI";
+      const r = String(reason || "").toLowerCase();
+
+      if (s === "pi_bridge") {
+        if (r.startsWith("primary")) return "PI / WIFI (primary)";
+        return "PI / WIFI";
+      }
+
+      if (s === "ground_relay") {
+        if (r.startsWith("fallback")) return "GROUND 433 (fallback)";
+        return "GROUND 433";
+      }
+
       return source || "--";
     }
 
@@ -2870,6 +2880,7 @@
         const t = droneData.last || {};
         const status = String(droneData.status || "OFFLINE").toUpperCase();
         const source = droneData.telemetry_source || t.source || "--";
+        const reason = droneData.telemetry_reason || "";
         const ageMs = Number(droneData.telemetry_age_ms ?? -1);
 
         document.getElementById("t-mode").textContent = t.mode ?? "--";
@@ -2883,7 +2894,7 @@
           batteryVal == null ? "--" : `${Number(batteryVal).toFixed(0)}%`;
 
         const sourceEl = document.getElementById("t-source");
-        if (sourceEl) sourceEl.textContent = formatTelemetrySource(source);
+        if (sourceEl) sourceEl.textContent = formatTelemetrySource(source, reason);
 
         const ageEl = document.getElementById("t-age");
         if (ageEl) ageEl.textContent = formatTelemetryAge(ageMs);
@@ -2902,11 +2913,13 @@
           statusEl.classList.add("status-offline");
         }
 
-        if (status !== lastTelemetryStatus || source !== lastTelemetrySource) {
-          logSys(`Telemetry: ${status} | nguồn: ${formatTelemetrySource(source)}`);
-          lastTelemetryStatus = status;
-          lastTelemetrySource = source;
-        }
+        const sourceLabel = formatTelemetrySource(source, reason);
+
+      if (status !== lastTelemetryStatus || sourceLabel !== lastTelemetrySource) {
+        logSys(`Telemetry: ${status} | nguồn: ${sourceLabel}`);
+        lastTelemetryStatus = status;
+        lastTelemetrySource = sourceLabel;
+      }
 
         if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
           latestDroneLat = Number(t.lat);

@@ -4,7 +4,7 @@ from pymavlink import mavutil
 
 BACKEND = "https://uav-backend-zbti.onrender.com"
 DRONE_ID = "drone_1"
-MAVLINK_IN = "udpin:0.0.0.0:14551"
+MAVLINK_IN = "udpin:127.0.0.1:14552"
 
 POST_INTERVAL_SEC = 0.5
 REQUEST_TIMEOUT = 3.0
