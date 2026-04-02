@@ -2338,47 +2338,69 @@
         activeLink.classList.remove('text-[#849396]', 'border-transparent');
       }
 
-      navLinks.forEach(link => {
-        link.addEventListener('click', function () {
-          setActiveNav(this);
-        });
-      });
-
       const sections = [];
       navLinks.forEach(link => {
         const href = link.getAttribute('href');
         if (!href || !href.startsWith('#')) return;
+
         const section = document.querySelector(href);
-        if (section) {
-          sections.push({
-            link: link,
-            section: section
-          });
-        }
+        if (!section) return;
+
+        sections.push({
+          link,
+          section,
+          id: href
+        });
+
+        link.addEventListener('click', function () {
+          setActiveNav(link);
+
+          setTimeout(() => {
+            updateActiveNavOnScroll();
+          }, 250);
+        });
       });
 
       function updateActiveNavOnScroll() {
         const header = document.querySelector('#landingPage header');
         const headerHeight = header ? header.offsetHeight : 90;
-        const scrollPoint = window.scrollY + headerHeight + 120;
 
-        let currentSection = sections[0];
+        const scrollY = window.scrollY;
+        const viewportBottom = scrollY + window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+
+        if (viewportBottom >= docHeight - 10) {
+          const footerItem = sections.find(item => item.id === '#footer');
+          if (footerItem) {
+            setActiveNav(footerItem.link);
+            return;
+          }
+        }
+
+        let bestMatch = null;
+        let bestTop = -Infinity;
 
         sections.forEach(item => {
-          if (item.section.offsetTop <= scrollPoint) {
-            currentSection = item;
+          const rect = item.section.getBoundingClientRect();
+          const sectionTop = rect.top + window.scrollY - headerHeight - 140;
+
+          if (scrollY >= sectionTop && sectionTop > bestTop) {
+            bestTop = sectionTop;
+            bestMatch = item;
           }
         });
 
-        if (currentSection) {
-          setActiveNav(currentSection.link);
+        if (bestMatch) {
+          setActiveNav(bestMatch.link);
         }
       }
 
       window.addEventListener('scroll', updateActiveNavOnScroll);
       window.addEventListener('load', updateActiveNavOnScroll);
+      window.addEventListener('resize', updateActiveNavOnScroll);
+
       updateActiveNavOnScroll();
-    } 
+    }
     
     pollLoop();
     initLandingNavActive();
