@@ -1,660 +1,324 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html class="dark" lang="vi">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Drone Delivery Control</title>
+  <title>JANUS | Drone Delivery Console</title>
   <link rel="icon" type="image/png" href="uteicon.png" />
-
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#c3f5ff',
+            accent: '#00e5ff',
+            surface: '#0b1326',
+            panel: '#131b2e',
+            panel2: '#1a233a',
+            line: '#2d3449',
+            muted: '#92a4b8',
+            success: '#22c55e',
+            danger: '#ff6b7d',
+            warning: '#f8c146'
+          },
+          fontFamily: {
+            headline: ['Manrope', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          },
+          boxShadow: {
+            soft: '0 20px 60px rgba(0,0,0,.35)'
+          }
+        }
+      }
+    };
+  </script>
 
   <style>
-    :root{
-      --bg:#08101f;
-      --bg-2:#0e1830;
-      --panel:rgba(15,22,40,.84);
-      --panel-2:rgba(19,28,52,.92);
-      --card:rgba(255,255,255,.05);
-      --line:rgba(255,255,255,.08);
-      --text:#edf3ff;
-      --muted:#a5b2cc;
-      --primary:#4f8cff;
-      --primary-2:#7168ff;
-      --success:#18c37e;
-      --danger:#ff5f74;
-      --warning:#ffb649;
-      --shadow:0 16px 40px rgba(0,0,0,.35);
-      --radius:18px;
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
     }
-
-    * { box-sizing:border-box; }
 
     html, body {
-      margin:0;
-      padding:0;
-      height:100%;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      color:var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
       background:
-        radial-gradient(circle at top left, rgba(79,140,255,.16), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(24,195,126,.12), transparent 24%),
-        linear-gradient(135deg, var(--bg), var(--bg-2));
+        radial-gradient(circle at top left, rgba(0,229,255,.08), transparent 20%),
+        radial-gradient(circle at bottom right, rgba(195,245,255,.08), transparent 24%),
+        #0b1326;
+      color: #dae2fd;
     }
 
-    .hidden { display:none !important; }
-
-    .btn {
-      border:none;
-      border-radius:14px;
-      padding:13px 16px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.18s ease;
-    }
-
-    .btn:hover { transform:translateY(-1px); }
-
-    .btn-primary {
-      background:linear-gradient(135deg, var(--primary), var(--primary-2));
-      color:white;
-    }
-
-    .btn-success {
-      background:linear-gradient(135deg, #12b877, #1ec989);
-      color:white;
-    }
-
-    .btn-dark {
-      background:rgba(255,255,255,.06);
-      color:white;
-      border:1px solid var(--line);
-    }
-
-    .btn-danger {
-      background:linear-gradient(135deg, #ff4e68, #ff6d61);
-      color:white;
-    }
-
-    .auth-wrap {
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:24px;
-    }
-
-    .auth-card {
-      width:min(100%, 1020px);
-      display:grid;
-      grid-template-columns: 1.08fr .92fr;
-      background:rgba(9,14,28,.72);
-      border:1px solid var(--line);
-      border-radius:28px;
-      overflow:hidden;
-      backdrop-filter:blur(14px);
-      box-shadow:var(--shadow);
-    }
-
-    .auth-hero {
-      padding:42px;
-      border-right:1px solid var(--line);
+    body {
+      font-family: 'Inter', sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(79,140,255,.22), transparent 33%),
-        radial-gradient(circle at bottom right, rgba(24,195,126,.14), transparent 30%),
-        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+        radial-gradient(circle at top left, rgba(0,229,255,.08), transparent 20%),
+        radial-gradient(circle at bottom right, rgba(195,245,255,.08), transparent 24%),
+        #0b1326;
+      color: #dae2fd;
     }
 
-    .auth-hero h1 {
-      margin:0 0 14px;
-      font-size:38px;
-      line-height:1.15;
+    h1, h2, h3, h4, .font-headline, .console-title, .section-title, .sidebar-tab {
+      font-family: 'Manrope', sans-serif;
     }
 
-    .auth-hero p {
-      margin:0 0 24px;
-      color:var(--muted);
-      line-height:1.7;
-      max-width:580px;
+    button, input, textarea, select {
+      font-family: 'Inter', sans-serif;
     }
 
-    .hero-grid {
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:14px;
-      margin-top:26px;
-    }
-
-    .hero-chip {
-      padding:16px;
-      background:rgba(255,255,255,.05);
-      border:1px solid var(--line);
-      border-radius:18px;
-    }
-
-    .hero-chip-title {
-      font-size:15px;
-      font-weight:700;
-      margin-bottom:8px;
-    }
-
-    .hero-chip-sub {
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    .auth-form-wrap {
-      padding:34px 30px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-      font-size:20px;
-      font-weight:800;
-    }
-
-    .brand-badge {
-      width:42px;
-      height:42px;
-      border-radius:14px;
-      display:grid;
-      place-items:center;
-      background:linear-gradient(135deg, var(--primary), var(--primary-2));
-      box-shadow:0 10px 24px rgba(79,140,255,.32);
-    }
-
-    .tabs {
-      display:flex;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:6px;
-      margin-bottom:18px;
-    }
-
-    .tab {
-      flex:1;
-      border:none;
-      background:transparent;
-      color:var(--muted);
-      padding:12px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:700;
-    }
-
-    .tab.active {
-      background:rgba(79,140,255,.18);
-      color:white;
-    }
-
-    .form-title {
-      margin:4px 0 6px;
-      font-size:28px;
-      font-weight:800;
-    }
-
-    .form-sub {
-      color:var(--muted);
-      line-height:1.6;
-      margin-bottom:18px;
-    }
-
-    .field { margin-bottom:14px; }
-
-    .field label {
-      display:block;
-      margin-bottom:8px;
-      font-size:14px;
-      color:#dbe4fb;
-    }
-
-    .field input {
-      width:100%;
-      padding:14px 16px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:white;
-      outline:none;
-      font-size:15px;
-    }
-
-    .field input:focus,
-    .field-inline input:focus,
-    .field-inline select:focus {
-      border-color:rgba(79,140,255,.8);
-      box-shadow:0 0 0 4px rgba(79,140,255,.14);
-    }
-
-    .msg {
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:12px;
-      font-size:14px;
-      display:none;
-    }
-
-    .msg.ok {
-      display:block;
-      background:rgba(24,195,126,.14);
-      color:#8cf0be;
-      border:1px solid rgba(24,195,126,.22);
-    }
-
-    .msg.err {
-      display:block;
-      background:rgba(255,95,116,.13);
-      color:#ffacb8;
-      border:1px solid rgba(255,95,116,.22);
-    }
-
-    .muted { color:var(--muted); }
-
-    .app {
-      height:100vh;
-      display:grid;
-      grid-template-columns: 390px 1fr;
-    }
-
-    .sidebar {
-      background:rgba(8,12,24,.92);
-      border-right:1px solid var(--line);
-      padding:18px;
-      overflow-y:auto;
-    }
-
-    .title-main {
-      font-size:24px;
-      font-weight:800;
-      margin:0;
-    }
-
-    .subtitle {
-      color:var(--muted);
-      margin-top:4px;
-      font-size:13px;
-    }
-
-    .user-box,
-    .panel {
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:var(--shadow);
-      margin-top:16px;
-    }
-
-    .user-box .role,
-    .profile-role-badge {
-      display:inline-block;
-      margin-top:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      background:rgba(79,140,255,.18);
-      color:#b7d1ff;
-      border:1px solid rgba(79,140,255,.28);
-    }
-
-    .panel h3 {
-      margin:0 0 14px;
-      font-size:16px;
-    }
-
-    .sidebar-tabs-wrap {
-      padding:10px;
-    }
-
-    .sidebar-tabs {
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:8px;
+    .console-title,
+    .section-title,
+    .sidebar-tab {
+      letter-spacing: -0.02em;
     }
 
     .sidebar-tab {
-      border:none;
-      border-radius:12px;
-      padding:12px 10px;
-      font-weight:700;
-      cursor:pointer;
-      background:rgba(255,255,255,.05);
-      color:var(--muted);
-      border:1px solid var(--line);
-      transition:.18s ease;
-    }
-
-    .sidebar-tab:hover {
-      transform:translateY(-1px);
-      color:white;
+      font-size: 14px;
+      font-weight: 800;
+      position: relative;
+      overflow: hidden;
+      transition: all .18s ease;
     }
 
     .sidebar-tab.active {
-      background:linear-gradient(135deg, rgba(79,140,255,.22), rgba(113,104,255,.18));
-      color:white;
-      border-color:rgba(79,140,255,.35);
-      box-shadow:0 8px 18px rgba(79,140,255,.16);
+      box-shadow:
+        0 0 0 1px rgba(0,229,255,.18) inset,
+        0 14px 34px rgba(0,229,255,.14);
     }
 
-    .sidebar-tab-panel {
-      display:none;
+    .sidebar-tab:not(.active):hover {
+      border-color: rgba(0,229,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #eef9ff;
     }
 
-    .sidebar-tab-panel.active {
-      display:block;
+    .glass-panel h2,
+    .glass-panel h3,
+    .glass-panel h4 {
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
     }
 
-    .stat-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+    .glass-panel {
+      position: relative;
+      background: linear-gradient(180deg, rgba(12, 20, 40, 0.88), rgba(9, 15, 32, 0.84));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(195,245,255,.08);
+      box-shadow: 0 18px 50px rgba(0,0,0,.28);
     }
 
-    .stat {
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
+    .glass-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 24%);
     }
 
-    .stat .label {
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
+    .console-accent-ring {
+      box-shadow:
+        0 0 0 1px rgba(0,229,255,.12) inset,
+        0 20px 50px rgba(0,0,0,.24);
     }
 
-    .stat .value {
-      font-size:18px;
-      font-weight:800;
-      word-break:break-word;
+    .gradient-text {
+      background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .field-inline { margin-bottom:12px; }
-
-    .field-inline label {
-      display:block;
-      margin-bottom:7px;
-      font-size:13px;
-      color:var(--muted);
+    .gradient-btn {
+      background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
+      color: #031722;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      box-shadow: 0 12px 30px rgba(0,229,255,.16);
+      transition: all .18s ease;
     }
 
-    .field-inline input,
-    .field-inline select {
-      width:100%;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:white;
-      outline:none;
-      font-size:14px;
+    .gradient-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 38px rgba(0,229,255,.22);
     }
 
-    .field-inline select option {
-      background:#0f1730;
-      color:white;
+    .soft-btn {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(195,245,255,.08);
+      color: #eef5ff;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      transition: all .18s ease;
     }
 
-    .row-2 {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
+    .soft-btn:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
+      border-color: rgba(195,245,255,.18);
     }
 
-    .main {
-      display:grid;
-      grid-template-rows:auto 1fr;
-      min-height:100vh;
+    .interactive-glow {
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
     }
 
-    .topbar {
-      padding:16px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      border-bottom:1px solid var(--line);
-      background:rgba(12,18,34,.72);
-      backdrop-filter:blur(10px);
+    .interactive-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(0,229,255,.12);
+      border-color: rgba(0,229,255,.22);
     }
 
-    .topbar h2 {
-      margin:0;
-      font-size:22px;
+    .interactive-glow:active {
+      transform: translateY(0) scale(.985);
     }
 
-    .topbar p {
-      margin:6px 0 0;
-      font-size:13px;
-      color:var(--muted);
+    .dashboard-chip {
+      border: 1px solid rgba(195,245,255,.1);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      transition: all .18s ease;
     }
 
-    .top-actions {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .dashboard-chip:hover {
+      border-color: rgba(0,229,255,.2);
+      box-shadow: 0 12px 28px rgba(0,229,255,.08);
     }
 
-    #map {
-      width:100%;
-      height:100%;
-      min-height:560px;
+    .glass-panel input,
+    .glass-panel textarea {
+      font-size: 14px;
     }
 
-    .map-wrap {
-      position:relative;
-      height:100%;
+    .focusable-raise {
+      transition: all .18s ease;
     }
 
-    .floating-cards {
-      position:absolute;
-      right:18px;
-      top:18px;
-      z-index:900;
-      display:grid;
-      gap:12px;
-      width:min(360px, calc(100% - 36px));
+    .focusable-raise:hover {
+      transform: translateY(-2px);
     }
 
-    .float-card {
-      background:rgba(10,16,32,.82);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      backdrop-filter:blur(10px);
-      box-shadow:var(--shadow);
+    .focusable-raise:focus,
+    .focusable-raise:focus-visible {
+      outline: none;
+      border-color: rgba(0,229,255,.28) !important;
+      box-shadow:
+        0 0 0 3px rgba(0,229,255,.12),
+        0 10px 24px rgba(0,229,255,.08);
     }
-
-    .float-card h4 {
-      margin:0 0 10px;
-      font-size:15px;
-    }
-
-    .list-box {
-      max-height:230px;
-      overflow-y:auto;
-      display:grid;
-      gap:10px;
-    }
-
-    .list-box.large {
-      max-height:320px;
-    }
-
-    .list-item {
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      font-size:13px;
-      line-height:1.55;
-    }
-
-    .list-item .head {
-      font-weight:800;
-      margin-bottom:6px;
-    }
-
-    .log-box {
-      max-height:350px;
-      overflow-y:auto;
-      display:flex;
-      flex-direction:column-reverse;
-      gap:8px;
-    }
-
-    .log-item {
-      background:rgba(255,255,255,.05);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:13px;
-      color:#dde7fb;
-    }
-
-    .status-online { color:#7df3b1; }
-    .status-offline { color:#ff98a8; }
-    .status-busy { color:#ffd27b; }
-    .status-stale { color:#ffb649; }
 
     .leaflet-popup-content-wrapper,
     .leaflet-popup-tip {
-      background:#0f1730;
-      color:white;
-      border:1px solid rgba(255,255,255,.08);
+      background: #131b2e;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .drone-marker-wrap,
+    .user-marker-wrap,
+    .warehouse-marker-wrap,
+    .drop-marker-wrap,
+    .active-drop-marker-wrap {
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
     }
 
     .drone-marker-wrap {
-      width:42px;
-      height:42px;
-      display:grid;
-      place-items:center;
-      border-radius:50%;
-      background:rgba(16, 29, 56, .95);
-      border:2px solid rgba(79,140,255,.75);
-      box-shadow:0 8px 18px rgba(0,0,0,.35);
+      width: 42px;
+      height: 42px;
+      background: rgba(10, 18, 34, .95);
+      border: 2px solid rgba(0,229,255,.7);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
     }
 
     .user-marker-wrap {
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:#23d18b;
-      border:3px solid rgba(255,255,255,.95);
-      box-shadow:0 4px 12px rgba(35,209,139,.45);
+      width: 18px;
+      height: 18px;
+      background: #22c55e;
+      border: 3px solid rgba(255,255,255,.95);
+      box-shadow: 0 6px 14px rgba(34,197,94,.35);
     }
 
     .warehouse-marker-wrap {
-      width:20px;
-      height:20px;
-      border-radius:50%;
-      background:#ffb649;
-      border:3px solid rgba(255,255,255,.95);
-      box-shadow:0 4px 12px rgba(255,182,73,.45);
+      width: 20px;
+      height: 20px;
+      background: #f8c146;
+      border: 3px solid rgba(255,255,255,.95);
+      box-shadow: 0 6px 14px rgba(248,193,70,.35);
     }
 
     .drop-marker-wrap {
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:#ff5f74;
-      border:3px solid rgba(255,255,255,.95);
-      box-shadow:0 4px 12px rgba(255,95,116,.45);
+      width: 18px;
+      height: 18px;
+      background: #ff6b7d;
+      border: 3px solid rgba(255,255,255,.95);
+      box-shadow: 0 6px 14px rgba(255,107,125,.35);
     }
 
     .active-drop-marker-wrap {
-      width:20px;
-      height:20px;
-      border-radius:50%;
-      background:#0159fc;
-      border:4px solid rgba(255,255,255,.98);
-      box-shadow:0 0 0 8px rgba(79,140,255,.18), 0 6px 18px rgba(79,140,255,.5);
+      width: 20px;
+      height: 20px;
+      background: #00e5ff;
+      border: 4px solid rgba(255,255,255,.98);
+      box-shadow: 0 0 0 8px rgba(0,229,255,.18), 0 6px 18px rgba(0,229,255,.3);
     }
 
-    .profile-head {
-      display:flex;
-      align-items:center;
-      gap:14px;
-      margin-bottom:16px;
+    #map {
+      min-height: 760px;
+      height: 100%;
+      width: 100%;
     }
 
-    .profile-name {
-      font-size:18px;
-      font-weight:800;
-      margin:0 0 4px;
-    }
-
-    .section-note {
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-      margin-top:-2px;
-      margin-bottom:12px;
-    }
-
-    .order-mini-actions {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:8px;
-    }
-
-    .empty-box {
-      padding:14px;
-      border:1px dashed var(--line);
-      border-radius:14px;
-      color:var(--muted);
-      background:rgba(255,255,255,.03);
-    }
+    .hidden-el { display: none !important; }
 
     .product-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
 
     .product-card {
       position: relative;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px;
-      cursor: pointer;
-      transition: .18s ease;
+      border-radius: 24px;
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(23,33,58,.96), rgba(17,26,46,.94));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+      transition: all .22s ease;
+      cursor: pointer;
     }
 
     .product-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(79,140,255,.45);
-      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      transform: translateY(-3px);
+      border-color: rgba(0,229,255,.22);
+      box-shadow: 0 18px 40px rgba(0,229,255,.08);
     }
 
     .product-card.active {
-      border-color: rgba(79,140,255,.9);
-      box-shadow: 0 0 0 3px rgba(79,140,255,.14);
-      background: linear-gradient(180deg, rgba(79,140,255,.10), rgba(255,255,255,.04));
+      border-color: #3b82f6;
+      box-shadow:
+        0 0 0 2px rgba(59,130,246,.5),
+        0 18px 42px rgba(59,130,246,.14);
+      background: linear-gradient(180deg, rgba(20,44,90,.95), rgba(18,31,59,.95));
     }
 
     .product-thumb {
-      width: 100%;
-      aspect-ratio: 1.4 / 1;
-      border-radius: 12px;
+      width: calc(100% - 24px);
+      height: 108px;
+      margin: 12px auto 0;
+      border-radius: 18px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.07);
-      background: rgba(255,255,255,.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
+      background: #0d1426;
+      border: 1px solid rgba(255,255,255,.08);
     }
 
     .product-thumb img {
@@ -664,748 +328,1174 @@
       display: block;
     }
 
-    .product-name {
-      font-size: 14px;
-      font-weight: 800;
-      color: white;
+    .product-card-body {
+      padding: 14px 16px 18px;
     }
 
-    .product-desc {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 4px;
-      line-height: 1.5;
+    .product-name {
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #ffffff;
+      letter-spacing: -0.02em;
     }
 
     .product-check {
       position: absolute;
       top: 10px;
       right: 10px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
       display: grid;
       place-items: center;
-      background: rgba(8,12,24,.86);
-      border: 1px solid var(--line);
+      background: rgba(3,10,22,.9);
       color: white;
-      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,.35);
       opacity: 0;
       transform: scale(.9);
-      transition: .18s ease;
+      transition: all .18s ease;
     }
 
     .product-card.active .product-check {
       opacity: 1;
       transform: scale(1);
+      background: radial-gradient(circle at 30% 30%, #1d4ed8, #0b1326);
+      border-color: rgba(147,197,253,.55);
     }
 
-    @media (max-width: 640px) {
-      .product-grid {
-        grid-template-columns: 1fr;
-      }
+    .console-primary-btn {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 18px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
-    @media (max-width: 1000px) {
-      .auth-card { grid-template-columns:1fr; }
-      .auth-hero { display:none; }
-      .app { grid-template-columns:1fr; height:auto; }
-      .sidebar { order:2; }
-      .main { order:1; min-height:60vh; }
-      .floating-cards {
-        position:static;
-        width:100%;
-        padding:12px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .sidebar-tabs {
-        grid-template-columns:1fr;
-      }
-
-      .row-2,
-      .stat-grid,
-      .order-mini-actions {
-        grid-template-columns:1fr;
-      }
-    }
-
-    .avatar-wrap {
-      position: relative;
-      width: 56px;
-      height: 56px;
-      flex-shrink: 0;
-    }
-
-    .avatar-upload-label {
-      display: block;
-      width: 56px;
-      height: 56px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .profile-avatar {
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      position: relative;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:22px;
-      font-weight:800;
-      background:linear-gradient(135deg, rgba(79,140,255,.35), rgba(113,104,255,.26));
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 10px 22px rgba(0,0,0,.25);
-    }
-
-    .profile-avatar-img {
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .profile-avatar-fallback {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      height:100%;
-    }
-
-    .avatar-edit-badge {
-      position: absolute;
-      right: -2px;
-      bottom: -2px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+    .profile-inline-actions {
       display: grid;
-      place-items: center;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
       font-size: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: white;
-      border: 2px solid #0b1326;
-      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+      font-weight: 800;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, .12);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, .22);
+    }
+
+    .status-processing {
+      background: rgba(59, 130, 246, .12);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, .22);
+    }
+
+    .status-success {
+      background: rgba(34, 197, 94, .12);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, .22);
+    }
+
+    .status-cancelled {
+      background: rgba(244, 63, 94, .12);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, .22);
+    }
+
+    .status-neutral {
+      background: rgba(148, 163, 184, .12);
+      color: #cbd5e1;
+      border-color: rgba(148, 163, 184, .2);
+    }
+
+    #authModal {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .28s ease, visibility .28s ease;
+    }
+
+    #authModal.modal-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #authModal .auth-modal-panel {
+      opacity: 0;
+      transform: translateY(18px) scale(.98);
+      transition: transform .32s cubic-bezier(.22, 1, .36, 1), opacity .24s ease;
+      will-change: transform, opacity;
+    }
+
+    #authModal.modal-open .auth-modal-panel {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
   </style>
 </head>
-<body>
+<body class="bg-surface text-white selection:bg-accent selection:text-surface">
+  <div id="landingPage">
+    <header class="fixed top-0 inset-x-0 z-50 bg-[#0b1326]/60 backdrop-blur-xl border-b border-white/5">
+      <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
+          <span class="text-2xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase">JANUS</span>
+        </div>
 
-  <!-- AUTH -->
-  <div id="authPage" class="auth-wrap">
-    <div class="auth-card">
-      <div class="auth-hero">
-        <h1>Drone Delivery</h1>
-        <p>
-          Hệ thống giám sát và điều phối drone giao hàng theo thời gian thực.
-          Người dùng có thể tự đăng ký, đăng nhập, chọn vị trí giao bằng GPS hoặc địa chỉ,
-          Quản trị viên có thể điều phối mission và theo dõi tiến trình bay trên bản đồ.
-        </p>
+        <nav class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
+          <a class="text-[#c3f5ff] border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#how">Cách hoạt động</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#features">Tính năng</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#story">Hành trình</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#footer">Liên hệ</a>
+        </nav>
 
-        <div class="hero-grid">
-          <div class="hero-chip">
-            <div class="hero-chip-title">Bản đồ tương tác</div>
-            <div class="hero-chip-sub">Chọn điểm giao bằng click, vị trí hiện tại hoặc tìm theo địa chỉ.</div>
-          </div>
-
-          <div class="hero-chip">
-            <div class="hero-chip-title">Theo dõi realtime</div>
-            <div class="hero-chip-sub">Theo dõi mode, tốc độ, độ cao, pin và thời gian giao hàng dự kiến.</div>
-          </div>
-
-          <div class="hero-chip">
-            <div class="hero-chip-title">Quản lý phân quyền</div>
-            <div class="hero-chip-sub">Admin quản lý mission. User thường có thể tạo tài khoản và đặt đơn.</div>
-          </div>
-
-          <div class="hero-chip">
-            <div class="hero-chip-title">Đường bay trực quan</div>
-            <div class="hero-chip-sub">Theo dõi hành trình đơn hàng theo thời gian thực một cách tiện lợi và dễ dàng.</div>
-          </div>
+        <div class="flex items-center gap-3">
+          <button id="landingAuthBtn" class="gradient-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-tighter uppercase active:scale-95 duration-150 interactive-glow" onclick="handleLandingAuthAction()">Đăng nhập</button>
         </div>
       </div>
+    </header>
 
-      <div class="auth-form-wrap">
-        <div class="brand">
-          <div class="brand-badge">🚁</div>
-          <div>Drone Delivery</div>
+    <main class="pt-24">
+      <section id="hero" class="px-6 py-12 md:py-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-panel2 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          Hệ thống vận hành Drone Delivery
         </div>
 
-        <div class="tabs">
-          <button id="tabLogin" class="tab active" onclick="switchTab('login')">Đăng nhập</button>
-          <button id="tabRegister" class="tab" onclick="switchTab('register')">Đăng ký</button>
+        <h1 class="text-4xl md:text-7xl font-extrabold tracking-tighter leading-none mb-6 max-w-5xl">
+          Giao hàng <span class="gradient-text">nhanh</span> bằng drone, <span class="gradient-text"> chính xác</span> và <span class="gradient-text">theo dõi realtime</span>
+        </h1>
+
+        <p class="text-slate-300 text-lg md:text-xl max-w-3xl mb-10 leading-relaxed">
+          Nền tảng giúp người dùng đặt đơn dễ dàng, admin điều phối mission hiệu quả và theo dõi trạng thái bay trực tiếp trên bản đồ.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-20 w-full sm:w-auto">
+          <button class="gradient-btn px-8 py-4 rounded-xl font-bold tracking-tight text-lg shadow-lg shadow-cyan-500/10 hover:scale-[1.02] transition-transform interactive-glow" onclick="openAuthModal('register')">Tạo tài khoản</button>
+          <button class="bg-panel2 px-8 py-4 rounded-xl text-white font-bold tracking-tight text-lg flex items-center justify-center gap-2 hover:bg-[#24304a] transition-colors border border-white/5 interactive-glow" onclick="handleLandingAuthAction()">
+            <span class="material-symbols-outlined text-xl">play_circle</span>
+            Mở console
+          </button>
         </div>
 
-        <div id="loginForm">
-          <div class="form-title">Đăng nhập hệ thống</div>
-          <div class="form-sub">
-            Đăng nhập để đặt hàng và theo dõi trạng thái drone.<br>
-            Nếu chưa có tài khoản vui lòng đăng ký mới.
+        <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel p-2 shadow-soft">
+          <div class="absolute inset-0 bg-black/30"></div>
+          <img class="w-full h-full object-cover rounded-xl border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9EaVang_y61vzaoxlS-FLeRBXGmSSN1gAr-_JKVbGRpd0VYcTxcGSN6xcW5RMHOh7Cv-K_Jd-k_ee-2X6d4rZZs5BKPTUjRNdniofN9-WhB3_Gfb0LXDkohLnBFVR7Ci020AGlA00f2HWVXwXkZwuFIvzzyxleYsTgi1q1MYnEDLArvGduy03WZsG1bM4LTyePkH-RqjaV3vGnd8HRkcamvChExZrtn2MRJMan_sKswtMymS4TJLkq2woO3WPpd3XnvYwLHvvYL8N" alt="Drone Janus in flight" />
+
+          <div class="absolute top-8 left-8 p-4 rounded-xl glass-panel border border-white/10 hidden md:block text-left">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-2 h-2 rounded-full bg-green-400"></div>
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-300">Drone Alpha-12</span>
+            </div>
+            <div class="text-2xl font-bold text-primary tabular-nums">Realtime</div>
+            <div class="text-[10px] text-slate-400 mt-1 uppercase tracking-tighter">Telemetry Dashboard</div>
           </div>
 
-          <div class="field">
-            <label>Tên đăng nhập</label>
-            <input id="loginUsername" type="text" placeholder="Nhập tên đăng nhập..." />
+          <div class="absolute bottom-8 right-8 p-6 rounded-xl glass-panel border border-white/10 max-w-xs hidden md:block text-left">
+            <div class="flex justify-between items-start mb-4 gap-4">
+              <span class="px-2 py-1 bg-cyan-500/10 text-accent text-[10px] font-bold rounded uppercase">Live Mission</span>
+              <span class="text-slate-400 text-[10px]">Orders • Missions • ETA</span>
+            </div>
+            <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden mb-2">
+              <div class="h-full bg-accent w-2/3"></div>
+            </div>
+            <p class="text-xs text-white font-medium">Order dispatch and route tracking</p>
+            <p class="text-[10px] text-slate-400 mt-1">Theo dõi thông số telemetry, hành trình và lịch sử đơn hàng</p>
           </div>
+        </div>
+      </section>
 
-          <div class="field">
-            <label>Mật khẩu</label>
-            <input id="loginPassword" type="password" placeholder="Nhập mật khẩu..." />
+      <section class="bg-[#10192d] py-24">
+        <div class="px-6 max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+            <span class="material-symbols-outlined text-primary text-4xl mb-6 block">location_on</span>
+            <h3 class="text-xl font-bold mb-3">Chọn điểm giao bằng bản đồ</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">Click map, tìm địa chỉ hoặc lấy vị trí hiện tại để tạo đơn hàng nhanh.</p>
           </div>
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+            <span class="material-symbols-outlined text-primary text-4xl mb-6 block">near_me</span>
+            <h3 class="text-xl font-bold mb-3">Theo dõi drone realtime</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">Hiển thị mode, tốc độ, độ cao, pin, ETA, hành trình trực tiếp.</p>
+          </div>
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+            <span class="material-symbols-outlined text-primary text-4xl mb-6 block">dashboard_customize</span>
+            <h3 class="text-xl font-bold mb-3">Điều phối cho admin</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">Admin tạo đơn, gán mission, xem mission đang chạy và clear mission đã xong.</p>
+          </div>
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+            <span class="material-symbols-outlined text-primary text-4xl mb-6 block">inventory_2</span>
+            <h3 class="text-xl font-bold mb-3">Lịch sử đơn hàng</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">Xem lại, hủy, đặt lại đơn và focus lại điểm giao trên bản đồ.</p>
+          </div>
+        </div>
+      </section>
 
-          <button class="btn btn-primary" style="width:100%;" onclick="login()">Đăng nhập</button>
-          <div id="loginMsg" class="msg"></div>
+      <section id="how" class="py-24 px-6 max-w-screen-xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">Cách Janus hoạt động</h2>
+          <div class="h-1 w-24 bg-accent mx-auto rounded-full"></div>
         </div>
 
-        <div id="registerForm" class="hidden">
-          <div class="form-title">Tạo tài khoản mới</div>
-            Tạo tài khoản để khám phá Drone Delivery.
-          <div class="form-sub">
+        <div class="relative grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-0.5 bg-white/10"></div>
 
+          <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">shopping_cart</span></div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 01</span>
+            <h4 class="font-bold mb-2">User chọn sản phẩm</h4>
+            <p class="text-xs text-slate-300">Chọn loại hàng hóa và đánh dấu vị trí nhận trên bản đồ.</p>
           </div>
 
-          <div class="field">
-            <label>Tên đăng nhập</label>
-            <input id="regUsername" type="text" placeholder="Ví dụ: user01" />
+          <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">post_add</span></div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 02</span>
+            <h4 class="font-bold mb-2">Hệ thống tạo đơn</h4>
+            <p class="text-xs text-slate-300">Order được tạo cùng thông tin điểm giao và ghi chú.</p>
           </div>
 
-          <div class="field">
-            <label>Mật khẩu</label>
-            <input id="regPassword" type="password" placeholder="Tối thiểu 4 ký tự" />
+          <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">engineering</span></div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 03</span>
+            <h4 class="font-bold mb-2">Admin điều phối</h4>
+            <p class="text-xs text-slate-300">Admin duyệt đơn, gán mission và theo dõi trạng thái chạy.</p>
           </div>
 
-          <button class="btn btn-success" style="width:100%;" onclick="registerUser()">Đăng ký</button>
-          <div id="registerMsg" class="msg"></div>
+          <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">flight_takeoff</span></div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 04</span>
+            <h4 class="font-bold mb-2">Mission thực hiện</h4>
+            <p class="text-xs text-slate-300">Drone bay theo lộ trình, console cập nhật ETA và đường bay trực quan.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="bg-[#10192d] py-24">
+        <div class="px-6 max-w-screen-xl mx-auto">
+          <div class="mb-12">
+            <span class="text-primary font-bold uppercase tracking-widest text-xs">Console hiện tại</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mt-2">Tính năng đã được chuyển giao</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">map</span>
+              <h4 class="text-lg font-bold mb-2">Bản đồ Leaflet</h4>
+              <p class="text-slate-300 text-sm">Kho cố định, marker drone, marker user, điểm giao, đường giao và đường quay về.</p>
+            </div>
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">admin_panel_settings</span>
+              <h4 class="text-lg font-bold mb-2">Auth & phân quyền</h4>
+              <p class="text-slate-300 text-sm">Đăng ký, đăng nhập, đăng xuất, user/admin và auto boot bằng token.</p>
+            </div>
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">monitor_heart</span>
+              <h4 class="text-lg font-bold mb-2">Telemetry</h4>
+              <p class="text-slate-300 text-sm">Status, mode, alt, speed, battery, armed, source, age, ETA và log hệ thống.</p>
+            </div>
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">assignment</span>
+              <h4 class="text-lg font-bold mb-2">Mission panel</h4>
+              <p class="text-slate-300 text-sm">Admin quản lý danh sách mission trực quan và map focus theo trạng thái giao.</p>
+            </div>
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">history</span>
+              <h4 class="text-lg font-bold mb-2">Lịch sử đơn hàng</h4>
+              <p class="text-slate-300 text-sm">Xem, đặt lại, hủy đơn, dispatch đơn và cập nhật thống kê theo trạng thái.</p>
+            </div>
+            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
+              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">person</span>
+              <h4 class="text-lg font-bold mb-2">Hồ sơ người dùng</h4>
+              <p class="text-slate-300 text-sm">Chỉnh sửa hồ sơ, đổi mật khẩu và lưu data theo username.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="story" class="py-24 px-6 max-w-screen-md mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">Hành trình phát triển</h2>
+          <p class="text-slate-300">Thất bại là mẹ đập con.</p>
+        </div>
+
+        <div class="space-y-12 relative before:absolute before:left-4 md:before:left-1/2 before:w-px before:h-full before:bg-white/10">
+          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5">
+                <span class="text-primary text-[10px] font-black">PHASE 01</span>
+                <h5 class="text-lg font-bold mb-2">Logic hệ thống ổn định</h5>
+                <p class="text-sm text-slate-300">Xây dựng auth, orders, telemetry, missions và bản đồ trong một file frontend gốc.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5">
+                <span class="text-primary text-[10px] font-black">PHASE 02</span>
+                <h5 class="text-lg font-bold mb-2">Nâng cấp thẩm mỹ</h5>
+                <p class="text-sm text-slate-300">Thiết kế bộ nhận diện JANUS mới theo hướng dark glass hiện đại và đậm chất UAV.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5">
+                <span class="text-primary text-[10px] font-black">PHASE 03</span>
+                <h5 class="text-lg font-bold mb-2">Chuyển giao chức năng</h5>
+                <p class="text-sm text-slate-300">Giữ nguyên API cũ và di chuyển đầy đủ logic sang giao diện mới.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5">
+                <span class="text-primary text-[10px] font-black">CURRENT</span>
+                <h5 class="text-lg font-bold mb-2">JANUS Console</h5>
+                <p class="text-sm text-slate-300">Landing page marketing + console vận hành trong cùng một frontend single-file.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="footer" class="bg-[#0b1326] border-t border-white/5">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto py-12 px-8">
+        <div class="flex flex-col items-center md:items-start max-w-sm text-center md:text-left">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined text-primary">rocket_launch</span>
+            <span class="text-lg font-bold text-[#c3f5ff] uppercase tracking-tighter">JANUS DELIVERY</span>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed">Nền tảng điều phối UAV cho demo giao hàng realtime với bản đồ, telemetry, order history và mission control.<br>
+          SĐT: <br>
+          Email: </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-8 text-sm tracking-wide">
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#hero">Hero</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#how">Workflow</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#features">Features</a>
+          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#story">Story</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button class="w-10 h-10 rounded-full bg-panel2 flex items-center justify-center hover:bg-accent hover:text-surface transition interactive-glow" onclick="handleLandingAuthAction()"><span class="material-symbols-outlined text-xl">login</span></button>
+          <button class="w-10 h-10 rounded-full bg-panel2 flex items-center justify-center hover:bg-accent hover:text-surface transition interactive-glow" onclick="openAuthModal('register')"><span class="material-symbols-outlined text-xl">person_add</span></button>
+        </div>
+      </div>
+      <div class="bg-[#131b2e] py-6 px-8 text-center">
+        <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em]">© JANUS UAV DELIVERY CONSOLE</p>
+      </div>
+    </footer>
+  </div>
+
+  <div id="authModal" class="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm p-4 pointer-events-none">
+    <div class="max-w-5xl mx-auto min-h-full grid place-items-center">
+      <div class="auth-modal-panel pointer-events-auto w-full grid lg:grid-cols-[1.2fr_.8fr] rounded-3xl overflow-hidden glass-panel shadow-soft">
+        <div class="hidden lg:block p-10 bg-gradient-to-br from-cyan-500/10 via-transparent to-white/5 border-r border-white/5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
+            Control access
+          </div>
+          <h2 class="text-5xl font-extrabold tracking-tighter leading-none mb-4">Kết nối vào <span class="gradient-text">JANUS Console</span></h2>
+          <p class="text-slate-300 leading-7 max-w-xl">Giữ nguyên toàn bộ backend cũ: auth, orders, missions, telemetry và bản đồ. Chỉ thay vỏ giao diện sang phong cách hiện đại hơn.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mt-8">
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
+              <div class="font-bold mb-2">User flow</div>
+              <div class="text-sm text-slate-300">Đặt đơn, chọn điểm giao, quản lý lịch sử và hồ sơ cá nhân.</div>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
+              <div class="font-bold mb-2">Admin flow</div>
+              <div class="text-sm text-slate-300">Tạo đơn, dispatch mission, xem mission list và clear mission hoàn tất.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 md:p-10 relative">
+          <button class="absolute top-4 right-4 w-10 h-10 rounded-xl soft-btn hover:bg-white/10 interactive-glow" onclick="closeAuthModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+
+          <div class="flex items-center gap-3 mb-8">
+            <span class="material-symbols-outlined text-primary text-3xl">rocket_launch</span>
+            <div>
+              <div class="font-black text-xl tracking-tight">JANUS Console</div>
+              <div class="text-sm text-slate-400">Đăng nhập để vận hành hệ thống</div>
+            </div>
+          </div>
+
+          <div class="flex rounded-2xl bg-white/5 p-1 border border-white/5 mb-6">
+            <button id="tabLogin" class="flex-1 py-3 rounded-xl font-semibold bg-cyan-500/15 text-white interactive-glow" onclick="switchTab('login')">Đăng nhập</button>
+            <button id="tabRegister" class="flex-1 py-3 rounded-xl font-semibold text-slate-300 interactive-glow" onclick="switchTab('register')">Đăng ký</button>
+          </div>
+
+          <div id="loginForm">
+            <div class="text-3xl font-black tracking-tight mb-2">Đăng nhập hệ thống</div>
+            <div class="text-slate-400 mb-6">Sử dụng tài khoản hiện có để truy cập console realtime.</div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm mb-2 text-slate-300">Tên đăng nhập</label>
+                <input id="loginUsername" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập tên đăng nhập..." />
+              </div>
+              <div>
+                <label class="block text-sm mb-2 text-slate-300">Mật khẩu</label>
+                <input id="loginPassword" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu..." />
+              </div>
+              <button class="w-full gradient-btn rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider interactive-glow" onclick="login()">Đăng nhập</button>
+            </div>
+            <div id="loginMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
+          </div>
+
+          <div id="registerForm" class="hidden">
+            <div class="text-3xl font-black tracking-tight mb-2">Tạo tài khoản mới</div>
+            <div class="text-slate-400 mb-6">Tạo tài khoản để bắt đầu trải nghiệm Drone Delivery Console.</div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm mb-2 text-slate-300">Tên đăng nhập</label>
+                <input id="regUsername" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: user01" />
+              </div>
+              <div>
+                <label class="block text-sm mb-2 text-slate-300">Mật khẩu</label>
+                <input id="regPassword" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Tối thiểu 4 ký tự" />
+              </div>
+              <button class="w-full rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider bg-emerald-500 text-white hover:bg-emerald-400 transition interactive-glow" onclick="registerUser()">Đăng ký</button>
+            </div>
+            <div id="registerMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- APP -->
-  <div id="appPage" class="app hidden">
-    <aside class="sidebar">
-      <div>
-        <div class="title-main">🚁 Drone Control</div>
-        <div class="subtitle">Developed by DOGMEOW_Team.<br>
-          Theo dõi trạng thái bay, đặt đơn và theo dõi đơn hàng.<br>
-          Nhanh chóng - Tiện lợi - Trực quan.
+  <div id="consolePage" class="hidden min-h-screen">
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0b1326]/80 backdrop-blur-xl">
+      <div class="max-w-screen-2xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-2xl gradient-btn grid place-items-center shadow-soft">
+            <span class="material-symbols-outlined text-2xl">rocket_launch</span>
+          </div>
+          <div>
+            <div class="console-title font-black text-2xl tracking-tight">JANUS Console</div>
+            <div class="text-[13px] text-slate-400">Order control, mission dispatch và telemetry realtime</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap justify-end">
+          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="showLanding()">Trang chủ</button>
+          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerMap()">Về kho</button>
+          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerDrone()">Vị trí drone</button>
+          <button id="btn-clear-missions" class="hidden rounded-2xl px-4 py-2.5 text-sm font-bold tracking-tight bg-rose-500/90 hover:bg-rose-400 text-white shadow-lg shadow-rose-950/20 interactive-glow" onclick="clearFinishedMissions()">Clear missions</button>
+          <button class="rounded-2xl px-4 py-2.5 text-sm font-black tracking-tight bg-white text-surface hover:bg-primary transition-all shadow-lg shadow-white/5 interactive-glow" onclick="logout()">Đăng xuất</button>
         </div>
       </div>
+    </header>
 
-      <div class="panel sidebar-tabs-wrap">
-        <div class="sidebar-tabs">
-          <button class="sidebar-tab active" onclick="switchSidebarTab('user')">Người dùng</button>
-          <button class="sidebar-tab" onclick="switchSidebarTab('drone')">Drone</button>
-          <button class="sidebar-tab" onclick="switchSidebarTab('order')">Đặt hàng</button>
+    <main class="max-w-screen-[1800px] mx-auto px-4 md:px-6 py-6 grid xl:grid-cols-[300px_minmax(0,1fr)_330px] gap-6 items-start">
+      <aside class="space-y-5">
+        <section class="glass-panel console-accent-ring rounded-3xl p-2">
+          <div class="grid grid-cols-3 gap-2">
+            <button class="sidebar-tab active rounded-2xl py-3.5 bg-cyan-500/15 text-white border border-cyan-400/20" onclick="switchSidebarTab('user')">User</button>
+            <button class="sidebar-tab rounded-2xl py-3.5 text-slate-300 border border-white/5 bg-white/[0.03]" onclick="switchSidebarTab('order')">Order</button>
+            <button class="sidebar-tab rounded-2xl py-3.5 text-slate-300 border border-white/5 bg-white/[0.03]" onclick="switchSidebarTab('history')">History</button>
+          </div>
+        </section>
+
+        <div id="sidebar-tab-user" class="sidebar-tab-panel space-y-5">
+          <section class="glass-panel console-accent-ring rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-black tracking-tight">Thông tin người dùng</h3>
+              <span class="text-xs text-slate-300">Profile</span>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Tên đăng nhập</label>
+                <input id="profile-username" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Vai trò</label>
+                <input id="profile-role" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Họ và tên</label>
+                <input id="profile-fullname" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập họ và tên..." />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Email</label>
+                <input id="profile-email" type="email" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập email..." />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Số điện thoại</label>
+                <input id="profile-phone" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập số điện thoại..." />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Địa chỉ mặc định</label>
+                <input id="profile-address" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ mặc định..." />
+              </div>
+            </div>
+
+            <div class="profile-inline-actions">
+              <button id="btn-edit-profile" class="gradient-btn rounded-2xl py-3 interactive-glow" onclick="toggleProfileEdit()">Chỉnh sửa thông tin</button>
+              <button id="btn-toggle-password" class="soft-btn rounded-2xl py-3 interactive-glow" onclick="togglePasswordBox()">Đổi mật khẩu</button>
+            </div>
+
+            <div id="profileActionRow" class="hidden grid grid-cols-2 gap-3 mt-3">
+              <button class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow" onclick="saveProfile()">Lưu thay đổi</button>
+              <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="cancelProfileEdit()">Hủy</button>
+            </div>
+
+            <div id="profileMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
+
+            <div id="passwordFormWrap" class="hidden space-y-4 mt-5 pt-5 border-t border-white/5">
+              <div class="flex items-center justify-between">
+                <h4 class="text-lg font-black tracking-tight">Cập nhật mật khẩu</h4>
+                <span class="text-xs text-slate-400">Security</span>
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Mật khẩu cũ</label>
+                <input id="current-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu cũ..." />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Mật khẩu mới</label>
+                <input id="new-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu mới..." />
+              </div>
+
+              <div>
+                <label class="block text-sm text-slate-200 mb-2">Xác nhận mật khẩu mới</label>
+                <input id="confirm-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập lại mật khẩu mới..." />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow" onclick="changePassword()">Cập nhật</button>
+                <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="cancelPasswordChange()">Hủy</button>
+              </div>
+
+              <div id="passwordMsg" class="hidden mt-2 rounded-2xl px-4 py-3 text-sm"></div>
+            </div>
+          </section>
         </div>
-      </div>
 
-      <div id="sidebar-tab-user" class="sidebar-tab-panel active">
-        <div class="panel">
-          <div class="profile-head">
-            <div class="avatar-wrap">
-              <label for="avatarUpload" class="avatar-upload-label">
-                <div id="profileAvatar" class="profile-avatar">
-                  <img id="profileAvatarImg" class="profile-avatar-img hidden" alt="Avatar" />
-                  <span id="profileAvatarFallback" class="profile-avatar-fallback">U</span>
-                </div>
-                <div class="avatar-edit-badge">✎</div>
-              </label>
-              <input id="avatarUpload" type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
+        <div id="sidebar-tab-order" class="sidebar-tab-panel hidden-el space-y-5">
+          <section id="user-order-panel" class="glass-panel console-accent-ring rounded-3xl p-5 space-y-4">
+            <div>
+              <h3 class="text-xl font-black tracking-tight">Đặt đơn giao hàng</h3>
+              <p class="text-sm text-slate-300 mt-1">Người dùng chọn điểm giao và tạo order.</p>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-200 mb-2">Địa chỉ giao hàng</label>
+              <input id="address-input" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ để tìm..." />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <button class="gradient-btn rounded-3xl py-3 text-xs tracking-wide interactive-glow" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
+              <button class="gradient-btn rounded-3xl py-3 text-xs tracking-wide interactive-glow" onclick="searchAddress()">Tìm địa chỉ</button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="drop-lat" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="drop-lng" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
             </div>
 
             <div>
-              <div id="profileTitleName" class="profile-name">Người dùng</div>
-              <div class="muted">Quản lý hồ sơ cá nhân và bảo mật tài khoản</div>
-              <div id="profileRoleBadge" class="profile-role-badge">USER</div>
-            </div>
-          </div>
-
-          <div class="stat-grid" style="margin-bottom:14px;">
-            <div class="stat">
-              <div class="label">Tổng đơn</div>
-              <div id="u-total-orders" class="value">0</div>
-            </div>
-            <div class="stat">
-              <div class="label">Đang xử lý</div>
-              <div id="u-processing-orders" class="value">0</div>
-            </div>
-            <div class="stat">
-              <div class="label">Hoàn tất</div>
-              <div id="u-completed-orders" class="value">0</div>
-            </div>
-            <div class="stat">
-              <div class="label">Chờ xử lý</div>
-              <div id="u-pending-orders" class="value">0</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>THÔNG TIN NGƯỜI DÙNG</h3>
-          <div class="section-note">
-
-          </div>
-
-          <div class="field-inline">
-            <label>Tên đăng nhập</label>
-            <input id="profile-username" type="text" readonly />
-          </div>
-
-          <div class="field-inline">
-            <label>Vai trò</label>
-            <input id="profile-role" type="text" readonly />
-          </div>
-
-          <div class="field-inline">
-            <label>Họ và tên</label>
-            <input id="profile-fullname" type="text" placeholder="Nhập họ và tên..." readonly />
-          </div>
-
-          <div class="field-inline">
-            <label>Email</label>
-            <input id="profile-email" type="email" placeholder="Nhập email..." readonly />
-          </div>
-
-          <div class="field-inline">
-            <label>Số điện thoại</label>
-            <input id="profile-phone" type="text" placeholder="Nhập số điện thoại..." readonly />
-          </div>
-
-          <div class="field-inline">
-            <label>Địa chỉ mặc định</label>
-            <input id="profile-address" type="text" placeholder="Nhập địa chỉ mặc định..." readonly />
-          </div>
-
-          <div style="margin-top:10px;">
-            <button id="btn-edit-profile" class="btn btn-primary" style="width:100%;" onclick="toggleProfileEdit()">
-              Chỉnh sửa thông tin
-            </button>
-          </div>
-
-          <div id="profileActionRow" class="row-2 hidden" style="margin-top:10px;">
-            <button class="btn btn-success" onclick="saveProfile()">Lưu thay đổi</button>
-            <button class="btn btn-dark" onclick="cancelProfileEdit()">Hủy</button>
-          </div>
-
-          <div style="margin-top:10px;">
-            <button class="btn btn-dark" style="width:100%;" onclick="logout()">Đăng xuất</button>
-          </div>
-
-          <div id="profileMsg" class="msg"></div>
-        </div>
-
-        <div class="panel">
-          <h3>ĐỔI MẬT KHẨU</h3>
-          <div class="section-note">
-            Hãy đổi một mật khẩu có tính bảo mật cao để tăng cường bảo vệ tài khoản cá nhân.
-          </div>
-
-          <button id="btn-toggle-password" class="btn btn-dark" style="width:100%;" onclick="togglePasswordBox()">
-            Đổi mật khẩu
-          </button>
-
-          <div id="passwordFormWrap" class="hidden" style="margin-top:12px;">
-            <div class="field-inline">
-              <label>Mật khẩu cũ</label>
-              <input id="current-password" type="password" placeholder="Nhập mật khẩu cũ..." />
-            </div>
-
-            <div class="field-inline">
-              <label>Mật khẩu mới</label>
-              <input id="new-password" type="password" placeholder="Nhập mật khẩu mới..." />
-            </div>
-
-            <div class="field-inline">
-              <label>Xác nhận mật khẩu mới</label>
-              <input id="confirm-password" type="password" placeholder="Nhập lại mật khẩu mới..." />
-            </div>
-
-            <div class="row-2" style="margin-top:10px;">
-              <button class="btn btn-success" onclick="changePassword()">Cập nhật mật khẩu</button>
-              <button class="btn btn-dark" onclick="cancelPasswordChange()">Hủy</button>
-            </div>
-          </div>
-
-          <div id="passwordMsg" class="msg"></div>
-        </div>
-      </div>
-
-      <!-- TAB DRONE -->
-      <div id="sidebar-tab-drone" class="sidebar-tab-panel">
-        <div class="panel">
-          <h3>TRẠNG THÁI DRONE</h3>
-          <div class="stat-grid">
-            <div class="stat">
-              <div class="label">Status</div>
-              <div id="t-status" class="value status-offline">OFFLINE</div>
-            </div>
-            <div class="stat">
-              <div class="label">Mode</div>
-              <div id="t-mode" class="value">--</div>
-            </div>
-            <div class="stat">
-              <div class="label">Độ cao</div>
-              <div id="t-alt" class="value">0.0 m</div>
-            </div>
-            <div class="stat">
-              <div class="label">Vận tốc</div>
-              <div id="t-speed" class="value">0.0 m/s</div>
-            </div>
-            <div class="stat">
-              <div class="label">Pin</div>
-              <div id="t-battery" class="value">--</div>
-            </div>
-            <div class="stat">
-              <div class="label">Thời gian giao dự kiến</div>
-              <div id="t-eta" class="value">--</div>
-            </div>
-            <div class="stat">
-              <div class="label">Armed</div>
-              <div id="t-armed" class="value">False</div>
-            </div>
-            <div class="stat">
-              <div class="label">Drone</div>
-              <div id="t-drone-id" class="value">drone_1</div>
-            </div>
-            <div class="stat">
-              <div class="label">Nguồn tele</div>
-              <div id="t-source" class="value">--</div>
-            </div>
-            <div class="stat">
-              <div class="label">Độ trễ tele</div>
-              <div id="t-age" class="value">--</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>LOG HỆ THỐNG</h3>
-          <div id="sys-log" class="log-box"></div>
-        </div>
-      </div>
-
-      <div id="sidebar-tab-order" class="sidebar-tab-panel">
-        <!-- Giao diện cho USER -->
-        <div id="user-order-panel">
-          <div class="panel">
-            <h3>ĐẶT ĐƠN GIAO HÀNG</h3>
-
-            <div class="field-inline">
-              <label>Địa chỉ giao hàng</label>
-              <input id="address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
-            </div>
-
-            <div class="row-2" style="margin-bottom:12px;">
-              <button class="btn btn-dark" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
-              <button class="btn btn-dark" onclick="searchAddress()">Tìm địa chỉ</button>
-            </div>
-
-            <div class="field-inline">
-              <label>Latitude</label>
-              <input id="drop-lat" type="text" readonly />
-            </div>
-
-            <div class="field-inline">
-              <label>Longitude</label>
-              <input id="drop-lng" type="text" readonly />
-            </div>
-
-            <div class="field-inline">
-              <label>Sản phẩm</label>
+              <label class="block text-sm text-slate-200 mb-3">Sản phẩm</label>
               <input id="user-product-select" type="hidden" value="Nước giải khát" />
-
-              <div class="product-grid">
-                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'user-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
-                  </div>
-                  <div class="product-name">Nước giải khát</div>
-                  <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
-                </div>
-
-                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'user-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
-                  </div>
-                  <div class="product-name">Thuốc y tế</div>
-                  <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
-                </div>
-
-                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'user-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
-                  </div>
-                  <div class="product-name">Đồ ăn nhanh</div>
-                  <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
-                </div>
-
-                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'user-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
-                  </div>
-                  <div class="product-name">Tài liệu khẩn</div>
-                  <div class="product-desc">Đừng gửi thư tình, bị lộ đấy nhá.</div>
-                </div>
-              </div>
+              <div id="user-product-grid" class="product-grid"></div>
             </div>
 
-            <div class="field-inline">
-              <label>Ghi chú</label>
-              <input id="order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+            <div>
+              <label class="block text-sm text-slate-200 mb-2">Ghi chú</label>
+              <input id="order-note" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+            </div>
+            <button id="btn-place-order" class="gradient-btn console-primary-btn interactive-glow" onclick="placeOrderOnly()">Đặt đơn</button>
+          </section>
+
+          <section id="admin-order-panel" class="glass-panel console-accent-ring rounded-3xl p-5 space-y-4 hidden-el">
+            <div>
+              <h3 class="text-xl font-black tracking-tight">Điều phối đơn hàng</h3>
+              <p class="text-sm text-slate-300 mt-1">Admin tạo đơn và dispatch mission.</p>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-200 mb-2">Địa chỉ giao hàng</label>
+              <input id="admin-address-input" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ để tìm..." />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="useMyLocationAdmin()">Lấy vị trí hiện tại</button>
+              <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="searchAddressAdmin()">Tìm địa chỉ</button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="admin-drop-lat" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="admin-drop-lng" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
             </div>
 
-            <button id="btn-place-order" class="btn btn-primary" style="width:100%;" onclick="placeOrderOnly()">
-              Đặt đơn
-            </button>
-
-            <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
-              Người dùng chỉ được đặt đơn. Admin sẽ tiếp nhận, gán mission và điều phối drone.
-            </div>
-          </div>
-        </div>
-
-        <!-- Giao diện cho ADMIN -->
-        <div id="admin-order-panel" class="hidden">
-          <div class="panel">
-            <h3>ĐIỀU PHỐI ĐƠN HÀNG</h3>
-
-            <div class="field-inline">
-              <label>Địa chỉ giao hàng</label>
-              <input id="admin-address-input" type="text" placeholder="Nhập địa chỉ để tìm..." />
-            </div>
-
-            <div class="row-2" style="margin-bottom:12px;">
-              <button class="btn btn-dark" onclick="useMyLocationAdmin()">Lấy vị trí hiện tại</button>
-              <button class="btn btn-dark" onclick="searchAddressAdmin()">Tìm địa chỉ</button>
-            </div>
-
-            <div class="field-inline">
-              <label>Latitude</label>
-              <input id="admin-drop-lat" type="text" readonly />
-            </div>
-
-            <div class="field-inline">
-              <label>Longitude</label>
-              <input id="admin-drop-lng" type="text" readonly />
-            </div>
-
-            <div class="field-inline">
-              <label>Sản phẩm</label>
+            <div>
+              <label class="block text-sm text-slate-200 mb-3">Sản phẩm</label>
               <input id="admin-product-select" type="hidden" value="Nước giải khát" />
+              <div id="admin-product-grid" class="product-grid"></div>
+            </div>
 
-              <div class="product-grid">
-                <div class="product-card active" data-value="Nước giải khát" onclick="selectProductCard(this, 'admin-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80" alt="Nước giải khát" />
-                  </div>
-                  <div class="product-name">Nước giải khát</div>
-                  <div class="product-desc">Nếu bạn khát có Bảo lo :3.</div>
+            <div>
+              <label class="block text-sm text-slate-200 mb-2">Ghi chú</label>
+              <input id="admin-order-note" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+            </div>
+            <button class="gradient-btn console-primary-btn interactive-glow" onclick="createAdminOrderOnly()">Tạo đơn</button>
+          </section>
+        </div>
+
+        <div id="sidebar-tab-history" class="sidebar-tab-panel hidden-el space-y-5">
+          <section class="glass-panel console-accent-ring rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 id="orderHistoryTitle" class="text-xl font-black tracking-tight">Lịch sử đơn hàng</h3>
+                <p class="text-sm text-slate-300 mt-1">Lịch sử tạo, đặt, hủy và điều phối đơn.</p>
+              </div>
+            </div>
+            <div id="myOrdersBox" class="space-y-3 max-h-[760px] overflow-y-auto"></div>
+          </section>
+        </div>
+      </aside>
+
+      <section class="min-w-0 space-y-5">
+        <div class="glass-panel console-accent-ring rounded-[28px] overflow-hidden border border-white/5 shadow-soft">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
+            <div>
+              <h2 class="console-title text-[28px] md:text-[32px] font-black tracking-tight">Bản đồ điều phối bay</h2>
+              <p class="text-[14px] md:text-[15px] text-slate-300 mt-1">Chọn điểm giao, theo dõi drone và quan sát lộ trình vận chuyển trên bản đồ.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <div class="dashboard-chip rounded-2xl px-4 py-2.5 text-sm">
+                <span class="text-slate-400">Drone:</span> <span id="dashboardDroneId" class="font-bold">drone_1</span>
+              </div>
+              <div class="dashboard-chip rounded-2xl px-4 py-2.5 text-sm">
+                <span class="text-slate-400">Armed:</span> <span id="dashboardArmed" class="font-bold">False</span>
+              </div>
+              <div class="dashboard-chip rounded-2xl px-4 py-2.5 text-sm">
+                <span class="text-slate-400">ETA:</span> <span id="dashboardEta" class="font-bold">--</span>
+              </div>
+            </div>
+          </div>
+          <div class="relative">
+            <div id="map"></div>
+            <div class="absolute top-4 right-4 z-[500] w-full max-w-sm space-y-3 pointer-events-none">
+              <div class="glass-panel rounded-2xl p-4 pointer-events-auto">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-lg font-black tracking-tight">Realtime snapshot</h4>
+                  <span class="text-xs text-slate-300">Live</span>
                 </div>
-
-                <div class="product-card" data-value="Thuốc y tế" onclick="selectProductCard(this, 'admin-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" alt="Thuốc y tế" />
-                  </div>
-                  <div class="product-name">Thuốc y tế</div>
-                  <div class="product-desc">Bạn ốm sao? Để Đức giúp :3.</div>
-                </div>
-
-                <div class="product-card" data-value="Đồ ăn nhanh" onclick="selectProductCard(this, 'admin-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" alt="Đồ ăn nhanh" />
-                  </div>
-                  <div class="product-name">Đồ ăn nhanh</div>
-                  <div class="product-desc">Bụng đói hả? 5p có ngay dù ở bao xa.</div>
-                </div>
-
-                <div class="product-card" data-value="Tài liệu khẩn" onclick="selectProductCard(this, 'admin-product-select')">
-                  <div class="product-check">✓</div>
-                  <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80" alt="Tài liệu khẩn" />
-                  </div>
-                  <div class="product-name">Tài liệu khẩn</div>
-                  <div class="product-desc">Đừng gửi thư tình, bị lộ đấy nhá.</div>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Mode</div><div id="miniMode" class="font-bold mt-1">--</div></div>
+                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Pin</div><div id="miniBattery" class="font-bold mt-1">--</div></div>
+                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Speed</div><div id="miniSpeed" class="font-bold mt-1">0.0 m/s</div></div>
+                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Altitude</div><div id="miniAlt" class="font-bold mt-1">0.0 m</div></div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="field-inline">
-              <label>Ghi chú</label>
-              <input id="admin-order-note" type="text" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+      <aside class="space-y-5">
+        <section class="glass-panel console-accent-ring rounded-3xl p-5">
+          <div class="flex items-center gap-4">
+            <div class="relative w-16 h-16 shrink-0">
+              <label for="avatarUpload" class="block w-16 h-16 cursor-pointer">
+                <div class="w-16 h-16 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-cyan-500/30 to-white/10 border border-white/10 text-xl font-bold">
+                  <img id="profileAvatarImg" class="w-full h-full object-cover hidden" alt="Avatar" />
+                  <span id="profileAvatarFallback">U</span>
+                </div>
+                <div class="absolute right-0 bottom-0 w-6 h-6 rounded-full bg-cyan-400 text-surface grid place-items-center border-2 border-surface text-xs font-bold">✎</div>
+              </label>
+              <input id="avatarUpload" type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
             </div>
-
-            <button class="btn btn-primary" style="width:100%;" onclick="createAdminOrderOnly()">
-              Tạo đơn
-            </button>
-
-            <div class="muted" style="margin-top:10px; font-size:13px; line-height:1.6;">
-              Admin có thể tạo đơn, gán mission và điều phối chuyến bay cho drone.
+            <div class="min-w-0">
+              <div id="profileTitleName" class="text-2xl font-black tracking-tight truncate">Người dùng</div>
+              <div class="text-sm text-slate-300">Console account</div>
+              <div id="profileRoleBadge" class="inline-flex mt-2 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">USER</div>
             </div>
           </div>
-        </div>
-
-        <!-- LỊCH SỬ CHUNG CHO CẢ USER VÀ ADMIN -->
-        <div class="panel">
-          <h3 id="orderHistoryTitle">LỊCH SỬ ĐƠN HÀNG</h3>
-          <div class="section-note">
-            Lịch sử tạo & đặt đơn, điều phối bay.
+          <div class="grid grid-cols-2 gap-3 mt-5">
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Tổng đơn</div><div id="u-total-orders" class="text-2xl font-black mt-1">0</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Đang xử lý</div><div id="u-processing-orders" class="text-2xl font-black mt-1">0</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Hoàn tất</div><div id="u-completed-orders" class="text-2xl font-black mt-1">0</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Chờ xử lý</div><div id="u-pending-orders" class="text-2xl font-black mt-1">0</div></div>
           </div>
+        </section>
 
-          <div id="myOrdersBox" class="list-box large">
-            <div class="empty-box">Đang tải lịch sử đơn hàng...</div>
+        <section class="glass-panel console-accent-ring rounded-3xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-black tracking-tight">Tổng quan hệ thống</h3>
+            <span class="text-xs text-slate-300">Realtime</span>
           </div>
-        </div>
-      </div>
-
-    </aside>
-
-    <main class="main">
-      <div class="topbar">
-        <div>
-          <h2>BẢN ĐỒ ĐIỀU PHỐI BAY</h2>
-          <p>Chọn điểm giao, theo dõi đơn hàng và trạng thái drone theo thời gian thực.</p>
-        </div>
-
-        <div class="top-actions">
-          <button class="btn btn-dark" onclick="centerMap()">Về kho</button>
-          <button class="btn btn-dark" onclick="centerDrone()">Vị trí drone</button>
-          <button id="btn-clear-missions" class="btn btn-danger hidden" onclick="clearFinishedMissions()">
-            Clear missions
-          </button>
-        </div>
-      </div>
-
-      <div class="map-wrap">
-        <div id="map"></div>
-
-        <div class="floating-cards">
-          <div id="missionFloatCard" class="float-card hidden">
-            <h4>Mission</h4>
-            <div id="missionsBox" class="list-box"></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Status</div><div id="t-status" class="text-lg font-black mt-1 text-rose-300">OFFLINE</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Mode</div><div id="t-mode" class="text-lg font-black mt-1">--</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Độ cao</div><div id="t-alt" class="text-lg font-black mt-1">0.0 m</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Vận tốc</div><div id="t-speed" class="text-lg font-black mt-1">0.0 m/s</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Pin</div><div id="t-battery" class="text-lg font-black mt-1">--</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">ETA</div><div id="t-eta" class="text-lg font-black mt-1">--</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Nguồn</div><div id="t-source" class="text-sm font-bold mt-2 break-words">--</div></div>
+            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Độ trễ</div><div id="t-age" class="text-sm font-bold mt-2 break-words">--</div></div>
           </div>
-        </div>
-      </div>
+        </section>
+
+        <section id="missionFloatCard" class="glass-panel console-accent-ring rounded-3xl p-5 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-black tracking-tight">Missions</h3>
+            <span class="text-xs text-slate-300">Admin only</span>
+          </div>
+          <div id="missionsBox" class="space-y-3 max-h-72 overflow-y-auto"></div>
+        </section>
+
+        <section class="glass-panel console-accent-ring rounded-3xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-black tracking-tight">Log hệ thống</h3>
+            <span class="text-xs text-slate-300">Live</span>
+          </div>
+          <div id="sys-log" class="space-y-2 max-h-72 overflow-y-auto"></div>
+        </section>
+      </aside>
     </main>
   </div>
 
   <script>
-    const API_URL = "https://uav-backend-zbti.onrender.com";
+    const API_URL = 'https://uav-backend-zbti.onrender.com';
     const WAREHOUSE_LAT = 10.9327877;
     const WAREHOUSE_LNG = 106.7669519;
-    const DRONE_ID = "drone_1";
+    const DRONE_ID = 'drone_1';
 
-    let token = localStorage.getItem("token") || "";
+    const PRODUCT_OPTIONS = [
+      {
+        value: 'Nước giải khát',
+        image: 'https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        value: 'Thuốc y tế',
+        image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        value: 'Đồ ăn nhanh',
+        image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        value: 'Tài liệu khẩn',
+        image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80'
+      }
+    ];
+
+    let token = localStorage.getItem('token') || '';
     let currentUser = null;
     let currentOrderId = null;
     let currentMissionId = null;
-
     let map = null;
     let warehouseMarker = null;
     let droneMarker = null;
     let userMarker = null;
     let flightLine = null;
+    let returnLine = null;
+    let selectedDropoffMarker = null;
+    let missionDropoffMarker = null;
     let latestDroneLat = null;
     let latestDroneLng = null;
-    let returnLine = null;
-
     let activeMissions = [];
     let activeOrders = [];
     let droneConnectedBefore = false;
-
     let isProfileEditing = false;
     let isPasswordChanging = false;
-    let sessionLoginPassword = "";
+    let sessionLoginPassword = '';
     let profileDraftBackup = {};
-    let appSettings = {
-      displayName: "",
-      accent: "blue",
-      theme: "dark",
-      notify: true,
-      avatar: ""
-    };
     let hideFinishedMissions = false;
-    let selectedDropoffMarker = null;   
-    let missionDropoffMarker = null;  
-    let lastTelemetryStatus = "";
-    let lastTelemetrySource = ""; 
+    let lastTelemetryStatus = '';
+    let lastTelemetrySource = '';
+
+    let appSettings = {
+      displayName: '',
+      accent: 'cyan',
+      theme: 'dark',
+      notify: true,
+      avatar: ''
+    };
 
     function authHeaders() {
       return {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       };
     }
 
+    function qs(id) { return document.getElementById(id); }
+
     function showMsg(id, text, ok = false) {
-      const el = document.getElementById(id);
+      const el = qs(id);
       if (!el) return;
-      el.className = ok ? "msg ok" : "msg err";
+      el.classList.remove('hidden');
       el.textContent = text;
+      el.className = `${ok ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'} mt-4 rounded-2xl px-4 py-3 text-sm`;
+      el.id = id;
     }
 
     function clearMsg(id) {
-      const el = document.getElementById(id);
+      const el = qs(id);
       if (!el) return;
-      el.className = "msg";
-      el.textContent = "";
+      el.className = 'hidden mt-4 rounded-2xl px-4 py-3 text-sm';
+      el.textContent = '';
     }
 
     function logSys(msg) {
-      const box = document.getElementById("sys-log");
-      if (!box) return;
-      const t = new Date().toLocaleTimeString();
-      box.innerHTML = `<div class="log-item">[${t}] ${msg}</div>` + box.innerHTML;
+      const time = new Date().toLocaleTimeString();
+      const html = `<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm text-slate-200">[${time}] ${msg}</div>`;
+      const boxes = [qs('sys-log')].filter(Boolean);
+      boxes.forEach(box => box.innerHTML = html + box.innerHTML);
+    }
+
+    function openAuthModal(tab = 'login') {
+      const modal = qs('authModal');
+      if (!modal) return;
+      switchTab(tab);
+      modal.classList.add('modal-open');
+      modal.classList.remove('pointer-events-none');
+    }
+
+    function closeAuthModal() {
+      const modal = qs('authModal');
+      if (!modal) return;
+      modal.classList.remove('modal-open');
+      modal.classList.add('pointer-events-none');
+      clearMsg('loginMsg');
+      clearMsg('registerMsg');
+    }
+
+    function handleLandingAuthAction() {
+      if (token && currentUser) {
+        qs('landingPage').classList.add('hidden');
+        qs('consolePage').classList.remove('hidden');
+        setTimeout(() => map?.invalidateSize(), 150);
+        return;
+      }
+      openAuthModal('login');
+    }
+
+    function refreshLandingAuthButton() {
+      const btn = qs('landingAuthBtn');
+      if (!btn) return;
+      btn.textContent = (token && currentUser) ? 'Mở console' : 'Đăng nhập';
+    }
+
+    function showLanding() {
+      qs('landingPage').classList.remove('hidden');
+      qs('consolePage').classList.add('hidden');
+      closeAuthModal();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (token && currentUser) {
+        logSys('Đã quay về landing page, phiên đăng nhập vẫn được giữ nguyên.');
+      }
     }
 
     function switchTab(tab) {
-      const login = tab === "login";
-      document.getElementById("loginForm").classList.toggle("hidden", !login);
-      document.getElementById("registerForm").classList.toggle("hidden", login);
-      document.getElementById("tabLogin").classList.toggle("active", login);
-      document.getElementById("tabRegister").classList.toggle("active", !login);
+      const login = tab === 'login';
+      qs('loginForm').classList.toggle('hidden', !login);
+      qs('registerForm').classList.toggle('hidden', login);
+      qs('tabLogin').className = `flex-1 py-3 rounded-xl font-semibold interactive-glow ${login ? 'bg-cyan-500/15 text-white' : 'text-slate-300'}`;
+      qs('tabRegister').className = `flex-1 py-3 rounded-xl font-semibold interactive-glow ${!login ? 'bg-cyan-500/15 text-white' : 'text-slate-300'}`;
     }
 
     function switchSidebarTab(tabName) {
-      document.querySelectorAll(".sidebar-tab").forEach(btn => {
-        btn.classList.remove("active");
+      document.querySelectorAll('.sidebar-tab').forEach(btn => {
+        btn.classList.remove('active', 'bg-cyan-500/15', 'text-white', 'border-cyan-400/20', 'shadow-[0_12px_30px_rgba(0,229,255,.08)]');
+        btn.classList.add('text-slate-300', 'border-white/5', 'bg-white/[0.03]');
       });
 
-      document.querySelectorAll(".sidebar-tab-panel").forEach(panel => {
-        panel.classList.remove("active");
-      });
+      document.querySelectorAll('.sidebar-tab-panel').forEach(panel => panel.classList.add('hidden-el'));
 
-      const tabMap = { user: 0, drone: 1, order: 2 };
-      const buttons = document.querySelectorAll(".sidebar-tab");
-      if (buttons[tabMap[tabName]]) {
-        buttons[tabMap[tabName]].classList.add("active");
+      const tabOrder = { user: 0, order: 1, history: 2 };
+      const btns = document.querySelectorAll('.sidebar-tab');
+      const btn = btns[tabOrder[tabName]];
+
+      if (btn) {
+        btn.classList.add('active', 'bg-cyan-500/15', 'text-white', 'border-cyan-400/20', 'shadow-[0_12px_30px_rgba(0,229,255,.08)]');
+        btn.classList.remove('text-slate-300', 'border-white/5', 'bg-white/[0.03]');
       }
 
-      const target = document.getElementById(`sidebar-tab-${tabName}`);
-      if (target) target.classList.add("active");
+      const panel = qs(`sidebar-tab-${tabName}`);
+      if (panel) {
+        panel.classList.remove('hidden-el');
+        panel.animate(
+          [
+            { opacity: 0, transform: 'translateY(8px)' },
+            { opacity: 1, transform: 'translateY(0px)' }
+          ],
+          { duration: 180, easing: 'ease-out' }
+        );
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeJsString(str) {
+      return String(str ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '');
     }
 
     function canCancelOrder(status) {
-      const s = String(status || "").toUpperCase();
-      return !["DELIVERED", "COMPLETED", "DONE", "CANCELLED"].includes(s);
+      const s = String(status || '').toUpperCase();
+      return !['DELIVERED', 'COMPLETED', 'DONE', 'CANCELLED'].includes(s);
+    }
+
+    function getInitialChar(name) {
+      const s = String(name || 'U').trim();
+      return s ? s.charAt(0).toUpperCase() : 'U';
+    }
+
+    function getUserStorageKey(key) {
+      const username = currentUser?.username || 'guest';
+      return `uav_${key}_${username}`;
+    }
+
+    function loadUserPreferences() {
+      if (!currentUser) return;
+      try {
+        const saved = localStorage.getItem(getUserStorageKey('settings'));
+        if (saved) appSettings = { ...appSettings, ...JSON.parse(saved) };
+      } catch (_) {}
+
+      const avatar = localStorage.getItem(getUserStorageKey('avatar'));
+      if (avatar) appSettings.avatar = avatar;
+    }
+
+    function saveUserPreferences() {
+      if (!currentUser) return;
+      localStorage.setItem(getUserStorageKey('settings'), JSON.stringify(appSettings));
+      if (appSettings.avatar) localStorage.setItem(getUserStorageKey('avatar'), appSettings.avatar);
+      else localStorage.removeItem(getUserStorageKey('avatar'));
+    }
+
+    function loadStoredProfile() {
+      if (!currentUser) return;
+      const raw = localStorage.getItem(getUserStorageKey('profile'));
+      if (!raw) return;
+      try {
+        currentUser = { ...currentUser, ...JSON.parse(raw) };
+      } catch (_) {}
+    }
+
+    function saveStoredProfile() {
+      if (!currentUser) return;
+      localStorage.setItem(getUserStorageKey('profile'), JSON.stringify({
+        full_name: currentUser.full_name || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        address: currentUser.address || ''
+      }));
+    }
+
+    function applyAvatarToUI() {
+      const imgEl = qs('profileAvatarImg');
+      const fallbackEl = qs('profileAvatarFallback');
+      if (!imgEl || !fallbackEl) return;
+      const profileName = currentUser?.full_name || currentUser?.username || 'U';
+      fallbackEl.textContent = getInitialChar(profileName);
+
+      if (appSettings.avatar) {
+        imgEl.src = appSettings.avatar;
+        imgEl.classList.remove('hidden');
+        fallbackEl.classList.add('hidden');
+      } else {
+        imgEl.src = '';
+        imgEl.classList.add('hidden');
+        fallbackEl.classList.remove('hidden');
+      }
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showMsg('profileMsg', 'Vui lòng chọn file ảnh hợp lệ.', false);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        appSettings.avatar = e.target.result;
+        saveUserPreferences();
+        applyAvatarToUI();
+        showMsg('profileMsg', 'Đã cập nhật ảnh đại diện.', true);
+        logSys('Người dùng đã cập nhật ảnh đại diện.');
+        event.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function isAdminRole() {
+      return String(currentUser?.role || '').toLowerCase() === 'admin';
+    }
+
+    function updateFloatingPanelsByRole() {
+      const missionCard = qs('missionFloatCard');
+      if (!missionCard) return;
+      missionCard.classList.toggle('hidden', !isAdminRole());
+    }
+
+    function updateTopbarByRole() {
+      qs('btn-clear-missions').classList.toggle('hidden', !isAdminRole());
+    }
+
+    function updateOrderTabByRole() {
+      qs('user-order-panel').classList.toggle('hidden-el', isAdminRole());
+      qs('admin-order-panel').classList.toggle('hidden-el', !isAdminRole());
+    }
+
+    function setProfileInputsReadonly(readonly) {
+      ['profile-fullname', 'profile-email', 'profile-phone', 'profile-address'].forEach(id => {
+        const el = qs(id);
+        if (el) el.readOnly = readonly;
+      });
+    }
+
+    function populateProfile() {
+      if (!currentUser) return;
+      const profileName = currentUser.full_name || currentUser.username || 'Người dùng';
+      qs('profileTitleName').textContent = profileName;
+      qs('profileRoleBadge').textContent = String(currentUser.role || 'user').toUpperCase();
+      qs('profile-username').value = currentUser.username || '';
+      qs('profile-role').value = currentUser.role || '';
+      qs('profile-fullname').value = currentUser.full_name || '';
+      qs('profile-email').value = currentUser.email || '';
+      qs('profile-phone').value = currentUser.phone || '';
+      qs('profile-address').value = currentUser.address || '';
+      setProfileInputsReadonly(true);
+      qs('profileActionRow').classList.add('hidden');
+      qs('btn-edit-profile').textContent = 'Chỉnh sửa thông tin';
+      qs('btn-edit-profile').disabled = false;
+      applyAvatarToUI();
+    }
+
+    function toggleProfileEdit() {
+      clearMsg('profileMsg');
+      isProfileEditing = !isProfileEditing;
+      if (isProfileEditing) {
+        profileDraftBackup = {
+          full_name: qs('profile-fullname').value,
+          email: qs('profile-email').value,
+          phone: qs('profile-phone').value,
+          address: qs('profile-address').value
+        };
+        setProfileInputsReadonly(false);
+        qs('profileActionRow').classList.remove('hidden');
+        qs('btn-edit-profile').textContent = 'Đang chỉnh sửa...';
+        qs('btn-edit-profile').disabled = true;
+        qs('profile-fullname').focus();
+      } else {
+        setProfileInputsReadonly(true);
+        qs('profileActionRow').classList.add('hidden');
+        qs('btn-edit-profile').textContent = 'Chỉnh sửa thông tin';
+        qs('btn-edit-profile').disabled = false;
+      }
+    }
+
+    function cancelProfileEdit() {
+      clearMsg('profileMsg');
+      qs('profile-fullname').value = profileDraftBackup.full_name || '';
+      qs('profile-email').value = profileDraftBackup.email || '';
+      qs('profile-phone').value = profileDraftBackup.phone || '';
+      qs('profile-address').value = profileDraftBackup.address || '';
+      isProfileEditing = false;
+      setProfileInputsReadonly(true);
+      qs('profileActionRow').classList.add('hidden');
+      qs('btn-edit-profile').textContent = 'Chỉnh sửa thông tin';
+      qs('btn-edit-profile').disabled = false;
+    }
+
+    function togglePasswordBox() {
+      clearMsg('passwordMsg');
+      isPasswordChanging = !isPasswordChanging;
+      qs('passwordFormWrap').classList.toggle('hidden', !isPasswordChanging);
+      qs('btn-toggle-password').textContent = isPasswordChanging ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu';
+      if (isPasswordChanging) qs('current-password').focus();
+      else clearPasswordForm();
+    }
+
+    function clearPasswordForm() {
+      qs('current-password').value = '';
+      qs('new-password').value = '';
+      qs('confirm-password').value = '';
+    }
+
+    function cancelPasswordChange() {
+      clearMsg('passwordMsg');
+      isPasswordChanging = false;
+      qs('passwordFormWrap').classList.add('hidden');
+      qs('btn-toggle-password').textContent = 'Đổi mật khẩu';
+      clearPasswordForm();
+    }
+
+    function renderProductCards(containerId, inputId, selectedValue = 'Nước giải khát') {
+      const container = qs(containerId);
+      const hiddenInput = qs(inputId);
+      if (!container || !hiddenInput) return;
+
+      hiddenInput.value = selectedValue;
+
+      container.innerHTML = PRODUCT_OPTIONS.map(item => `
+        <div
+          class="product-card relative ${item.value === selectedValue ? 'active' : ''}"
+          data-value="${escapeHtml(item.value)}"
+          onclick="selectProductCard(this, '${inputId}')"
+        >
+          <div class="product-check">✓</div>
+          <div class="product-thumb">
+            <img src="${item.image}" alt="${escapeHtml(item.value)}" />
+          </div>
+          <div class="product-card-body">
+            <div class="product-name">${escapeHtml(item.value)}</div>
+          </div>
+        </div>
+      `).join('');
     }
 
     function makeDivIcon(className, innerHtml, size = [42, 42], anchor = [21, 21]) {
       return L.divIcon({
         html: `<div class="${className}">${innerHtml}</div>`,
-        className: "",
+        className: '',
         iconSize: size,
         iconAnchor: anchor,
         popupAnchor: [0, -18]
@@ -1422,19 +1512,47 @@
         <line x1="46" y1="18" x2="36" y2="28" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
         <line x1="18" y1="46" x2="28" y2="36" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
         <line x1="46" y1="46" x2="36" y2="36" stroke="#91C8FF" stroke-width="4" stroke-linecap="round"/>
-        <rect x="24" y="24" width="16" height="16" rx="4" fill="#4F8CFF"/>
+        <rect x="24" y="24" width="16" height="16" rx="4" fill="#00E5FF"/>
         <rect x="28" y="40" width="8" height="10" rx="2" fill="#BFD7FF"/>
-      </svg>
-    `;
+      </svg>`;
 
-    const droneIcon = makeDivIcon("drone-marker-wrap", droneSvg, [42, 42], [21, 21]);
-    const userIcon = makeDivIcon("user-marker-wrap", "", [18, 18], [9, 9]);
-    const warehouseIcon = makeDivIcon("warehouse-marker-wrap", "", [20, 20], [10, 10]);
-    const dropoffIcon = makeDivIcon("drop-marker-wrap", "", [18, 18], [9, 9]);
-    const activeDropoffIcon = makeDivIcon("active-drop-marker-wrap", "", [20, 20], [10, 10]);
+    const droneIcon = makeDivIcon('drone-marker-wrap', droneSvg, [42, 42], [21, 21]);
+    const userIcon = makeDivIcon('user-marker-wrap', '', [18, 18], [9, 9]);
+    const warehouseIcon = makeDivIcon('warehouse-marker-wrap', '', [20, 20], [10, 10]);
+    const dropoffIcon = makeDivIcon('drop-marker-wrap', '', [18, 18], [9, 9]);
+    const activeDropoffIcon = makeDivIcon('active-drop-marker-wrap', '', [20, 20], [10, 10]);
+
+    function initMap() {
+      if (map) return;
+      map = L.map('map').setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      warehouseMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: warehouseIcon }).addTo(map).bindPopup('<b>Kho hàng</b>');
+      droneMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: droneIcon }).addTo(map).bindPopup('<b>Drone</b>');
+      map.on('click', (e) => {
+        switchSidebarTab('order');
+        setDropLocationForRole(e.latlng.lat, e.latlng.lng, 'Điểm giao hàng', true);
+      });
+    }
+
+    function centerMap() {
+      if (map) map.setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
+    }
+
+    function centerDrone() {
+      if (!map || !droneMarker) return alert('Chưa có vị trí drone hợp lệ.');
+      if (isFinite(latestDroneLat) && isFinite(latestDroneLng)) {
+        map.setView([latestDroneLat, latestDroneLng], 18);
+        droneMarker.openPopup();
+        logSys(`Đã chuyển bản đồ tới vị trí drone: ${latestDroneLat.toFixed(5)}, ${latestDroneLng.toFixed(5)}`);
+        return;
+      }
+      const pos = droneMarker.getLatLng();
+      map.setView([pos.lat, pos.lng], 18);
+      droneMarker.openPopup();
+    }
 
     function formatEta(seconds) {
-      if (seconds == null || !isFinite(seconds) || seconds < 0) return "--";
+      if (seconds == null || !isFinite(seconds) || seconds < 0) return '--';
       if (seconds < 60) return `${Math.ceil(seconds)}s`;
       const mins = Math.floor(seconds / 60);
       const secs = Math.ceil(seconds % 60);
@@ -1444,26 +1562,17 @@
     }
 
     function formatTelemetryAge(ageMs) {
-      if (ageMs == null || !isFinite(ageMs) || ageMs < 0) return "--";
+      if (ageMs == null || !isFinite(ageMs) || ageMs < 0) return '--';
       if (ageMs < 1000) return `${Math.round(ageMs)} ms`;
       return `${(ageMs / 1000).toFixed(1)} s`;
     }
 
-    function formatTelemetrySource(source, reason = "") {
-      const s = String(source || "").toLowerCase();
-      const r = String(reason || "").toLowerCase();
-
-      if (s === "pi_bridge") {
-        if (r.startsWith("primary")) return "PI / WIFI (primary)";
-        return "PI / WIFI";
-      }
-
-      if (s === "ground_relay") {
-        if (r.startsWith("fallback")) return "GROUND 433";
-        return "GROUND 433";
-      }
-
-      return source || "--";
+    function formatTelemetrySource(source, reason = '') {
+      const s = String(source || '').toLowerCase();
+      const r = String(reason || '').toLowerCase();
+      if (s === 'pi_bridge') return r.startsWith('primary') ? 'PI / WIFI (primary)' : 'PI / WIFI';
+      if (s === 'ground_relay') return r.startsWith('fallback') ? 'GROUND 433' : 'GROUND 433';
+      return source || '--';
     }
 
     function haversine(lat1, lon1, lat2, lon2) {
@@ -1471,139 +1580,64 @@
       const toRad = deg => deg * Math.PI / 180;
       const dLat = toRad(lat2 - lat1);
       const dLon = toRad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
       return 2 * R * Math.asin(Math.sqrt(a));
     }
-    
+
     function selectProductCard(cardEl, inputId) {
-      const hiddenInput = document.getElementById(inputId);
-      if (!cardEl || !hiddenInput) return;
+      const hiddenInput = qs(inputId);
+      const group = cardEl?.parentElement;
+      if (!cardEl || !group || !hiddenInput) return;
 
-      const group = cardEl.parentElement;
-      if (!group) return;
-
-      group.querySelectorAll(".product-card").forEach(card => {
-        card.classList.remove("active");
+      group.querySelectorAll('.product-card').forEach(card => {
+        card.classList.remove('active');
       });
 
-      cardEl.classList.add("active");
-      hiddenInput.value = cardEl.dataset.value || "";
-
+      cardEl.classList.add('active');
+      hiddenInput.value = cardEl.dataset.value || '';
       logSys(`Đã chọn sản phẩm: ${hiddenInput.value}`);
     }
 
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    function getStatusBadgeInfo(status) {
+      const s = String(status || '').toUpperCase();
 
-    function getInitialChar(name) {
-      const s = String(name || "U").trim();
-      return s ? s.charAt(0).toUpperCase() : "U";
-    }
-
-    function removeAvatar() {
-      appSettings.avatar = "";
-      saveUserPreferences();
-      localStorage.removeItem(getUserStorageKey("avatar"));
-      applyAvatarToUI();
-      showMsg("profileMsg", "Đã xóa ảnh đại diện.", true);
-      logSys("Người dùng đã xóa ảnh đại diện.");
-    }
-
-    function updateFloatingPanelsByRole() {
-      const missionCard = document.getElementById("missionFloatCard");
-      if (!missionCard) return;
-
-      if (isAdminRole()) {
-        missionCard.classList.remove("hidden");
-      } else {
-        missionCard.classList.add("hidden");
+      if (['PENDING', 'CREATED', 'WAITING', 'QUEUED'].includes(s)) {
+        return { label: s, className: 'status-badge status-pending' };
       }
-    }
 
-    function updateTopbarByRole() {
-      const clearBtn = document.getElementById("btn-clear-missions");
-      if (!clearBtn) return;
-
-      if (isAdminRole()) {
-        clearBtn.classList.remove("hidden");
-      } else {
-        clearBtn.classList.add("hidden");
+      if (['ASSIGNED', 'START_REQUESTED', 'RUNNING', 'IN_FLIGHT', 'BUSY', 'ARRIVED'].includes(s)) {
+        return { label: s, className: 'status-badge status-processing' };
       }
-    }
 
+      if (['DELIVERED', 'COMPLETED', 'DONE', 'SUCCESS'].includes(s)) {
+        return { label: s, className: 'status-badge status-success' };
+      }
+
+      if (['CANCELLED', 'FAILED'].includes(s)) {
+        return { label: s, className: 'status-badge status-cancelled' };
+      }
+
+      return { label: s || '--', className: 'status-badge status-neutral' };
+    }
 
     function getOrderStatusInfo(status) {
-      const s = String(status || "").toUpperCase();
-
-      if (["DELIVERED", "COMPLETED", "DONE"].includes(s)) {
-        return {
-          text: "Đã giao",
-          className: "btn btn-success",
-          disabled: true
-        };
-      }
-
-      if (["IN_FLIGHT", "RUNNING", "ARRIVED", "START_REQUESTED"].includes(s)) {
-        return {
-          text: "Đang giao",
-          className: "btn btn-danger",
-          disabled: true
-        };
-      }
-
-      if (["CANCELLED", "FAILED"].includes(s)) {
-        return {
-          text: "Không khả dụng",
-          className: "btn btn-dark",
-          disabled: true
-        };
-      }
-
-      return {
-        text: "Tiến hành giao",
-        className: "btn btn-primary",
-        disabled: false
-      };
+      const s = String(status || '').toUpperCase();
+      if (['DELIVERED', 'COMPLETED', 'DONE'].includes(s)) return { text: 'Đã giao', className: 'bg-emerald-500', disabled: true };
+      if (['IN_FLIGHT', 'RUNNING', 'ARRIVED', 'START_REQUESTED'].includes(s)) return { text: 'Đang giao', className: 'bg-rose-500', disabled: true };
+      if (['CANCELLED', 'FAILED'].includes(s)) return { text: 'Không khả dụng', className: 'bg-white/10', disabled: true };
+      return { text: 'Tiến hành giao', className: 'gradient-btn', disabled: false };
     }
 
     function getActiveDeliveryOrder() {
       if (!Array.isArray(activeOrders) || activeOrders.length === 0) return null;
-
-      const deliveringStatuses = [
-        "ASSIGNED",
-        "START_REQUESTED",
-        "RUNNING",
-        "IN_FLIGHT",
-        "BUSY",
-        "ARRIVED"
-      ];
-
-      const candidates = activeOrders
-        .filter(o => deliveringStatuses.includes(String(o.status || "").toUpperCase()))
-        .sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0));
-
-      return candidates[0] || null;
+      const statuses = ['ASSIGNED', 'START_REQUESTED', 'RUNNING', 'IN_FLIGHT', 'BUSY', 'ARRIVED'];
+      return activeOrders.filter(o => statuses.includes(String(o.status || '').toUpperCase())).sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0))[0] || null;
     }
 
-    function showMissionDropoffMarker(lat, lng, label = "Điểm giao đang thực hiện") {
+    function showMissionDropoffMarker(lat, lng, label = 'Điểm giao đang thực hiện') {
       if (!map || !isFinite(lat) || !isFinite(lng)) return;
-
-      if (missionDropoffMarker) {
-        map.removeLayer(missionDropoffMarker);
-        missionDropoffMarker = null;
-      }
-
-      missionDropoffMarker = L.marker([lat, lng], { icon: activeDropoffIcon })
-        .addTo(map)
-        .bindPopup(`<b>${escapeHtml(label)}</b>`);
+      clearMissionDropoffMarker();
+      missionDropoffMarker = L.marker([lat, lng], { icon: activeDropoffIcon }).addTo(map).bindPopup(`<b>${escapeHtml(label)}</b>`);
     }
 
     function clearMissionDropoffMarker() {
@@ -1614,384 +1648,151 @@
     }
 
     function clearRealtimeVisuals() {
-      if (flightLine && map) {
-        map.removeLayer(flightLine);
-        flightLine = null;
-      }
-
-      if (returnLine && map) {
-        map.removeLayer(returnLine);
-        returnLine = null;
-      }
-
+      if (flightLine && map) { map.removeLayer(flightLine); flightLine = null; }
+      if (returnLine && map) { map.removeLayer(returnLine); returnLine = null; }
       clearMissionDropoffMarker();
     }
 
-    function updateMissionVisuals(droneLat, droneLng, droneMode = "") {
+    function updateMissionVisuals(droneLat, droneLng, droneMode = '') {
       const hasDrone = isFinite(droneLat) && isFinite(droneLng);
-      if (!map || !hasDrone) {
-        clearRealtimeVisuals();
-        return;
-      }
-
+      if (!map || !hasDrone) return clearRealtimeVisuals();
       const activeOrder = getActiveDeliveryOrder();
-      const mode = String(droneMode || "").toUpperCase();
-
+      const mode = String(droneMode || '').toUpperCase();
       const distToHome = haversine(droneLat, droneLng, WAREHOUSE_LAT, WAREHOUSE_LNG);
       const isNearHome = distToHome < 8;
-
-      const isReturningHome =
-        ["RTL", "RETURN", "LAND"].includes(mode) ||
-        (!activeOrder && !isNearHome);
-
+      const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(mode) || (!activeOrder && !isNearHome);
       clearRealtimeVisuals();
 
       if (isReturningHome) {
-        returnLine = L.polyline(
-          [
-            [droneLat, droneLng],
-            [WAREHOUSE_LAT, WAREHOUSE_LNG]
-          ],
-          {
-            color: "#ffcc33",
-            weight: 4,
-            opacity: 0.95,
-            dashArray: "12, 10"
-          }
-        ).addTo(map);
-
+        returnLine = L.polyline([[droneLat, droneLng], [WAREHOUSE_LAT, WAREHOUSE_LNG]], { color: '#f8c146', weight: 4, opacity: 0.95, dashArray: '12,10' }).addTo(map);
         return;
       }
 
-      if (!activeOrder || !activeOrder.dropoff) {
-        return;
-      }
-
+      if (!activeOrder?.dropoff) return;
       const targetLat = Number(activeOrder.dropoff.lat);
       const targetLng = Number(activeOrder.dropoff.lng);
-
-      if (!isFinite(targetLat) || !isFinite(targetLng)) {
-        return;
-      }
-
-      showMissionDropoffMarker(targetLat, targetLng, `Điểm giao ${escapeHtml(activeOrder.id || "")}`);
-
-      flightLine = L.polyline(
-        [
-          [droneLat, droneLng],
-          [targetLat, targetLng]
-        ],
-        {
-          color: "#148a4b",
-          weight: 4,
-          opacity: 0.95,
-          dashArray: "10, 8"
-        }
-      ).addTo(map);
+      if (!isFinite(targetLat) || !isFinite(targetLng)) return;
+      showMissionDropoffMarker(targetLat, targetLng, `Điểm giao ${escapeHtml(activeOrder.id || '')}`);
+      flightLine = L.polyline([[droneLat, droneLng], [targetLat, targetLng]], { color: '#22c55e', weight: 4, opacity: 0.95, dashArray: '10,8' }).addTo(map);
     }
 
-    function isAdminRole() {
-      return String(currentUser?.role || "").toLowerCase() === "admin";
-    }
-
-    function updateOrderTabByRole() {
-      const userPanel = document.getElementById("user-order-panel");
-      const adminPanel = document.getElementById("admin-order-panel");
-
-      if (!userPanel || !adminPanel) return;
-
-      if (isAdminRole()) {
-        userPanel.classList.add("hidden");
-        adminPanel.classList.remove("hidden");
-      } else {
-        adminPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-      }
-    }
-
-    function getUserStorageKey(key) {
-      const username = currentUser?.username || "guest";
-      return `uav_${key}_${username}`;
-    }
-
-    function loadUserPreferences() {
-      if (!currentUser) return;
-
-      const savedSettings = localStorage.getItem(getUserStorageKey("settings"));
-      if (savedSettings) {
-        try {
-          appSettings = {
-            ...appSettings,
-            ...JSON.parse(savedSettings)
-          };
-        } catch (_) {}
-      }
-
-      const avatar = localStorage.getItem(getUserStorageKey("avatar"));
-      if (avatar) {
-        appSettings.avatar = avatar;
-      }
-    }
-
-    function saveUserPreferences() {
-      if (!currentUser) return;
-      localStorage.setItem(getUserStorageKey("settings"), JSON.stringify(appSettings));
-      if (appSettings.avatar) {
-        localStorage.setItem(getUserStorageKey("avatar"), appSettings.avatar);
-      }
-    }
-    
-    function loadStoredProfile() {
-      if (!currentUser) return;
-
-      const savedProfile = localStorage.getItem(getUserStorageKey("profile"));
-      if (!savedProfile) return;
-
-      try {
-        const profile = JSON.parse(savedProfile);
-        currentUser = {
-          ...currentUser,
-          ...profile
-        };
-      } catch (_) {}
-    }
-
-    function saveStoredProfile() {
-      if (!currentUser) return;
-
-      const profileData = {
-        full_name: currentUser.full_name || "",
-        email: currentUser.email || "",
-        phone: currentUser.phone || "",
-        address: currentUser.address || ""
-      };
-
-      localStorage.setItem(getUserStorageKey("profile"), JSON.stringify(profileData));
-    }
-    function applyAvatarToUI() {
-      const imgEl = document.getElementById("profileAvatarImg");
-      const fallbackEl = document.getElementById("profileAvatarFallback");
-      if (!imgEl || !fallbackEl) return;
-
-      const profileName = currentUser?.full_name || currentUser?.username || "U";
-
-      if (appSettings.avatar) {
-        imgEl.src = appSettings.avatar;
-        imgEl.classList.remove("hidden");
-        fallbackEl.classList.add("hidden");
-        fallbackEl.textContent = getInitialChar(profileName);
-      } else {
-        imgEl.src = "";
-        imgEl.classList.add("hidden");
-        fallbackEl.classList.remove("hidden");
-        fallbackEl.textContent = getInitialChar(profileName);
-      }
-    }
-
-    function handleAvatarUpload(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      if (!file.type.startsWith("image/")) {
-        showMsg("profileMsg", "Vui lòng chọn file ảnh hợp lệ.", false);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        appSettings.avatar = e.target.result;
-        saveUserPreferences();
-        applyAvatarToUI();
-        showMsg("profileMsg", "Đã cập nhật ảnh đại diện.", true);
-        logSys("Người dùng đã cập nhật ảnh đại diện.");
-        event.target.value = "";
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function setDropLocation(lat, lng, label = "Điểm giao hàng", updateInputAddress = false) {
+    function setDropLocationForRole(lat, lng, label = 'Điểm giao hàng', updateInputAddress = false) {
       if (!map) return;
-
-      document.getElementById("drop-lat").value = Number(lat).toFixed(6);
-      document.getElementById("drop-lng").value = Number(lng).toFixed(6);
-
-      if (selectedDropoffMarker) {
-        map.removeLayer(selectedDropoffMarker);
+      if (isAdminRole()) {
+        qs('admin-drop-lat').value = Number(lat).toFixed(6);
+        qs('admin-drop-lng').value = Number(lng).toFixed(6);
+      } else {
+        qs('drop-lat').value = Number(lat).toFixed(6);
+        qs('drop-lng').value = Number(lng).toFixed(6);
       }
 
-      selectedDropoffMarker = L.marker([lat, lng], { icon: dropoffIcon })
-        .addTo(map)
-        .bindPopup(`<b>${escapeHtml(label)}</b>`)
-        .openPopup();
-
+      if (selectedDropoffMarker) map.removeLayer(selectedDropoffMarker);
+      selectedDropoffMarker = L.marker([lat, lng], { icon: dropoffIcon }).addTo(map).bindPopup(`<b>${escapeHtml(label)}</b>`).openPopup();
       map.setView([lat, lng], 17);
       logSys(`Đã chọn điểm giao: ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`);
-
-      if (updateInputAddress) {
-        reverseGeocode(lat, lng);
-      }
+      if (updateInputAddress) reverseGeocodeForRole(lat, lng);
     }
 
-    async function reverseGeocode(lat, lng) {
+    async function reverseGeocodeForRole(lat, lng) {
       try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
-        );
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`);
         const data = await res.json();
-        if (data && data.display_name) {
-          document.getElementById("address-input").value = data.display_name;
+        if (data?.display_name) {
+          const input = qs(isAdminRole() ? 'admin-address-input' : 'address-input');
+          if (input) input.value = data.display_name;
         }
       } catch (_) {}
     }
 
-    function initMap() {
-      map = L.map("map").setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(map);
-
-      warehouseMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: warehouseIcon })
-        .addTo(map)
-        .bindPopup("<b>Kho hàng</b>");
-
-      droneMarker = L.marker([WAREHOUSE_LAT, WAREHOUSE_LNG], { icon: droneIcon })
-        .addTo(map)
-        .bindPopup("<b>Drone</b>");
-
-      map.on("click", function(e) {
-        switchSidebarTab("order");
-        setDropLocationForRole(e.latlng.lat, e.latlng.lng, "Điểm giao hàng", true);
-      });
+    function focusOrderOnMap(lat, lng) {
+      if (!isFinite(lat) || !isFinite(lng) || !map) return;
+      switchSidebarTab('history');
+      setDropLocationForRole(lat, lng, 'Điểm giao từ lịch sử đơn', false);
+      map.setView([lat, lng], 17);
     }
 
-    function centerMap() {
-      if (map) {
-        map.setView([WAREHOUSE_LAT, WAREHOUSE_LNG], 16);
+    function reuseOrder(lat, lng, note) {
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      switchSidebarTab('order');
+      setDropLocationForRole(lat, lng, 'Điểm giao đặt lại', false);
+      const raw = String(note || '');
+      const parts = raw.split('|').map(s => s.trim()).filter(Boolean);
+      const knownProducts = PRODUCT_OPTIONS.map(item => item.value);
+      const maybeProduct = parts[0];
+      const maybeNote = parts.length > 1 ? parts.slice(1).join(' | ') : '';
+
+      if (knownProducts.includes(maybeProduct)) {
+        qs('user-product-select').value = maybeProduct;
+        qs('order-note').value = maybeNote;
+        document.querySelectorAll('#user-product-grid .product-card').forEach(card => {
+          const match = card.dataset.value === maybeProduct;
+          card.classList.toggle('active', match);
+        });
+      } else {
+        qs('order-note').value = raw;
       }
+
+      logSys('Đã nạp lại thông tin từ lịch sử đơn.');
     }
 
-    function centerDrone() {
-      if (!map || !droneMarker) {
-        alert("Bản đồ hoặc marker drone chưa sẵn sàng.");
-        return;
-      }
-
-      if (!isFinite(latestDroneLat) || !isFinite(latestDroneLng)) {
-        const pos = droneMarker.getLatLng();
-        if (!pos || !isFinite(pos.lat) || !isFinite(pos.lng)) {
-          alert("Chưa có vị trí drone hợp lệ.");
-          return;
-        }
-
-        map.setView([pos.lat, pos.lng], 18);
-        droneMarker.openPopup();
-        logSys(`Đã chuyển bản đồ tới vị trí drone: ${Number(pos.lat).toFixed(5)}, ${Number(pos.lng).toFixed(5)}`);
-        return;
-      }
-
-      map.setView([latestDroneLat, latestDroneLng], 18);
-      droneMarker.openPopup();
-      logSys(`Đã chuyển bản đồ tới vị trí drone: ${latestDroneLat.toFixed(5)}, ${latestDroneLng.toFixed(5)}`);
-    }
-
-    function isFinishedMissionStatus(status) {
-      return ["CANCELLED", "COMPLETED", "DONE", "DELIVERED", "FAILED"].includes(
-        String(status || "").toUpperCase()
-      );
-    }
-
-    async function clearFinishedMissions() {
-      if (!isAdminRole()) {
-        alert("Chỉ admin mới được phép clear missions.");
-        return;
-      }
-
-      hideFinishedMissions = true;
-      activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
-      await loadMissions();
-      updateMissionVisuals(latestDroneLat, latestDroneLng, "");
-      logSys("Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.");
+    function updateUserStats(orders) {
+      const total = orders.length;
+      const processing = orders.filter(o => ['ASSIGNED', 'RUNNING', 'IN_FLIGHT', 'START_REQUESTED', 'BUSY', 'ARRIVED'].includes(String(o.status || '').toUpperCase())).length;
+      const completed = orders.filter(o => ['DELIVERED', 'COMPLETED', 'DONE', 'SUCCESS'].includes(String(o.status || '').toUpperCase())).length;
+      const pending = orders.filter(o => ['PENDING', 'CREATED', 'WAITING', 'QUEUED'].includes(String(o.status || '').toUpperCase())).length;
+      qs('u-total-orders').textContent = total;
+      qs('u-processing-orders').textContent = processing;
+      qs('u-completed-orders').textContent = completed;
+      qs('u-pending-orders').textContent = pending;
     }
 
     async function registerUser() {
-      const username = document.getElementById("regUsername").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
-
-      clearMsg("registerMsg");
-
-      if (!username || !password) {
-        showMsg("registerMsg", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.", false);
-        return;
-      }
-
+      const username = qs('regUsername').value.trim();
+      const password = qs('regPassword').value.trim();
+      clearMsg('registerMsg');
+      if (!username || !password) return showMsg('registerMsg', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.', false);
       try {
         const res = await fetch(`${API_URL}/auth/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
         });
-
         const data = await res.json();
-
-        if (data.error) {
-          showMsg("registerMsg", `Đăng ký thất bại: ${data.error}`, false);
-          return;
-        }
-
-        showMsg("registerMsg", "Đăng ký thành công. Bạn có thể đăng nhập ngay bây giờ.", true);
-        document.getElementById("regUsername").value = "";
-        document.getElementById("regPassword").value = "";
-        switchTab("login");
+        if (data.error) return showMsg('registerMsg', `Đăng ký thất bại: ${data.error}`, false);
+        showMsg('registerMsg', 'Đăng ký thành công. Bạn có thể đăng nhập ngay bây giờ.', true);
+        qs('regUsername').value = '';
+        qs('regPassword').value = '';
+        switchTab('login');
       } catch (e) {
-        showMsg("registerMsg", `Không kết nối được tới server: ${e}`, false);
+        showMsg('registerMsg', `Không kết nối được tới server: ${e}`, false);
       }
     }
 
     async function login() {
-      const username = document.getElementById("loginUsername").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-
-      clearMsg("loginMsg");
-
-      if (!username || !password) {
-        showMsg("loginMsg", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.", false);
-        return;
-      }
-
+      const username = qs('loginUsername').value.trim();
+      const password = qs('loginPassword').value.trim();
+      clearMsg('loginMsg');
+      if (!username || !password) return showMsg('loginMsg', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.', false);
       try {
         const res = await fetch(`${API_URL}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
         });
-
         const data = await res.json();
-
-        if (data.error || !data.token) {
-          showMsg("loginMsg", "Sai tên đăng nhập hoặc mật khẩu.", false);
-          return;
-        }
-
+        if (data.error || !data.token) return showMsg('loginMsg', 'Sai tên đăng nhập hoặc mật khẩu.', false);
         token = data.token;
-        localStorage.setItem("token", token);
+        localStorage.setItem('token', token);
         currentUser = data.user || { username };
         sessionLoginPassword = password;
+        closeAuthModal();
         await showApp();
       } catch (e) {
-        showMsg("loginMsg", `Không kết nối được tới server: ${e}`, false);
+        showMsg('loginMsg', `Không kết nối được tới server: ${e}`, false);
       }
     }
 
     async function fetchMe() {
       if (!token) return false;
-
       try {
-        const res = await fetch(`${API_URL}/auth/me`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
+        const res = await fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-
         if (data.error || !data.user) return false;
         currentUser = data.user;
         return true;
@@ -2003,156 +1804,44 @@
     async function logout() {
       try {
         if (token) {
-          await fetch(`${API_URL}/auth/logout`, {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` }
-          });
+          await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
         }
       } catch (_) {}
 
-      token = "";
+      token = '';
       currentUser = null;
       currentOrderId = null;
       currentMissionId = null;
-      localStorage.removeItem("token");
-
-      document.getElementById("appPage").classList.add("hidden");
-      document.getElementById("authPage").classList.remove("hidden");
-
-      clearMsg("loginMsg");
-      clearMsg("profileMsg");
-      clearMsg("passwordMsg");
+      localStorage.removeItem('token');
       isProfileEditing = false;
       isPasswordChanging = false;
-      sessionLoginPassword = "";
+      sessionLoginPassword = '';
       profileDraftBackup = {};
+      qs('consolePage').classList.add('hidden');
+      qs('landingPage').classList.remove('hidden');
+      closeAuthModal();
+      refreshLandingAuthButton();
+      logSys('Đã đăng xuất khỏi hệ thống.');
     }
 
-    function populateProfile() {
-      if (!currentUser) return;
-
-      document.getElementById("meName")?.replaceChildren?.();
-      const meName = document.getElementById("meName");
-      if (meName) meName.textContent = currentUser.username || "--";
-
-      const meRole = document.getElementById("meRole");
-      if (meRole) meRole.textContent = String(currentUser.role || "user").toUpperCase();
-
-      const profileName = currentUser.full_name || currentUser.username || "Người dùng";
-      document.getElementById("profileTitleName").textContent = profileName;
-      document.getElementById("profileRoleBadge").textContent = String(currentUser.role || "user").toUpperCase();
-
-      document.getElementById("profile-username").value = currentUser.username || "";
-      document.getElementById("profile-role").value = currentUser.role || "";
-      document.getElementById("profile-fullname").value = currentUser.full_name || "";
-      document.getElementById("profile-email").value = currentUser.email || "";
-      document.getElementById("profile-phone").value = currentUser.phone || "";
-      document.getElementById("profile-address").value = currentUser.address || "";
-
-      setProfileInputsReadonly(true);
-      document.getElementById("profileActionRow")?.classList.add("hidden");
-      document.getElementById("btn-edit-profile") && (document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin");
-      document.getElementById("btn-edit-profile") && (document.getElementById("btn-edit-profile").disabled = false);
-    }
-
-    function setProfileInputsReadonly(readonly) {
-      ["profile-fullname", "profile-email", "profile-phone", "profile-address"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.readOnly = readonly;
-      });
-    }
-
-    function toggleProfileEdit() {
-      clearMsg("profileMsg");
-
-      isProfileEditing = !isProfileEditing;
-
-      if (isProfileEditing) {
-        profileDraftBackup = {
-          full_name: document.getElementById("profile-fullname").value,
-          email: document.getElementById("profile-email").value,
-          phone: document.getElementById("profile-phone").value,
-          address: document.getElementById("profile-address").value
-        };
-
-        setProfileInputsReadonly(false);
-        document.getElementById("profileActionRow").classList.remove("hidden");
-        document.getElementById("btn-edit-profile").textContent = "Đang chỉnh sửa...";
-        document.getElementById("btn-edit-profile").disabled = true;
-        document.getElementById("profile-fullname").focus();
-      } else {
-        setProfileInputsReadonly(true);
-        document.getElementById("profileActionRow").classList.add("hidden");
-        document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
-        document.getElementById("btn-edit-profile").disabled = false;
-      }
-    }
-
-    function cancelProfileEdit() {
-      clearMsg("profileMsg");
-
-      document.getElementById("profile-fullname").value = profileDraftBackup.full_name || "";
-      document.getElementById("profile-email").value = profileDraftBackup.email || "";
-      document.getElementById("profile-phone").value = profileDraftBackup.phone || "";
-      document.getElementById("profile-address").value = profileDraftBackup.address || "";
-
-      isProfileEditing = false;
-      setProfileInputsReadonly(true);
-      document.getElementById("profileActionRow").classList.add("hidden");
-      document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
-      document.getElementById("btn-edit-profile").disabled = false;
-    }
-
-    function togglePasswordBox() {
-      clearMsg("passwordMsg");
-
-      isPasswordChanging = !isPasswordChanging;
-      document.getElementById("passwordFormWrap").classList.toggle("hidden", !isPasswordChanging);
-      document.getElementById("btn-toggle-password").textContent = isPasswordChanging
-        ? "Đang đổi mật khẩu..."
-        : "Đổi mật khẩu";
-
-      if (isPasswordChanging) {
-        document.getElementById("current-password").focus();
-      } else {
-        clearPasswordForm();
-      }
-    }
-
-    function cancelPasswordChange() {
-      clearMsg("passwordMsg");
-      isPasswordChanging = false;
-      document.getElementById("passwordFormWrap").classList.add("hidden");
-      document.getElementById("btn-toggle-password").textContent = "Đổi mật khẩu";
-      clearPasswordForm();
-    }
-
-    function clearPasswordForm() {
-      document.getElementById("current-password").value = "";
-      document.getElementById("new-password").value = "";
-      document.getElementById("confirm-password").value = "";
-    }
-
-   async function showApp() {
-      document.getElementById("authPage").classList.add("hidden");
-      document.getElementById("appPage").classList.remove("hidden");
-
+    async function showApp() {
+      qs('landingPage').classList.add('hidden');
+      qs('consolePage').classList.remove('hidden');
       loadUserPreferences();
       loadStoredProfile();
       populateProfile();
       updateOrderTabByRole();
       updateFloatingPanelsByRole();
       updateTopbarByRole();
-
       if (!map) initMap();
+      renderProductCards('user-product-grid', 'user-product-select');
+      renderProductCards('admin-product-grid', 'admin-product-select');
+      refreshLandingAuthButton();
+      switchSidebarTab('user');
+      setTimeout(() => map?.invalidateSize(), 200);
 
-      switchSidebarTab("user");
-
-      if (!isAdminRole()) {
-        logSys("Đã đăng nhập bằng tài khoản người dùng. Bạn đã có thể đặt đơn hàng.");
-      } else {
-        logSys("Đã đăng nhập bằng tài khoản quản trị viên.");
-      }
+      if (isAdminRole()) logSys('Đã đăng nhập bằng tài khoản quản trị viên.');
+      else logSys('Đã đăng nhập bằng tài khoản người dùng. Bạn đã có thể đặt đơn hàng.');
 
       if (isAdminRole()) {
         await loadOrders();
@@ -2162,541 +1851,252 @@
       } else {
         activeMissions = [];
         clearRealtimeVisuals();
-
-        const missionsBox = document.getElementById("missionsBox");
-        if (missionsBox) {
-          missionsBox.innerHTML = `<div class="list-item">Chỉ admin mới xem mission.</div>`;
-        }
-
+        qs('missionsBox').innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chỉ admin mới xem mission.</div>';
         await loadOrders();
         await fetchTelemetry();
         await loadOrderHistory();
       }
+    }
 
-      applyAvatarToUI();
+    async function saveProfile() {
+      clearMsg('profileMsg');
+      const fullName = qs('profile-fullname').value.trim();
+      const email = qs('profile-email').value.trim();
+      const phone = qs('profile-phone').value.trim();
+      const address = qs('profile-address').value.trim();
+      try {
+        const res = await fetch(`${API_URL}/users/me`, {
+          method: 'PUT', headers: authHeaders(), body: JSON.stringify({ full_name: fullName, email, phone, address })
+        });
+        const data = await res.json();
+        if (data.error) return showMsg('profileMsg', `Cập nhật thất bại: ${data.error}`, false);
+        currentUser = data.user;
+        saveStoredProfile();
+        isProfileEditing = false;
+        setProfileInputsReadonly(true);
+        qs('profileActionRow').classList.add('hidden');
+        qs('btn-edit-profile').textContent = 'Chỉnh sửa thông tin';
+        qs('btn-edit-profile').disabled = false;
+        populateProfile();
+        refreshLandingAuthButton();
+        showMsg('profileMsg', 'Đã cập nhật thông tin người dùng.', true);
+        logSys('Người dùng đã cập nhật hồ sơ cá nhân.');
+      } catch (e) {
+        showMsg('profileMsg', `Lỗi cập nhật hồ sơ: ${e}`, false);
+      }
+    }
+
+    async function changePassword() {
+      clearMsg('passwordMsg');
+      const oldPass = qs('current-password').value.trim();
+      const newPass = qs('new-password').value.trim();
+      const confirmPass = qs('confirm-password').value.trim();
+      if (!oldPass) return showMsg('passwordMsg', 'Vui lòng nhập mật khẩu cũ.', false);
+      if (!newPass || newPass.length < 4) return showMsg('passwordMsg', 'Mật khẩu mới phải có ít nhất 4 ký tự.', false);
+      if (newPass !== confirmPass) return showMsg('passwordMsg', 'Mật khẩu xác nhận không khớp.', false);
+      if (oldPass === newPass) return showMsg('passwordMsg', 'Mật khẩu mới không được trùng mật khẩu cũ.', false);
+
+      try {
+        const res = await fetch(`${API_URL}/auth/change-password`, {
+          method: 'PUT', headers: authHeaders(), body: JSON.stringify({ old_password: oldPass, new_password: newPass, confirm_new_password: confirmPass })
+        });
+        const data = await res.json();
+        if (data.error) {
+          const mapErr = {
+            wrong_old_password: 'Mật khẩu cũ không đúng.',
+            password_too_short: 'Mật khẩu mới phải có ít nhất 4 ký tự.',
+            confirm_password_not_match: 'Xác nhận mật khẩu mới không khớp.',
+            same_as_old_password: 'Mật khẩu mới không được trùng mật khẩu cũ.'
+          };
+          return showMsg('passwordMsg', mapErr[data.error] || `Đổi mật khẩu thất bại: ${data.error}`, false);
+        }
+        showMsg('passwordMsg', 'Đổi mật khẩu thành công. Từ giờ hãy đăng nhập bằng mật khẩu mới.', true);
+        logSys('Người dùng đã cập nhật mật khẩu.');
+        setTimeout(() => {
+          cancelPasswordChange();
+          clearMsg('passwordMsg');
+        }, 1500);
+      } catch (e) {
+        showMsg('passwordMsg', `Lỗi đổi mật khẩu: ${e}`, false);
+      }
     }
 
     function useMyLocation() {
-      if (!navigator.geolocation) {
-        alert("Trình duyệt hiện tại không hỗ trợ định vị. Vui lòng nhập địa chỉ hoặc chọn trực tiếp trên bản đồ.");
-        return;
-      }
-
+      if (!navigator.geolocation) return alert('Trình duyệt hiện tại không hỗ trợ định vị.');
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-
-          if (userMarker) {
-            map.removeLayer(userMarker);
-          }
-
-          userMarker = L.marker([lat, lng], { icon: userIcon })
-            .addTo(map)
-            .bindPopup("<b>Vị trí hiện tại của bạn</b>")
-            .openPopup();
-
-          switchSidebarTab("order");
-          setDropLocationForRole(lat, lng, "Điểm giao từ vị trí hiện tại", true);
-          logSys("Đã lấy vị trí hiện tại của người dùng.");
+          if (userMarker) map.removeLayer(userMarker);
+          userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map).bindPopup('<b>Vị trí hiện tại của bạn</b>').openPopup();
+          switchSidebarTab('order');
+          setDropLocationForRole(lat, lng, 'Điểm giao từ vị trí hiện tại', true);
+          logSys('Đã lấy vị trí hiện tại của người dùng.');
         },
         (error) => {
-          console.error("Geolocation error:", error);
-
-          if (error.code === 1) {
-            alert("Bạn đã từ chối quyền truy cập vị trí. Vui lòng nhập địa chỉ hoặc click trực tiếp lên bản đồ.");
-          } else if (error.code === 2) {
-            alert("Không lấy được vị trí hiện tại. Vui lòng thử lại hoặc nhập địa chỉ.");
-          } else if (error.code === 3) {
-            alert("Đã hết thời gian lấy vị trí. Vui lòng thử lại hoặc nhập địa chỉ.");
-          } else {
-            alert("Không thể truy cập vị trí. Vui lòng nhập địa chỉ thủ công.");
-          }
-
-          document.getElementById("address-input").focus();
+          if (error.code === 1) alert('Bạn đã từ chối quyền truy cập vị trí.');
+          else if (error.code === 2) alert('Không lấy được vị trí hiện tại.');
+          else if (error.code === 3) alert('Đã hết thời gian lấy vị trí.');
+          else alert('Không thể truy cập vị trí.');
+          qs('address-input').focus();
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
 
-    async function placeOrderOnly() {
-      if (isAdminRole()) {
-        logSys("Tài khoản admin không dùng luồng đặt đơn của người dùng.");
-        return;
-      }
+    function useMyLocationAdmin() {
+      if (!navigator.geolocation) return alert('Trình duyệt hiện tại không hỗ trợ định vị.');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          if (userMarker) map.removeLayer(userMarker);
+          userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map).bindPopup('<b>Vị trí hiện tại</b>').openPopup();
+          switchSidebarTab('order');
+          setDropLocationForRole(lat, lng, 'Điểm giao từ vị trí hiện tại', true);
+          logSys('Admin đã lấy vị trí hiện tại.');
+        },
+        () => alert('Không lấy được vị trí hiện tại.'),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
 
-      const lat = parseFloat(document.getElementById("drop-lat").value);
-      const lng = parseFloat(document.getElementById("drop-lng").value);
-      const product = document.getElementById("user-product-select").value;
-      const noteInput = document.getElementById("order-note").value.trim();
-      const note = noteInput ? `${product} | ${noteInput}` : product;
-
-      if (!isFinite(lat) || !isFinite(lng)) {
-        alert("Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.");
-        return;
-      }
-
+    async function searchAddress() {
+      const address = qs('address-input').value.trim();
+      if (!address) return alert('Vui lòng nhập địa chỉ trước.');
       try {
-        logSys("Đang tạo đơn hàng...");
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`, { headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) return alert('Không tìm thấy địa chỉ này.');
+        const place = data[0];
+        setDropLocationForRole(parseFloat(place.lat), parseFloat(place.lon), 'Điểm giao từ địa chỉ', false);
+        qs('address-input').value = place.display_name || address;
+        logSys('Đã tìm thấy địa chỉ và cập nhật điểm giao.');
+      } catch {
+        alert('Có lỗi khi tìm địa chỉ.');
+      }
+    }
 
+    async function searchAddressAdmin() {
+      const address = qs('admin-address-input').value.trim();
+      if (!address) return alert('Vui lòng nhập địa chỉ trước.');
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`, { headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) return alert('Không tìm thấy địa chỉ này.');
+        const place = data[0];
+        setDropLocationForRole(parseFloat(place.lat), parseFloat(place.lon), 'Điểm giao từ địa chỉ', false);
+        qs('admin-address-input').value = place.display_name || address;
+        logSys('Admin đã tìm thấy địa chỉ và cập nhật điểm giao.');
+      } catch {
+        alert('Có lỗi khi tìm địa chỉ.');
+      }
+    }
+
+    async function placeOrderOnly() {
+      if (isAdminRole()) return logSys('Tài khoản admin không dùng luồng đặt đơn của người dùng.');
+      const lat = parseFloat(qs('drop-lat').value);
+      const lng = parseFloat(qs('drop-lng').value);
+      const product = qs('user-product-select').value;
+      const noteInput = qs('order-note').value.trim();
+      const note = noteInput ? `${product} | ${noteInput}` : product;
+      if (!isFinite(lat) || !isFinite(lng)) return alert('Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.');
+      try {
+        logSys('Đang tạo đơn hàng...');
         const resOrder = await fetch(`${API_URL}/orders`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            dropoff: { lat, lng },
-            note
-          })
+          method: 'POST', headers: authHeaders(), body: JSON.stringify({ dropoff: { lat, lng }, note })
         });
-
         const orderData = await resOrder.json();
-
-        if (orderData.error) {
-          logSys(`Tạo order thất bại: ${orderData.error}`);
-          return;
-        }
-
+        if (orderData.error) return logSys(`Tạo order thất bại: ${orderData.error}`);
         currentOrderId = orderData.id;
-        logSys("Đặt đơn thành công. Đơn hàng đang chờ admin tiếp nhận và điều phối.");
-
-        loadOrders();
-        loadOrderHistory();
+        logSys('Đặt đơn thành công. Đơn hàng đang chờ admin tiếp nhận và điều phối.');
+        await loadOrders();
+        await loadOrderHistory();
+        switchSidebarTab('history');
       } catch (e) {
         logSys(`Lỗi tạo đơn hàng: ${e}`);
       }
     }
 
-    function setDropLocationForRole(lat, lng, label = "Điểm giao hàng", updateInputAddress = false) {
-      if (!map) return;
-
-      if (isAdminRole()) {
-        document.getElementById("admin-drop-lat").value = Number(lat).toFixed(6);
-        document.getElementById("admin-drop-lng").value = Number(lng).toFixed(6);
-      } else {
-        document.getElementById("drop-lat").value = Number(lat).toFixed(6);
-        document.getElementById("drop-lng").value = Number(lng).toFixed(6);
-      }
-
-      if (selectedDropoffMarker) {
-        map.removeLayer(selectedDropoffMarker);
-      }
-
-      selectedDropoffMarker = L.marker([lat, lng], { icon: dropoffIcon })
-        .addTo(map)
-        .bindPopup(`<b>${escapeHtml(label)}</b>`)
-        .openPopup();
-
-      map.setView([lat, lng], 17);
-      logSys(`Đã chọn điểm giao: ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`);
-
-      if (updateInputAddress) {
-        reverseGeocodeForRole(lat, lng);
-      }
-    }
-    
-    async function cancelOrder(orderId) {
-      if (!orderId) return;
-
-      const ok = confirm(`Bạn có chắc muốn hủy đơn ${orderId} không?`);
-      if (!ok) return;
-
-      try {
-        const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
-          method: "POST",
-          headers: authHeaders()
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          if (data.error === "cannot_cancel_order") {
-            alert("Đơn này không thể hủy vì đã giao xong hoặc đã hoàn tất.");
-          } else if (data.error === "forbidden") {
-            alert("Bạn không có quyền hủy đơn này.");
-          } else if (data.error === "order_not_found") {
-            alert("Không tìm thấy đơn hàng.");
-          } else {
-            alert(`Hủy đơn thất bại: ${data.error}`);
-          }
-          return;
-        }
-
-        logSys(`Đã hủy đơn ${orderId}.`);
-        loadOrders();
-        loadOrderHistory();
-        loadMissions();
-      } catch (e) {
-        alert(`Lỗi hủy đơn: ${e}`);
-      }
-    }
-
-    async function reverseGeocodeForRole(lat, lng) {
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
-        );
-        const data = await res.json();
-        if (data && data.display_name) {
-          const inputId = isAdminRole() ? "admin-address-input" : "address-input";
-          const input = document.getElementById(inputId);
-          if (input) input.value = data.display_name;
-        }
-      } catch (_) {}
-    }
-
-    async function searchAddressAdmin() {
-      const input = document.getElementById("admin-address-input");
-      const address = input.value.trim();
-
-      if (!address) {
-        alert("Vui lòng nhập địa chỉ trước.");
-        return;
-      }
-
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-        const res = await fetch(url, {
-          headers: { "Accept": "application/json" }
-        });
-
-        const data = await res.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-          alert("Không tìm thấy địa chỉ này.");
-          return;
-        }
-
-        const place = data[0];
-        const lat = parseFloat(place.lat);
-        const lng = parseFloat(place.lon);
-
-        setDropLocationForRole(lat, lng, "Điểm giao từ địa chỉ", false);
-        input.value = place.display_name || address;
-        logSys("Admin đã tìm thấy địa chỉ và cập nhật điểm giao.");
-      } catch (e) {
-        console.error(e);
-        alert("Có lỗi khi tìm địa chỉ.");
-      }
-    }
-
-    function useMyLocationAdmin() {
-      if (!navigator.geolocation) {
-        alert("Trình duyệt hiện tại không hỗ trợ định vị.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          if (userMarker) {
-            map.removeLayer(userMarker);
-          }
-
-          userMarker = L.marker([lat, lng], { icon: userIcon })
-            .addTo(map)
-            .bindPopup("<b>Vị trí hiện tại</b>")
-            .openPopup();
-
-          switchSidebarTab("order");
-          setDropLocationForRole(lat, lng, "Điểm giao từ vị trí hiện tại", true);
-          logSys("Admin đã lấy vị trí hiện tại.");
-        },
-        () => {
-          alert("Không lấy được vị trí hiện tại.");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-
-    async function searchAddress() {
-      const address = document.getElementById("address-input").value.trim();
-
-      if (!address) {
-        alert("Vui lòng nhập địa chỉ trước.");
-        return;
-      }
-
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-        const res = await fetch(url, {
-          headers: { "Accept": "application/json" }
-        });
-
-        const data = await res.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-          alert("Không tìm thấy địa chỉ này.");
-          return;
-        }
-
-        const place = data[0];
-        const lat = parseFloat(place.lat);
-        const lng = parseFloat(place.lon);
-
-        setDropLocationForRole(lat, lng, "Điểm giao từ địa chỉ", false);
-        document.getElementById("address-input").value = place.display_name || address;
-        logSys("Đã tìm thấy địa chỉ và cập nhật điểm giao.");
-      } catch (e) {
-        console.error(e);
-        alert("Có lỗi khi tìm địa chỉ.");
-      }
-    }
-
     async function createAdminOrderOnly() {
-      if (!isAdminRole()) {
-        logSys("Bạn không có quyền tạo đơn admin.");
-        return;
-      }
-
-      const lat = parseFloat(document.getElementById("admin-drop-lat").value);
-      const lng = parseFloat(document.getElementById("admin-drop-lng").value);
-      const product = document.getElementById("admin-product-select").value;
-      const noteInput = document.getElementById("admin-order-note").value.trim();
+      if (!isAdminRole()) return logSys('Bạn không có quyền tạo đơn admin.');
+      const lat = parseFloat(qs('admin-drop-lat').value);
+      const lng = parseFloat(qs('admin-drop-lng').value);
+      const product = qs('admin-product-select').value;
+      const noteInput = qs('admin-order-note').value.trim();
       const note = noteInput ? `${product} | ${noteInput}` : product;
-
-      if (!isFinite(lat) || !isFinite(lng)) {
-        alert("Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.");
-        return;
-      }
-
+      if (!isFinite(lat) || !isFinite(lng)) return alert('Vui lòng chọn điểm giao bằng vị trí hiện tại, địa chỉ hoặc click trên bản đồ.');
       try {
-        logSys("Admin đang tạo đơn hàng...");
-
+        logSys('Admin đang tạo đơn hàng...');
         const resOrder = await fetch(`${API_URL}/orders`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            dropoff: { lat, lng },
-            note
-          })
+          method: 'POST', headers: authHeaders(), body: JSON.stringify({ dropoff: { lat, lng }, note })
         });
-
         const orderData = await resOrder.json();
-
-        if (orderData.error) {
-          logSys(`Tạo order thất bại: ${orderData.error}`);
-          return;
-        }
-
+        if (orderData.error) return logSys(`Tạo order thất bại: ${orderData.error}`);
         currentOrderId = orderData.id;
         logSys(`Đã tạo đơn: ${currentOrderId}. Hãy vào lịch sử đơn hàng để tiến hành giao.`);
-
-        loadOrders();
-        loadOrderHistory();
-        } catch (e) {
+        await loadOrders();
+        await loadOrderHistory();
+        switchSidebarTab('history');
+      } catch (e) {
         logSys(`Lỗi tạo đơn hàng admin: ${e}`);
       }
     }
 
     async function loadOrders() {
       try {
-        const res = await fetch(`${API_URL}/orders`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
+        const res = await fetch(`${API_URL}/orders`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-          if (!Array.isArray(data)) {
-            activeOrders = [];
-            return;
-          }
-
-        activeOrders = data;
-      } 
-      
-      catch (_) {
+        activeOrders = Array.isArray(data) ? data : [];
+      } catch {
         activeOrders = [];
       }
     }
 
-    async function loadOrderHistory() {
-      const orderHistoryTitle = document.getElementById("orderHistoryTitle");
-      if (orderHistoryTitle) {
-        orderHistoryTitle.textContent = isAdminRole() ? "QUẢN LÝ ĐƠN HÀNG" : "LỊCH SỬ ĐƠN HÀNG";
-      }
-      const box = document.getElementById("myOrdersBox");
-      if (!box || !currentUser) return;
-
+    async function cancelOrder(orderId) {
+      if (!orderId) return;
+      const ok = confirm(`Bạn có chắc muốn hủy đơn ${orderId} không?`);
+      if (!ok) return;
       try {
-        const res = await fetch(`${API_URL}/orders`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
+        const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, { method: 'POST', headers: authHeaders() });
         const data = await res.json();
-
-        if (!Array.isArray(data)) {
-          box.innerHTML = `<div class="list-item">Không tải được lịch sử đơn hàng.</div>`;
-          updateUserStats([]);
-          return;
+        if (data.error) {
+          if (data.error === 'cannot_cancel_order') return alert('Đơn này không thể hủy vì đã giao xong hoặc đã hoàn tất.');
+          if (data.error === 'forbidden') return alert('Bạn không có quyền hủy đơn này.');
+          if (data.error === 'order_not_found') return alert('Không tìm thấy đơn hàng.');
+          return alert(`Hủy đơn thất bại: ${data.error}`);
         }
-
-        const ordersToShow = [...data].sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0));
-
-        updateUserStats(ordersToShow);
-
-        if (ordersToShow.length === 0) {
-          box.innerHTML = `<div class="empty-box">Chưa có đơn hàng nào.</div>`;
-          return;
-        }
-
-        box.innerHTML = ordersToShow.map(o => {
-          const status = String(o.status || "").toUpperCase();
-          const isAdmin = isAdminRole();
-          const dispatchInfo = getOrderStatusInfo(status);
-          const canDispatch = isAdmin && !dispatchInfo.disabled;
-          const canCancel = isAdmin
-            ? !["DELIVERED", "COMPLETED", "DONE", "CANCELLED", "IN_FLIGHT", "RUNNING", "ARRIVED"].includes(status)
-            : canCancelOrder(status);
-
-          return `
-            <div class="list-item">
-              <div class="head">${escapeHtml(o.id)}</div>
-              <div><strong>Trạng thái:</strong> ${escapeHtml(o.status || "--")}</div>
-              <div><strong>Tọa độ giao:</strong> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
-              <div><strong>Ghi chú:</strong> ${escapeHtml(o.note || "--")}</div>
-              <div><strong>Người tạo:</strong> ${escapeHtml(o.created_by || "--")}</div>
-
-              <div class="order-mini-actions">
-                <button class="btn btn-dark" onclick="focusOrderOnMap(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})">
-                  Xem trên map
-                </button>
-
-                ${
-                  !isAdmin ? `
-                    <button class="btn btn-dark" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeHtml(String(o.note || "").replace(/'/g, "\\'"))}')">
-                      Đặt lại
-                    </button>
-                  ` : `
-                    <button class="${dispatchInfo.className}" onclick="dispatchOrder('${o.id}', ${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})"
-                      ${canDispatch ? "" : "disabled"}>
-                      ${dispatchInfo.text}
-                    </button>
-                  `
-                }
-
-                ${
-                  canCancel ? `
-                    <button class="btn btn-danger" style="grid-column:1 / -1;" onclick="cancelOrder('${o.id}')">
-                      Hủy đơn
-                    </button>
-                  ` : ""
-                }
-              </div>
-            </div>
-          `;
-        }).join("");
-      } catch (_) {
-        box.innerHTML = `<div class="list-item">Lỗi tải lịch sử đơn hàng.</div>`;
-        updateUserStats([]);
+        logSys(`Đã hủy đơn ${orderId}.`);
+        await loadOrders();
+        await loadOrderHistory();
+        if (isAdminRole()) await loadMissions();
+      } catch (e) {
+        alert(`Lỗi hủy đơn: ${e}`);
       }
     }
 
-    function updateUserStats(orders) {
-      const total = orders.length;
-
-      const processing = orders.filter(o =>
-        ["ASSIGNED", "RUNNING", "IN_FLIGHT", "START_REQUESTED", "BUSY", "ARRIVED"].includes(String(o.status || "").toUpperCase())
-      ).length;
-
-      const completed = orders.filter(o =>
-        ["DELIVERED", "COMPLETED", "DONE", "SUCCESS"].includes(String(o.status || "").toUpperCase())
-      ).length;
-
-      const pending = orders.filter(o =>
-        ["PENDING", "CREATED", "WAITING", "QUEUED"].includes(String(o.status || "").toUpperCase())
-      ).length;
-
-      document.getElementById("u-total-orders").textContent = total;
-      document.getElementById("u-processing-orders").textContent = processing;
-      document.getElementById("u-completed-orders").textContent = completed;
-      document.getElementById("u-pending-orders").textContent = pending;
-    }
-
-    function focusOrderOnMap(lat, lng) {
-      if (!isFinite(lat) || !isFinite(lng) || !map) return;
-      switchSidebarTab("order");
-      setDropLocationForRole(lat, lng, "Điểm giao từ lịch sử đơn", false);
-      map.setView([lat, lng], 17);
-    }
-
-    function reuseOrder(lat, lng, note) {
-      if (!isFinite(lat) || !isFinite(lng)) return;
-      switchSidebarTab("order");
-      setDropLocation(lat, lng, "Điểm giao đặt lại", false);
-
-      const raw = String(note || "");
-      const parts = raw.split("|").map(s => s.trim()).filter(Boolean);
-
-      const knownProducts = [
-        "Nước giải khát",
-        "Thuốc y tế",
-        "Đồ ăn nhanh",
-        "Tài liệu khẩn"
-      ];
-
-      const maybeProduct = parts[0];
-      const maybeNote = parts.length > 1 ? parts.slice(1).join(" | ") : "";
-
-      if (knownProducts.includes(maybeProduct)) {
-        document.getElementById("user-product-select").value = maybeProduct;
-        document.getElementById("order-note").value = maybeNote;
-      } else {
-        document.getElementById("order-note").value = raw;
-      }
-
-      logSys("Đã nạp lại thông tin từ lịch sử đơn.");
-    }
-    
     async function dispatchOrder(orderId, lat, lng) {
-      if (!isAdminRole()) {
-        alert("Chỉ admin mới có quyền cho phép drone giao hàng.");
-        return;
-      }
-
+      if (!isAdminRole()) return alert('Chỉ admin mới có quyền cho phép drone giao hàng.');
       try {
         logSys(`Admin đang xử lý đơn ${orderId}...`);
-
-        const res = await fetch(`${API_URL}/orders/${orderId}/dispatch`, {
-          method: "POST",
-          headers: authHeaders()
-        });
-
+        const res = await fetch(`${API_URL}/orders/${orderId}/dispatch`, { method: 'POST', headers: authHeaders() });
         const data = await res.json();
-
         if (data.error) {
-          if (data.error === "order_not_found") {
-            alert("Không tìm thấy đơn hàng.");
-          } else if (data.error === "forbidden") {
-            alert("Chỉ admin mới được phép tiến hành giao.");
-          } else if (data.error === "order_cancelled") {
-            alert("Đơn này đã bị hủy.");
-          } else if (data.error === "order_completed") {
-            alert("Đơn này đã hoàn tất.");
-          } else if (data.error === "mission_already_exists") {
-            alert("Đơn này đã có mission đang xử lý.");
-          } else {
-            alert(`Tiến hành giao thất bại: ${data.error}`);
-          }
-          return;
+          const mapErr = {
+            order_not_found: 'Không tìm thấy đơn hàng.',
+            forbidden: 'Chỉ admin mới được phép tiến hành giao.',
+            order_cancelled: 'Đơn này đã bị hủy.',
+            order_completed: 'Đơn này đã hoàn tất.',
+            mission_already_exists: 'Đơn này đã có mission đang xử lý.'
+          };
+          return alert(mapErr[data.error] || `Tiến hành giao thất bại: ${data.error}`);
         }
-
         currentMissionId = data.mission?.id || null;
-
         if (isFinite(lat) && isFinite(lng)) {
-          showMissionDropoffMarker(lat, lng, "Điểm giao đang thực hiện");
+          showMissionDropoffMarker(lat, lng, 'Điểm giao đang thực hiện');
           map.setView([lat, lng], 17);
         }
-
         logSys(`Admin đã cho phép drone giao đơn ${orderId}.`);
-
         await loadOrders();
         await loadOrderHistory();
         await loadMissions();
@@ -2706,220 +2106,146 @@
       }
     }
 
-    async function saveProfile() {
-      clearMsg("profileMsg");
-
-      const fullName = document.getElementById("profile-fullname").value.trim();
-      const email = document.getElementById("profile-email").value.trim();
-      const phone = document.getElementById("profile-phone").value.trim();
-      const address = document.getElementById("profile-address").value.trim();
-
-      try {
-        const res = await fetch(`${API_URL}/users/me`, {
-          method: "PUT",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            full_name: fullName,
-            email,
-            phone,
-            address
-          })
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          showMsg("profileMsg", `Cập nhật thất bại: ${data.error}`, false);
-          return;
-        }
-
-        currentUser = data.user;
-
-        isProfileEditing = false;
-        setProfileInputsReadonly(true);
-        document.getElementById("profileActionRow").classList.add("hidden");
-        document.getElementById("btn-edit-profile").textContent = "Chỉnh sửa thông tin";
-        document.getElementById("btn-edit-profile").disabled = false;
-
-        populateProfile();
-        applyAvatarToUI();
-
-        showMsg("profileMsg", "Đã cập nhật thông tin người dùng.", true);
-        logSys("Người dùng đã cập nhật hồ sơ cá nhân.");
-      } catch (e) {
-        showMsg("profileMsg", `Lỗi cập nhật hồ sơ: ${e}`, false);
-      }
+    function isFinishedMissionStatus(status) {
+      return ['CANCELLED', 'COMPLETED', 'DONE', 'DELIVERED', 'FAILED'].includes(String(status || '').toUpperCase());
     }
 
-    async function changePassword() {
-      clearMsg("passwordMsg");
-
-      const oldPass = document.getElementById("current-password").value.trim();
-      const newPass = document.getElementById("new-password").value.trim();
-      const confirmPass = document.getElementById("confirm-password").value.trim();
-
-      if (!oldPass) {
-        showMsg("passwordMsg", "Vui lòng nhập mật khẩu cũ.", false);
-        return;
-      }
-
-      if (!newPass || newPass.length < 4) {
-        showMsg("passwordMsg", "Mật khẩu mới phải có ít nhất 4 ký tự.", false);
-        return;
-      }
-
-      if (newPass !== confirmPass) {
-        showMsg("passwordMsg", "Mật khẩu xác nhận không khớp.", false);
-        return;
-      }
-
-      if (oldPass === newPass) {
-        showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_URL}/auth/change-password`, {
-          method: "PUT",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            old_password: oldPass,
-            new_password: newPass,
-            confirm_new_password: confirmPass
-          })
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          if (data.error === "wrong_old_password") {
-            showMsg("passwordMsg", "Mật khẩu cũ không đúng.", false);
-          } else if (data.error === "password_too_short") {
-            showMsg("passwordMsg", "Mật khẩu mới phải có ít nhất 4 ký tự.", false);
-          } else if (data.error === "confirm_password_not_match") {
-            showMsg("passwordMsg", "Xác nhận mật khẩu mới không khớp.", false);
-          } else if (data.error === "same_as_old_password") {
-            showMsg("passwordMsg", "Mật khẩu mới không được trùng mật khẩu cũ.", false);
-          } else {
-            showMsg("passwordMsg", `Đổi mật khẩu thất bại: ${data.error}`, false);
-          }
-          return;
-        }
-
-        showMsg("passwordMsg", "Đổi mật khẩu thành công. Từ giờ hãy đăng nhập bằng mật khẩu mới.", true);
-        logSys("Người dùng đã cập nhật mật khẩu.");
-
-        setTimeout(() => {
-          cancelPasswordChange();
-          clearMsg("passwordMsg");
-        }, 1500);
-      } catch (e) {
-        showMsg("passwordMsg", `Lỗi đổi mật khẩu: ${e}`, false);
-      }
+    async function clearFinishedMissions() {
+      if (!isAdminRole()) return alert('Chỉ admin mới được phép clear missions.');
+      hideFinishedMissions = true;
+      activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
+      await loadMissions();
+      updateMissionVisuals(latestDroneLat, latestDroneLng, '');
+      logSys('Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.');
     }
 
     async function loadMissions() {
       try {
-        const res = await fetch(`${API_URL}/missions`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
+        const res = await fetch(`${API_URL}/missions`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-        const box = document.getElementById("missionsBox");
-
+        const box = qs('missionsBox');
         if (!Array.isArray(data)) {
-          if (box) {
-            box.innerHTML = `<div class="list-item">Không tải được danh sách missions.</div>`;
-          }
+          box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Không tải được danh sách missions.</div>';
           return;
         }
-
-        activeMissions = hideFinishedMissions
-          ? data.filter(m => !isFinishedMissionStatus(m.status))
-          : data;
-
-        if (!box) return;
-
+        activeMissions = hideFinishedMissions ? data.filter(m => !isFinishedMissionStatus(m.status)) : data;
         if (activeMissions.length === 0) {
-          box.innerHTML = `<div class="list-item">Chưa có mission nào.</div>`;
+          box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chưa có mission nào.</div>';
+          return;
+        }
+        const missionsToShow = [...activeMissions].sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0));
+        box.innerHTML = missionsToShow.map(m => `
+          <div class="rounded-2xl bg-white/5 border border-white/5 p-4 text-sm interactive-glow">
+            <div class="font-bold mb-2">${escapeHtml(m.id)}</div>
+            <div><strong>Status:</strong> ${escapeHtml(m.status || '--')}</div>
+            <div><strong>Order:</strong> ${escapeHtml(m.order_id || '--')}</div>
+            <div><strong>Drone:</strong> ${escapeHtml(m.drone_id || '--')}</div>
+            <div><strong>Alt:</strong> ${escapeHtml(m.altitude_m ?? '--')} m</div>
+          </div>`).join('');
+      } catch {
+        qs('missionsBox').innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Lỗi tải missions.</div>';
+      }
+    }
+
+    async function loadOrderHistory() {
+      const box = qs('myOrdersBox');
+      qs('orderHistoryTitle').textContent = isAdminRole() ? 'Quản lý đơn hàng' : 'Lịch sử đơn hàng';
+      if (!box || !currentUser) return;
+      try {
+        const res = await fetch(`${API_URL}/orders`, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+          box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Không tải được lịch sử đơn hàng.</div>';
+          updateUserStats([]);
+          return;
+        }
+        const ordersToShow = [...data].sort((a, b) => Number(b.created_ts || 0) - Number(a.created_ts || 0));
+        updateUserStats(ordersToShow);
+        if (ordersToShow.length === 0) {
+          box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chưa có đơn hàng nào.</div>';
           return;
         }
 
-        const missionsToShow = [...activeMissions].sort((a, b) => {
-          return Number(b.created_ts || 0) - Number(a.created_ts || 0);
-        });
+        box.innerHTML = ordersToShow.map(o => {
+          const status = String(o.status || '').toUpperCase();
+          const isAdmin = isAdminRole();
+          const dispatchInfo = getOrderStatusInfo(status);
+          const badge = getStatusBadgeInfo(status);
+          const canDispatch = isAdmin && !dispatchInfo.disabled;
+          const canCancel = isAdmin
+            ? !['DELIVERED', 'COMPLETED', 'DONE', 'CANCELLED', 'IN_FLIGHT', 'RUNNING', 'ARRIVED'].includes(status)
+            : canCancelOrder(status);
 
-        box.innerHTML = missionsToShow.map(m => `
-          <div class="list-item">
-            <div class="head">${escapeHtml(m.id)}</div>
-            <div><strong>Status:</strong> ${escapeHtml(m.status || "--")}</div>
-            <div><strong>Order:</strong> ${escapeHtml(m.order_id || "--")}</div>
-            <div><strong>Drone:</strong> ${escapeHtml(m.drone_id || "--")}</div>
-            <div><strong>Alt:</strong> ${escapeHtml(m.altitude_m ?? "--")} m</div>
-          </div>
-        `).join("");
-      } catch (_) {
-        const box = document.getElementById("missionsBox");
-        if (box) {
-          box.innerHTML = `<div class="list-item">Lỗi tải missions.</div>`;
-        }
+          return `
+            <div class="rounded-[22px] bg-white/5 border border-white/5 p-4 text-sm interactive-glow">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <div class="font-black text-[15px]">${escapeHtml(o.id)}</div>
+                  <div class="text-slate-400 text-xs mt-1">${escapeHtml(o.created_by || '--')}</div>
+                </div>
+                <div class="${badge.className}">
+                  ${escapeHtml(badge.label)}
+                </div>
+              </div>
+
+              <div class="space-y-2 text-slate-300">
+                <div><span class="text-slate-400">Tọa độ:</span> ${Number(o.dropoff?.lat || 0).toFixed(5)}, ${Number(o.dropoff?.lng || 0).toFixed(5)}</div>
+                <div><span class="text-slate-400">Ghi chú:</span> ${escapeHtml(o.note || '--')}</div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="focusOrderOnMap(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})">Xem trên map</button>
+                ${!isAdmin ? `
+                  <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="reuseOrder(${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)}, '${escapeJsString(o.note || '')}')">Đặt lại</button>
+                ` : `
+                  <button class="rounded-2xl py-3 font-semibold ${dispatchInfo.className} ${canDispatch ? 'interactive-glow' : 'opacity-60 cursor-not-allowed'}" onclick="dispatchOrder('${o.id}', ${Number(o.dropoff?.lat || 0)}, ${Number(o.dropoff?.lng || 0)})" ${canDispatch ? '' : 'disabled'}>${dispatchInfo.text}</button>
+                `}
+                ${canCancel ? `<button class="rounded-2xl py-3 font-semibold bg-rose-500 hover:bg-rose-400 text-white sm:col-span-2 interactive-glow" onclick="cancelOrder('${o.id}')">Hủy đơn</button>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      } catch {
+        box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Lỗi tải lịch sử đơn hàng.</div>';
+        updateUserStats([]);
       }
+    }
+
+    function syncTelemetryMirrors(data) {
+      qs('miniMode').textContent = qs('t-mode').textContent;
+      qs('miniBattery').textContent = qs('t-battery').textContent;
+      qs('miniSpeed').textContent = qs('t-speed').textContent;
+      qs('miniAlt').textContent = qs('t-alt').textContent;
+      qs('dashboardArmed').textContent = String(data.armed);
+      qs('dashboardDroneId').textContent = data.droneId || DRONE_ID;
+      qs('dashboardEta').textContent = qs('t-eta').textContent;
     }
 
     async function fetchTelemetry() {
       if (!token) return;
-
       try {
-        const res = await fetch(`${API_URL}/drones/${DRONE_ID}`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
+        const res = await fetch(`${API_URL}/drones/${DRONE_ID}`, { headers: { Authorization: `Bearer ${token}` } });
         const droneData = await res.json();
         if (droneData.error) throw new Error(droneData.error);
-
         const t = droneData.last || {};
-        const status = String(droneData.status || "OFFLINE").toUpperCase();
-        const source = droneData.telemetry_source || t.source || "--";
-        const reason = droneData.telemetry_reason || "";
+        const status = String(droneData.status || 'OFFLINE').toUpperCase();
+        const source = droneData.telemetry_source || t.source || '--';
+        const reason = droneData.telemetry_reason || '';
         const ageMs = Number(droneData.telemetry_age_ms ?? -1);
-
-        document.getElementById("t-mode").textContent = t.mode ?? "--";
-        document.getElementById("t-alt").textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
-        document.getElementById("t-speed").textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
-        document.getElementById("t-armed").textContent = String(t.armed);
-        document.getElementById("t-drone-id").textContent = droneData.id || DRONE_ID;
-
-        const batteryVal = t.battery_percent;
-        document.getElementById("t-battery").textContent =
-          batteryVal == null ? "--" : `${Number(batteryVal).toFixed(0)}%`;
-
-        const sourceEl = document.getElementById("t-source");
-        if (sourceEl) sourceEl.textContent = formatTelemetrySource(source, reason);
-
-        const ageEl = document.getElementById("t-age");
-        if (ageEl) ageEl.textContent = formatTelemetryAge(ageMs);
-
-        const statusEl = document.getElementById("t-status");
-        statusEl.textContent = status;
-        statusEl.className = "value";
-
-        if (status === "IDLE") {
-          statusEl.classList.add("status-online");
-        } else if (status === "BUSY") {
-          statusEl.classList.add("status-busy");
-        } else if (status === "STALE") {
-          statusEl.classList.add("status-stale");
-        } else {
-          statusEl.classList.add("status-offline");
-        }
+        qs('t-mode').textContent = t.mode ?? '--';
+        qs('t-alt').textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
+        qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
+        qs('t-battery').textContent = t.battery_percent == null ? '--' : `${Number(t.battery_percent).toFixed(0)}%`;
+        qs('t-source').textContent = formatTelemetrySource(source, reason);
+        qs('t-age').textContent = formatTelemetryAge(ageMs);
+        qs('t-status').textContent = status;
+        qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : status === 'STALE' ? 'text-yellow-300' : 'text-rose-300'}`;
 
         const sourceLabel = formatTelemetrySource(source, reason);
-
-      if (status !== lastTelemetryStatus || sourceLabel !== lastTelemetrySource) {
-        logSys(`Telemetry: ${status} | nguồn: ${sourceLabel}`);
-        lastTelemetryStatus = status;
-        lastTelemetrySource = sourceLabel;
-      }
+        if (status !== lastTelemetryStatus || sourceLabel !== lastTelemetrySource) {
+          logSys(`Telemetry: ${status} | nguồn: ${sourceLabel}`);
+          lastTelemetryStatus = status;
+          lastTelemetrySource = sourceLabel;
+        }
 
         if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
           latestDroneLat = Number(t.lat);
@@ -2927,87 +2253,73 @@
           droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
         }
 
-        if (status === "OFFLINE") {
-          document.getElementById("t-eta").textContent = "--";
+        if (status === 'OFFLINE') {
+          qs('t-eta').textContent = '--';
           clearRealtimeVisuals();
+          syncTelemetryMirrors({ armed: t.armed, droneId: droneData.id || DRONE_ID });
           return;
         }
 
         const activeOrder = getActiveDeliveryOrder();
-
-        if (
-          activeOrder?.dropoff &&
-          isFinite(t.lat) &&
-          isFinite(t.lng) &&
-          status !== "STALE"
-        ) {
+        if (activeOrder?.dropoff && isFinite(t.lat) && isFinite(t.lng) && status !== 'STALE') {
           const speed = Number(t.groundspeed_mps || 0);
-          const dist = haversine(
-            Number(t.lat),
-            Number(t.lng),
-            Number(activeOrder.dropoff.lat),
-            Number(activeOrder.dropoff.lng)
-          );
+          const dist = haversine(Number(t.lat), Number(t.lng), Number(activeOrder.dropoff.lat), Number(activeOrder.dropoff.lng));
           const etaSeconds = speed > 0.2 ? dist / speed : null;
-          document.getElementById("t-eta").textContent = formatEta(etaSeconds);
-
-          updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ""));
+          qs('t-eta').textContent = formatEta(etaSeconds);
+          updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''));
         } else {
-          document.getElementById("t-eta").textContent = "--";
-
-          if (status === "BUSY" || status === "IDLE") {
-            updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ""));
-          }
+          qs('t-eta').textContent = '--';
+          if (status === 'BUSY' || status === 'IDLE') updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''));
         }
+
+        syncTelemetryMirrors({ armed: t.armed, droneId: droneData.id || DRONE_ID });
 
         if (!droneConnectedBefore) {
-          logSys("Đã kết nối realtime tới backend.");
+          logSys('Đã kết nối realtime tới backend.');
           droneConnectedBefore = true;
         }
-
-      } catch (e) {
-        document.getElementById("t-status").textContent = "OFFLINE";
-        document.getElementById("t-status").className = "value status-offline";
-        document.getElementById("t-eta").textContent = "--";
-
-        const sourceEl = document.getElementById("t-source");
-        if (sourceEl) sourceEl.textContent = "--";
-
-        const ageEl = document.getElementById("t-age");
-        if (ageEl) ageEl.textContent = "--";
-
+      } catch {
+        qs('t-status').textContent = 'OFFLINE';
+        qs('t-status').className = 'text-lg font-black mt-1 text-rose-300';
+        qs('t-eta').textContent = '--';
+        qs('t-source').textContent = '--';
+        qs('t-age').textContent = '--';
         clearRealtimeVisuals();
+        syncTelemetryMirrors({ armed: false, droneId: DRONE_ID });
       }
     }
 
     let pollBusy = false;
     async function pollLoop() {
-      if (!document.getElementById("appPage").classList.contains("hidden") && !pollBusy) {
+      if (!qs('consolePage').classList.contains('hidden') && !pollBusy) {
         pollBusy = true;
         try {
           await loadOrders();
-
-          if (isAdminRole()) {
-            await loadMissions();
-          }
-
+          if (isAdminRole()) await loadMissions();
           await fetchTelemetry();
           await loadOrderHistory();
         } finally {
           pollBusy = false;
         }
       }
-
       setTimeout(pollLoop, 2000);
     }
+
+    qs('authModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'authModal') closeAuthModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAuthModal();
+    });
 
     pollLoop();
 
     (async function boot() {
       const ok = await fetchMe();
-      if (ok) {
-        await showApp();
-      }
+      if (ok) await showApp();
+      else showLanding();
+      refreshLandingAuthButton();
     })();
   </script>
 </body>
