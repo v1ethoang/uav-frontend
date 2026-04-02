@@ -1124,23 +1124,27 @@
 
     const PRODUCT_OPTIONS = [
       {
-        value: 'Nước giải khát'<br>
-                '30.000đ',
+        value: 'Nước giải khát',
+        name: 'Nước giải khát',
+        price: '30.000đ',
         image: 'https://images.unsplash.com/photo-1543253687-c931c8e01820?auto=format&fit=crop&w=800&q=80'
       },
       {
-        value: 'Thuốc y tế'<br>
-                '40.000đ',
+        value: 'Thuốc y tế',
+        name: 'Thuốc y tế',
+        price: '40.000đ',
         image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
       },
       {
-        value: 'Đồ ăn nhanh'<br>
-                '50.000đ',
+        value: 'Đồ ăn nhanh',
+        name: 'Đồ ăn nhanh',
+        price: '50.000đ',
         image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80'
       },
       {
-        value: 'Tài liệu khẩn'<br>
-                '60.000đ',
+        value: 'Tài liệu khẩn',
+        name: 'Tài liệu khẩn',
+        price: '60.000đ',
         image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80'
       }
     ];
@@ -1519,7 +1523,8 @@
             <img src="${item.image}" alt="${escapeHtml(item.value)}" />
           </div>
           <div class="product-card-body">
-            <div class="product-name">${escapeHtml(item.value)}</div>
+            <div class="product-name">${escapeHtml(item.name)}</div>
+            <div class="text-xs text-slate-300 mt-1">${escapeHtml(item.price)}</div>
           </div>
         </div>
       `).join('');
