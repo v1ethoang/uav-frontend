@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JANUS | Drone Delivery</title>
-  <link rel="icon" type="image/png" href="uteicon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -722,11 +722,18 @@
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
             Control access
           </div>
-          <h2 class="text-5xl font-extrabold tracking-tighter leading-none mb-4">Kết nối vào <span class="gradient-text">JANUS Console</span></h2>
-          <p class="text-slate-300 leading-7 max-w-xl text-justify">Trải nghiệm kỷ nguyên giao hàng không người lái cùng JANUS. Chúng tôi mang đến giải pháp vận hành trực quan, giúp bạn theo dõi lộ trình bay từng giây và đảm bảo mọi đơn hàng luôn đến đích nhanh chóng, an toàn và chính xác nhất.</p>
+
+          <h2 class="text-5xl font-extrabold tracking-tighter leading-none mb-4">
+            Kết nối vào <span class="gradient-text">JANUS Console</span>
+          </h2>
+
+          <p class="text-slate-300 leading-7 max-w-xl text-justify">
+            Trải nghiệm kỷ nguyên giao hàng không người lái cùng JANUS. Chúng tôi mang đến giải pháp vận hành trực quan, giúp bạn theo dõi lộ trình bay từng giây và đảm bảo mọi đơn hàng luôn đến đích nhanh chóng, an toàn và chính xác nhất.
+          </p>
+
           <div class="grid sm:grid-cols-2 gap-4 mt-8">
             <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
-              <div class="flex items-start gap-3 mb-2">
+              <div class="flex items-start gap-3">
                 <span class="material-symbols-outlined text-accent text-2xl">person</span>
                 <div>
                   <div class="font-bold mb-2">Đặc quyền User</div>
@@ -739,7 +746,7 @@
             </div>
 
             <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
-              <div class="flex items-start gap-3 mb-2">
+              <div class="flex items-start gap-3">
                 <span class="material-symbols-outlined text-primary text-2xl">admin_panel_settings</span>
                 <div>
                   <div class="font-bold mb-2">Đặc quyền Admin</div>
@@ -750,6 +757,7 @@
               </div>
             </div>
           </div>
+        </div>
 
         <div class="p-8 md:p-10 relative">
           <button class="absolute top-4 right-4 w-10 h-10 rounded-xl soft-btn hover:bg-white/10 interactive-glow" onclick="closeAuthModal()">
@@ -784,6 +792,7 @@
               </div>
               <button class="w-full gradient-btn rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider interactive-glow" onclick="login()">Đăng nhập</button>
             </div>
+
             <div id="loginMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
           </div>
 
@@ -802,12 +811,11 @@
               </div>
               <button class="w-full rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider bg-emerald-500 text-white hover:bg-emerald-400 transition interactive-glow" onclick="registerUser()">Đăng ký</button>
             </div>
+
             <div id="registerMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
   <div id="consolePage" class="hidden min-h-screen">
     <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0b1326]/80 backdrop-blur-xl">
