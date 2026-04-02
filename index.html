@@ -457,12 +457,12 @@
           <span class="text-2xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase">JANUS</span>
         </div>
 
-        <nav class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
-          <a class="text-[#c3f5ff] border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#how">Cách hoạt động</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#features">Tính năng</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#story">Hành trình</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#footer">Liên hệ</a>
+        <nav id="landingNav" class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
+          <a class="nav-link active text-[#c3f5ff] hover:text-[#c3f5ff] transition border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#footer">Liên hệ</a>
         </nav>
 
         <div class="flex items-center gap-3">
@@ -592,7 +592,7 @@
         <div class="px-6 max-w-screen-xl mx-auto">
           <div class="mb-12">
             <span class="text-primary font-bold uppercase tracking-widest text-xs">Console hiện tại</span>
-            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mt-2">Tính năng đã được chuyển giao</h2>
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mt-2">Tính năng nổi bật của Janus</h2>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -722,7 +722,7 @@
             Control access
           </div>
           <h2 class="text-5xl font-extrabold tracking-tighter leading-none mb-4">Kết nối vào <span class="gradient-text">JANUS Console</span></h2>
-          <p class="text-slate-300 leading-7 max-w-xl">Giữ nguyên toàn bộ backend cũ: auth, orders, missions, telemetry và bản đồ. Chỉ thay vỏ giao diện sang phong cách hiện đại hơn.</p>
+          <p class="text-slate-300 leading-7 max-w-xl">Trải nghiệm kỷ nguyên giao hàng không người lái cùng JANUS. Chúng tôi mang đến giải pháp vận hành trực quan, giúp bạn theo dõi lộ trình bay từng giây và đảm bảo mọi đơn hàng luôn đến đích nhanh chóng, an toàn và chính xác nhất.</p>
           <div class="grid sm:grid-cols-2 gap-4 mt-8">
             <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
               <div class="font-bold mb-2">User flow</div>
@@ -796,18 +796,21 @@
   <div id="consolePage" class="hidden min-h-screen">
     <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0b1326]/80 backdrop-blur-xl">
       <div class="max-w-screen-2xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-12 h-12 rounded-2xl gradient-btn grid place-items-center shadow-soft">
+        <div onclick="showLanding()" class="flex items-center gap-3 min-w-0 cursor-pointer group active:scale-95 transition">
+          <div class="w-12 h-12 rounded-2xl gradient-btn grid place-items-center shadow-soft group-hover:scale-105 transition">
             <span class="material-symbols-outlined text-2xl">rocket_launch</span>
           </div>
           <div>
-            <div class="console-title font-black text-2xl tracking-tight">JANUS Console</div>
-            <div class="text-[13px] text-slate-400">Order control, mission dispatch và telemetry realtime</div>
+            <div class="console-title font-black text-2xl tracking-tight group-hover:text-[#c3f5ff] transition">
+              JANUS Console
+            </div>
+            <div class="text-[13px] text-slate-400">
+              Order control, mission dispatch và telemetry realtime
+            </div>
           </div>
         </div>
 
         <div class="flex items-center gap-3 flex-wrap justify-end">
-          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="showLanding()">Trang chủ</button>
           <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerMap()">Về kho</button>
           <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerDrone()">Vị trí drone</button>
           <button id="btn-clear-missions" class="hidden rounded-2xl px-4 py-2.5 text-sm font-bold tracking-tight bg-rose-500/90 hover:bg-rose-400 text-white shadow-lg shadow-rose-950/20 interactive-glow" onclick="clearFinishedMissions()">Clear missions</button>
@@ -2313,7 +2316,29 @@
       if (e.key === 'Escape') closeAuthModal();
     });
 
+    function initLandingNavActive() {
+      const navLinks = document.querySelectorAll('#landingNav .nav-link');
+      if (!navLinks.length) return;
+
+      function setActiveNav(activeLink) {
+        navLinks.forEach(link => {
+          link.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+          link.classList.add('text-[#849396]', 'border-transparent');
+        });
+
+        activeLink.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+        activeLink.classList.remove('text-[#849396]', 'border-transparent');
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function () {
+          setActiveNav(this);
+        });
+      });
+    }  
+    
     pollLoop();
+    initLandingNavActive();
 
     (async function boot() {
       const ok = await fetchMe();
