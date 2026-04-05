@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
@@ -1117,7 +1118,56 @@
   </div>
 
   <script>
-    const API_URL = 'https://uav-backend-zbti.onrender.com';
+    // 1. Đổi thành localhost để test, và khởi tạo kết nối Realtime
+    const API_URL = 'http://localhost:8000'; 
+    const socket = io(API_URL);
+
+    // =========================================================
+    // 2. MA THUẬT REALTIME Ở ĐÂY
+    // =========================================================
+    // Lắng nghe Telemetry từ Node.js bắn xuống
+    socket.on('frontend_telemetry', (data) => {
+      const t = data;
+      const status = String(data.status || 'OFFLINE').toUpperCase();
+      
+      qs('t-mode').textContent = t.mode ?? '--';
+      qs('t-alt').textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
+      qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
+      qs('t-status').textContent = status;
+      qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
+
+      // Update vị trí DroneMarker ngay lập tức
+      if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
+        latestDroneLat = Number(t.lat);
+        latestDroneLng = Number(t.lng);
+        droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
+      }
+      
+      // Update đường kẻ bay (Flight line)
+      const activeOrder = getActiveDeliveryOrder();
+      if (activeOrder?.dropoff && isFinite(t.lat) && isFinite(t.lng)) {
+        updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''));
+      }
+      
+      syncTelemetryMirrors({ armed: t.armed, droneId: data.drone_id || DRONE_ID });
+    });
+
+    // Lắng nghe sự kiện (Có người đặt đơn, Drone hạ cánh,...)
+    socket.on('frontend_event', (eventData) => {
+      if (eventData.type === 'NEW_ORDER') {
+        logSys(`${eventData.detail}. Vui lòng kiểm tra!`);
+      } else {
+        logSys(`Drone Event: ${eventData.type}`);
+      }
+      
+      // Gọi ngầm API refresh lại danh sách hiển thị
+      loadOrders().then(() => {
+        loadOrderHistory();
+        if (isAdminRole()) loadMissions();
+      });
+    });
+    // =========================================================
+
     const WAREHOUSE_LAT = 10.9327877;
     const WAREHOUSE_LNG = 106.7669519;
     const DRONE_ID = 'drone_1';
@@ -2334,13 +2384,12 @@
         try {
           await loadOrders();
           if (isAdminRole()) await loadMissions();
-          await fetchTelemetry();
           await loadOrderHistory();
         } finally {
           pollBusy = false;
         }
       }
-      setTimeout(pollLoop, 2000);
+      setTimeout(pollLoop, 10000);
     }
 
     qs('authModal')?.addEventListener('click', (e) => {
