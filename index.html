@@ -1159,6 +1159,30 @@
         latestDroneLng = Number(t.lng);
         droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
       }
+
+      const activeOrder = getActiveDeliveryOrder();
+      const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(String(t.mode).toUpperCase()) || (!activeOrder && status === 'BUSY');
+      
+      let targetLat = null;
+      let targetLng = null;
+
+      //Xác định đích đến (là KHO hay là ĐIỂM GIAO)
+      if (isReturningHome && isFinite(WAREHOUSE_LAT) && isFinite(WAREHOUSE_LNG)) {
+        targetLat = WAREHOUSE_LAT;
+        targetLng = WAREHOUSE_LNG;
+      } else if (activeOrder?.dropoff) {
+        targetLat = Number(activeOrder.dropoff.lat);
+        targetLng = Number(activeOrder.dropoff.lng);
+      }
+      
+      // Chỉ tính khi có tọa độ đích VÀ drone đang bay nhanh hơn 0.5m/s (tránh chia cho 0 lúc đang hover)
+      if (targetLat && targetLng && Number(t.groundspeed_mps) > 0.5) {
+        const dist = haversine(Number(t.lat), Number(t.lng), targetLat, targetLng);
+        const etaSeconds = dist / Number(t.groundspeed_mps);
+        qs('t-eta').textContent = formatEta(etaSeconds);
+      } else {
+        qs('t-eta').textContent = '--';
+      }
       
       // Update đường kẻ bay (Flight line) & đường quay về
       if (isFinite(t.lat) && isFinite(t.lng)) {
