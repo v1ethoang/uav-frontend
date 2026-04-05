@@ -838,8 +838,6 @@
         </div>
 
         <div class="flex items-center gap-3 flex-wrap justify-end">
-          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerMap()">Về kho</button>
-          <button class="soft-btn rounded-2xl px-4 py-2.5 text-sm interactive-glow" onclick="centerDrone()">Vị trí drone</button>
           <button id="btn-clear-missions" class="hidden rounded-2xl px-4 py-2.5 text-sm font-bold tracking-tight bg-rose-500/90 hover:bg-rose-400 text-white shadow-lg shadow-rose-950/20 interactive-glow" onclick="clearFinishedMissions()">Clear missions</button>
           <button class="rounded-2xl px-4 py-2.5 text-sm font-black tracking-tight bg-white text-surface hover:bg-primary transition-all shadow-lg shadow-white/5 interactive-glow" onclick="logout()">Đăng xuất</button>
         </div>
@@ -1036,6 +1034,15 @@
           </div>
           <div class="relative">
             <div id="map"></div>
+            <div class="absolute bottom-8 right-4 z-[500] flex flex-col gap-3">
+              <button onclick="centerMap()" class="w-11 h-11 bg-white text-slate-700 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group" title="Về kho">
+                <span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">home</span>
+              </button>
+              
+              <button onclick="centerDrone()" class="w-11 h-11 bg-white text-blue-500 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group" title="Vị trí drone">
+                <span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">my_location</span>
+              </button>
+            </div>
             <div class="hidden absolute top-4 right-4 z-[500] w-full max-w-sm space-y-3 pointer-events-none">
               <div class="glass-panel rounded-2xl p-4 pointer-events-auto">
                 <div class="flex items-center justify-between mb-3">
