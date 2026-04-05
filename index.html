@@ -1159,9 +1159,8 @@
         droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
       }
       
-      // Update đường kẻ bay (Flight line)
-      const activeOrder = getActiveDeliveryOrder();
-      if (activeOrder?.dropoff && isFinite(t.lat) && isFinite(t.lng)) {
+      // Update đường kẻ bay (Flight line) & đường quay về
+      if (isFinite(t.lat) && isFinite(t.lng)) {
         updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''));
       }
       
