@@ -1226,6 +1226,7 @@
     let isPasswordChanging = false;
     let sessionLoginPassword = '';
     let profileDraftBackup = {};
+    let hideFinishedMissions = false;
     let lastTelemetryStatus = '';
     let lastTelemetrySource = '';
 
@@ -2195,6 +2196,19 @@
       }
     }
 
+    function isFinishedMissionStatus(status) {
+      return ['CANCELLED', 'COMPLETED', 'DONE', 'DELIVERED', 'FAILED'].includes(String(status || '').toUpperCase());
+    }
+
+    async function clearFinishedMissions() {
+      if (!isAdminRole()) return alert('Chỉ admin mới được phép clear missions.');
+      hideFinishedMissions = true;
+      activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
+      await loadMissions();
+      updateMissionVisuals(latestDroneLat, latestDroneLng, '');
+      logSys('Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.');
+    }
+
     async function loadMissions() {
       try {
         const res = await fetch(`${API_URL}/missions`, { headers: { Authorization: `Bearer ${token}` } });
@@ -2204,7 +2218,7 @@
           box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Không tải được danh sách missions.</div>';
           return;
         }
-        activeMissions = data;
+        activeMissions = hideFinishedMissions ? data.filter(m => !isFinishedMissionStatus(m.status)) : data;
         if (activeMissions.length === 0) {
           box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chưa có mission nào.</div>';
           return;
