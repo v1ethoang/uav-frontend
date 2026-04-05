@@ -7,7 +7,7 @@ from pymavlink import mavutil
 # =========================================================
 # CẤU HÌNH HỆ THỐNG
 # =========================================================
-BACKEND = "http://localhost:8000"  # Đổi thành URL Server của bạn khi bay thật
+BACKEND = "https://uav-backend-zbti.onrender.com"  # Đổi thành URL Server của bạn khi bay thật
 DRONE_ID = "drone_1"
 MAVLINK_IN = "udpin:127.0.0.1:14552"
 
