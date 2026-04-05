@@ -1128,10 +1128,9 @@
     const API_URL = 'http://localhost:8000'; 
     const socket = io(API_URL);
 
-    // =========================================================
-    // 2. MA THUẬT REALTIME Ở ĐÂY
-    // =========================================================
-    // Lắng nghe Telemetry từ Node.js bắn xuống
+    // Biến phụ để biết lúc nào drone vừa đổi từ Disarm sang Arm
+    let isDroneArmed = false;
+
     socket.on('frontend_telemetry', (data) => {
       const t = data;
       const status = String(data.status || 'OFFLINE').toUpperCase();
@@ -1141,6 +1140,17 @@
       qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
       qs('t-status').textContent = status;
       qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
+
+      // THÊM ĐOẠN NÀY: Dời vị trí nhà kho tự động khi Drone bắt đầu ARM
+      if (t.armed && !isDroneArmed && isFinite(t.lat) && isFinite(t.lng)) {
+        WAREHOUSE_LAT = Number(t.lat);
+        WAREHOUSE_LNG = Number(t.lng);
+        if (warehouseMarker) {
+          warehouseMarker.setLatLng([WAREHOUSE_LAT, WAREHOUSE_LNG]);
+        }
+        logSys(`Đã cập nhật vị trí KHO trên bản đồ: ${WAREHOUSE_LAT.toFixed(5)}, ${WAREHOUSE_LNG.toFixed(5)}`);
+      }
+      isDroneArmed = !!t.armed; // Lưu lại trạng thái
 
       // Update vị trí DroneMarker ngay lập tức
       if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
@@ -1174,8 +1184,8 @@
     });
     // =========================================================
 
-    const WAREHOUSE_LAT = 10.851352;
-    const WAREHOUSE_LNG = 106.771910;
+    let WAREHOUSE_LAT = 10.850602;
+    let WAREHOUSE_LNG = 106.771948;
     const DRONE_ID = 'drone_1';
 
     const PRODUCT_OPTIONS = [
