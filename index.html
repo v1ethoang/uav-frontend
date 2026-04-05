@@ -822,7 +822,7 @@
 
   <div id="consolePage" class="hidden min-h-screen">
     <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0b1326]/80 backdrop-blur-xl">
-      <div class="max-w-screen-2xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+      <div class="w-full px-6 md:px-10 py-4 flex items-center justify-between gap-4">
         <div onclick="showLanding()" class="flex items-center gap-3 min-w-0 cursor-pointer group active:scale-95 transition">
           <div class="w-12 h-12 rounded-2xl gradient-btn grid place-items-center shadow-soft group-hover:scale-105 transition">
             <span class="material-symbols-outlined text-2xl">rocket_launch</span>
@@ -837,9 +837,8 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap justify-end">
-          <button id="btn-clear-missions" class="hidden rounded-2xl px-4 py-2.5 text-sm font-bold tracking-tight bg-rose-500/90 hover:bg-rose-400 text-white shadow-lg shadow-rose-950/20 interactive-glow" onclick="clearFinishedMissions()">Clear missions</button>
-          <button class="rounded-2xl px-4 py-2.5 text-sm font-black tracking-tight bg-white text-surface hover:bg-primary transition-all shadow-lg shadow-white/5 interactive-glow" onclick="logout()">Đăng xuất</button>
+        <div class="flex items-center">
+          <button class="rounded-2xl px-6 py-2.5 text-sm font-black tracking-tight bg-white text-surface hover:bg-primary transition-all shadow-lg shadow-white/5 interactive-glow" onclick="logout()">Đăng xuất</button>
         </div>
       </div>
     </header>
@@ -1227,7 +1226,6 @@
     let isPasswordChanging = false;
     let sessionLoginPassword = '';
     let profileDraftBackup = {};
-    let hideFinishedMissions = false;
     let lastTelemetryStatus = '';
     let lastTelemetrySource = '';
 
@@ -1467,10 +1465,6 @@
       const missionCard = qs('missionFloatCard');
       if (!missionCard) return;
       missionCard.classList.toggle('hidden', !isAdminRole());
-    }
-
-    function updateTopbarByRole() {
-      qs('btn-clear-missions').classList.toggle('hidden', !isAdminRole());
     }
 
     function updateOrderTabByRole() {
@@ -2201,19 +2195,6 @@
       }
     }
 
-    function isFinishedMissionStatus(status) {
-      return ['CANCELLED', 'COMPLETED', 'DONE', 'DELIVERED', 'FAILED'].includes(String(status || '').toUpperCase());
-    }
-
-    async function clearFinishedMissions() {
-      if (!isAdminRole()) return alert('Chỉ admin mới được phép clear missions.');
-      hideFinishedMissions = true;
-      activeMissions = activeMissions.filter(m => !isFinishedMissionStatus(m.status));
-      await loadMissions();
-      updateMissionVisuals(latestDroneLat, latestDroneLng, '');
-      logSys('Admin đã ẩn các mission bị hủy hoặc đã hoàn thành.');
-    }
-
     async function loadMissions() {
       try {
         const res = await fetch(`${API_URL}/missions`, { headers: { Authorization: `Bearer ${token}` } });
@@ -2223,7 +2204,7 @@
           box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Không tải được danh sách missions.</div>';
           return;
         }
-        activeMissions = hideFinishedMissions ? data.filter(m => !isFinishedMissionStatus(m.status)) : data;
+        activeMissions = data;
         if (activeMissions.length === 0) {
           box.innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chưa có mission nào.</div>';
           return;
