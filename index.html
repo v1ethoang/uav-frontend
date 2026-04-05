@@ -1141,16 +1141,17 @@
       qs('t-status').textContent = status;
       qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
 
-      // THÊM ĐOẠN NÀY: Dời vị trí nhà kho tự động khi Drone bắt đầu ARM
       if (t.armed && !isDroneArmed && isFinite(t.lat) && isFinite(t.lng)) {
-        WAREHOUSE_LAT = Number(t.lat);
-        WAREHOUSE_LNG = Number(t.lng);
-        if (warehouseMarker) {
-          warehouseMarker.setLatLng([WAREHOUSE_LAT, WAREHOUSE_LNG]);
+        if (Number(t.alt_m) < 1.5) { 
+          WAREHOUSE_LAT = Number(t.lat);
+          WAREHOUSE_LNG = Number(t.lng);
+          if (warehouseMarker) {
+            warehouseMarker.setLatLng([WAREHOUSE_LAT, WAREHOUSE_LNG]);
+          }
+          logSys(`Đã cập nhật vị trí KHO trên bản đồ: ${WAREHOUSE_LAT.toFixed(5)}, ${WAREHOUSE_LNG.toFixed(5)}`);
         }
-        logSys(`Đã cập nhật vị trí KHO trên bản đồ: ${WAREHOUSE_LAT.toFixed(5)}, ${WAREHOUSE_LNG.toFixed(5)}`);
       }
-      isDroneArmed = !!t.armed; // Lưu lại trạng thái
+      isDroneArmed = !!t.armed;
 
       // Update vị trí DroneMarker ngay lập tức
       if (isFinite(t.lat) && isFinite(t.lng) && droneMarker) {
@@ -1161,7 +1162,7 @@
       
       // Update đường kẻ bay (Flight line) & đường quay về
       if (isFinite(t.lat) && isFinite(t.lng)) {
-        updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''));
+        updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''), status); 
       }
       
       syncTelemetryMirrors({ armed: t.armed, droneId: data.drone_id || DRONE_ID });
@@ -1755,25 +1756,30 @@
       clearMissionDropoffMarker();
     }
 
-    function updateMissionVisuals(droneLat, droneLng, droneMode = '') {
+    function updateMissionVisuals(droneLat, droneLng, droneMode = '', droneStatus = '') {
       const hasDrone = isFinite(droneLat) && isFinite(droneLng);
       if (!map || !hasDrone) return clearRealtimeVisuals();
+      
       const activeOrder = getActiveDeliveryOrder();
       const mode = String(droneMode || '').toUpperCase();
-      const distToHome = haversine(droneLat, droneLng, WAREHOUSE_LAT, WAREHOUSE_LNG);
-      const isNearHome = distToHome < 8;
-      const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(mode) || (!activeOrder && !isNearHome);
+      
+      // LOGIC BẤT BẠI MỚI: Hoặc là mode RTL/LAND, Hoặc là (Không có đơn đang giao + Drone đang nổ máy)
+      const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(mode) || (!activeOrder && droneStatus === 'BUSY');
+      
       clearRealtimeVisuals();
 
+      // Nếu đang quay về, lập tức vẽ đường nét đứt màu vàng
       if (isReturningHome) {
         returnLine = L.polyline([[droneLat, droneLng], [WAREHOUSE_LAT, WAREHOUSE_LNG]], { color: '#f8c146', weight: 4, opacity: 0.95, dashArray: '12,10' }).addTo(map);
         return;
       }
 
       if (!activeOrder?.dropoff) return;
+      
       const targetLat = Number(activeOrder.dropoff.lat);
       const targetLng = Number(activeOrder.dropoff.lng);
       if (!isFinite(targetLat) || !isFinite(targetLng)) return;
+      
       showMissionDropoffMarker(targetLat, targetLng, `Điểm giao ${escapeHtml(activeOrder.id || '')}`);
       flightLine = L.polyline([[droneLat, droneLng], [targetLat, targetLng]], { color: '#22c55e', weight: 4, opacity: 0.95, dashArray: '10,8' }).addTo(map);
     }
