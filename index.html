@@ -1140,7 +1140,9 @@
       qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
       qs('t-status').textContent = status;
       qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
-
+      qs('t-age').textContent = formatTelemetryAge(data.age_ms ?? 0);
+      qs('t-source').textContent = formatTelemetrySource(data.source, '');
+        
       if (t.armed && !isDroneArmed && isFinite(t.lat) && isFinite(t.lng)) {
         if (Number(t.alt_m) < 1.5) { 
           WAREHOUSE_LAT = Number(t.lat);
