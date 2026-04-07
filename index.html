@@ -2360,11 +2360,35 @@
         const res = await fetch(`${API_URL}/drones/${DRONE_ID}`, { headers: { Authorization: `Bearer ${token}` } });
         const droneData = await res.json();
         if (droneData.error) throw new Error(droneData.error);
+        
         const t = droneData.last || {};
-        const status = String(droneData.status || 'OFFLINE').toUpperCase();
+        let status = String(droneData.status || 'OFFLINE').toUpperCase();
         const source = droneData.telemetry_source || t.source || '--';
         const reason = droneData.telemetry_reason || '';
         const ageMs = Number(droneData.telemetry_age_ms ?? -1);
+
+        // ==========================================
+        // 🛡️ CHỐT CHẶN: ÉP OFFLINE NẾU DỮ LIỆU BỊ CŨ
+        // ==========================================
+        // Nếu không có mạng quá 5 giây (5000 ms) hoặc chưa từng có dữ liệu
+        if (ageMs > 5000 || ageMs === -1) {
+          qs('t-status').textContent = 'OFFLINE';
+          qs('t-status').className = 'text-lg font-black mt-1 text-rose-500';
+          qs('t-mode').textContent = '--';
+          qs('t-alt').textContent = '--';
+          qs('t-speed').textContent = '--';
+          qs('t-battery').textContent = '--';
+          qs('t-eta').textContent = '--';
+          qs('t-source').textContent = '--';
+          qs('t-age').textContent = '--';
+          
+          clearRealtimeVisuals();
+          syncTelemetryMirrors({ armed: false, droneId: droneData.id || DRONE_ID });
+          return; // Dừng hàm lại ở đây, KHÔNG hiện dữ liệu cũ
+        }
+        // ==========================================
+
+        // Nếu dữ liệu mới (Drone đang sống) thì cập nhật bình thường
         qs('t-mode').textContent = t.mode ?? '--';
         qs('t-alt').textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
         qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
@@ -2372,7 +2396,8 @@
         qs('t-source').textContent = formatTelemetrySource(source, reason);
         qs('t-age').textContent = formatTelemetryAge(ageMs);
         qs('t-status').textContent = status;
-        qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : status === 'STALE' ? 'text-yellow-300' : 'text-rose-300'}`;
+        
+        qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
 
         const sourceLabel = formatTelemetrySource(source, reason);
         if (status !== lastTelemetryStatus || sourceLabel !== lastTelemetrySource) {
@@ -2387,15 +2412,8 @@
           droneMarker.setLatLng([latestDroneLat, latestDroneLng]);
         }
 
-        if (status === 'OFFLINE') {
-          qs('t-eta').textContent = '--';
-          clearRealtimeVisuals();
-          syncTelemetryMirrors({ armed: t.armed, droneId: droneData.id || DRONE_ID });
-          return;
-        }
-
         const activeOrder = getActiveDeliveryOrder();
-        if (activeOrder?.dropoff && isFinite(t.lat) && isFinite(t.lng) && status !== 'STALE') {
+        if (activeOrder?.dropoff && isFinite(t.lat) && isFinite(t.lng)) {
           const speed = Number(t.groundspeed_mps || 0);
           const dist = haversine(Number(t.lat), Number(t.lng), Number(activeOrder.dropoff.lat), Number(activeOrder.dropoff.lng));
           const etaSeconds = speed > 0.2 ? dist / speed : null;
@@ -2414,7 +2432,11 @@
         }
       } catch {
         qs('t-status').textContent = 'OFFLINE';
-        qs('t-status').className = 'text-lg font-black mt-1 text-rose-300';
+        qs('t-status').className = 'text-lg font-black mt-1 text-rose-500';
+        qs('t-mode').textContent = '--';
+        qs('t-alt').textContent = '--';
+        qs('t-speed').textContent = '--';
+        qs('t-battery').textContent = '--';
         qs('t-eta').textContent = '--';
         qs('t-source').textContent = '--';
         qs('t-age').textContent = '--';
