@@ -1369,7 +1369,7 @@
       clearMsg('registerMsg');
     }
 
-  function openPhaseModal(phase, title, shortDesc, mainContent) {
+    function openPhaseModal(phase, title, shortDesc, mainContent) {
     // Điền dữ liệu vào Popup
     document.getElementById('pm-phase').innerText = phase;
     document.getElementById('pm-title').innerText = title;
@@ -1387,13 +1387,24 @@
     const content = modal.querySelector('.phase-modal-content');
     content.classList.remove('scale-95', 'opacity-0');
     content.classList.add('scale-100', 'opacity-100');
-  }
-  
-  function closePhaseModalOnClickOutside(event) {
-    if (event.target.id === 'phaseModal') {
-      closePhaseModal();
     }
-  }
+
+    function closePhaseModal() {
+      const modal = document.getElementById('phaseModal');
+      modal.classList.remove('opacity-100', 'pointer-events-auto');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+
+      const content = modal.querySelector('.phase-modal-content');
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0');
+    }
+
+    // Bắt sự kiện click ra ngoài viền đen thì đóng popup
+    function closePhaseModalOnClickOutside(event) {
+      if (event.target.id === 'phaseModal') {
+        closePhaseModal();
+      }
+    }
 
 
     function handleLandingAuthAction() {
