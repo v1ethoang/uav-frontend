@@ -496,29 +496,35 @@
       border-radius: inherit;
       border: 1px solid rgba(0, 229, 255, 0.9);
       box-shadow: 0 20px 40px rgba(0, 229, 255, 0.25);
-      background: #131b2e; 
+      /* Quan trọng: giữ nền trong suốt để lộ nền gốc của nút */
+      background: transparent; 
       opacity: 0;
       transition: opacity 0.3s ease;
-      z-index: -1; 
+      z-index: 1; /* Nằm trên nền nhưng dưới nội dung */
+      pointer-events: none;
     }
 
     .interactive-glow:hover::after, .bg-panel:hover::after, .bg-panel2:hover::after, .product-card:hover::after, .hover-smooth:hover::after {
       opacity: 1;
     }
 
+    /* Giữ chữ và icon luôn nằm trên cùng */
+    .interactive-glow span, .interactive-glow h1, .interactive-glow h4, .interactive-glow p, .interactive-glow div {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Fix riêng cho phần Workflow để không lộ line */
     #how .relative.z-10:hover .w-24.h-24 {
       transform: translateY(-5px);
       border-color: #00e5ff;
       box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+      background: #1a233a !important; /* Đổ nền đậm để che line sau lưng */
       transition: all 0.3s ease;
     }
 
-    #how .relative.z-10:hover p, #how .relative.z-10:hover h4 {
-      color: white;
-    }
-
+    /* Fix nút footer không bị đổi màu icon lung tung */
     footer .interactive-glow:hover span {
-      color: #0b1326 !important;
       position: relative;
       z-index: 2;
     }
