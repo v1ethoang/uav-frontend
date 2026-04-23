@@ -450,8 +450,16 @@
     }
 
     .interactive-glow, .bg-panel, .bg-panel2, .product-card {
-      transform: translateZ(0); 
-      will-change: transform, box-shadow, border-color;
+      transform: translate3d(0, 0, 0); 
+      backface-visibility: hidden;
+
+      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out, border-color 0.25s ease-out, background-color 0.25s ease-out !important;
+    }
+
+    .hover-smooth:hover {
+      transform: translate3d(0, -4px, 0); /* Nổi lên */
+      box-shadow: 0 15px 35px rgba(0, 229, 255, 0.12) !important; /* Tỏa sáng */
+      border-color: rgba(0, 229, 255, 0.4) !important; /* Viền sáng lên */
     }
 
     .phase-modal-content {
@@ -653,11 +661,11 @@
           <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1: Xây dựng nền tảng.')">
                 <span class="text-primary text-[10px] font-black">PHASE 01</span>
                 <h5 class="text-lg font-bold mb-2">Logic hệ thống ổn định</h5>
-                <p class="text-sm text-slate-300">Xây dựng auth, orders, telemetry...</p>
+                <p class="text-sm text-slate-300">Xây dựng auth, orders, telemetry, missions và bản đồ.</p>
               </div>
             </div>
           </div>
@@ -665,8 +673,8 @@
           <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2: Nâng cấp UI/UX hiện đại.')">
                 <span class="text-primary text-[10px] font-black">PHASE 02</span>
                 <h5 class="text-lg font-bold mb-2">Nâng cấp thẩm mỹ</h5>
                 <p class="text-sm text-slate-300">Thiết kế bộ nhận diện JANUS mới.</p>
@@ -677,11 +685,11 @@
           <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3: Giữ API cũ và di chuyển logic.')">
                 <span class="text-primary text-[10px] font-black">PHASE 03</span>
-                <h5 class="text-lg font-bold mb-2">Tối ưu hóa Backend</h5>
-                <p class="text-sm text-slate-300">Nâng cấp tốc độ phản hồi Socket.io.</p>
+                <h5 class="text-lg font-bold mb-2">Chuyển giao chức năng</h5>
+                <p class="text-sm text-slate-300">Giữ nguyên API cũ và di chuyển đầy đủ logic sang giao diện mới.</p>
               </div>
             </div>
           </div>
@@ -689,11 +697,11 @@
           <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4: Kiểm tra độ trễ Telemetry.')">
                 <span class="text-primary text-[10px] font-black">PHASE 04</span>
-                <h5 class="text-lg font-bold mb-2">Thử nghiệm thực tế</h5>
-                <p class="text-sm text-slate-300">Kiểm tra độ chính xác của GPS và hạ cánh.</p>
+                <h5 class="text-lg font-bold mb-2">Thử nghiệm thực địa</h5>
+                <p class="text-sm text-slate-300">Đưa drone ra test thực tế, kiểm tra kết nối.</p>
               </div>
             </div>
           </div>
@@ -701,11 +709,11 @@
           <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5: Bảo mật và phân quyền chặt chẽ.')">
                 <span class="text-primary text-[10px] font-black">PHASE 05</span>
-                <h5 class="text-lg font-bold mb-2">Tích hợp AI</h5>
-                <p class="text-sm text-slate-300">Sử dụng Computer Vision để né vật cản.</p>
+                <h5 class="text-lg font-bold mb-2">Bảo mật hệ thống</h5>
+                <p class="text-sm text-slate-300">Hoàn thiện phân quyền Admin/User và bảo mật socket.</p>
               </div>
             </div>
           </div>
@@ -713,11 +721,11 @@
           <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
             <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
-                  onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại...')">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
+                  onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại: Hệ thống chạy ổn định trên production.')">
                 <span class="text-primary text-[10px] font-black">CURRENT</span>
-                <h5 class="text-lg font-bold mb-2">JANUS Console V2</h5>
-                <p class="text-sm text-slate-300">Hệ thống vận hành All-in-one chuyên nghiệp.</p>
+                <h5 class="text-lg font-bold mb-2">JANUS Console</h5>
+                <p class="text-sm text-slate-300">Landing page marketing + console vận hành.</p>
               </div>
             </div>
           </div>
