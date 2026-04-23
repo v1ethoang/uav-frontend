@@ -468,33 +468,36 @@
       pointer-events: none !important;
     }
 
-    .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
-      transform: translate3d(0, 0, 0); 
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                  box-shadow 0.3s ease, 
-                  border-color 0.3s ease,
-                  background 0.3s ease !important;
-      will-change: transform, box-shadow, border-color;
+    body {
+      background-attachment: scroll !important;
     }
 
-    .group:hover .bg-panel, .group:hover .hover-smooth {
-      transform: translate3d(0, -8px, 0) !important; /* Nảy lên cao */
-      z-index: 50 !important;
-      
+    .space-y-12::before, 
+    #how .absolute, 
+    #story .z-10.rounded-full {
+      pointer-events: none !important; 
+    }
+
+    .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
+      transform: translateY(0); 
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.3s ease, 
+                  border-color 0.3s ease,
+                  background-color 0.3s ease !important;
+      position: relative; 
+    }
+
+    .interactive-glow:hover, .product-card:hover, .hover-smooth:hover {
+      transform: translateY(-8px) !important; 
+
       border-color: rgba(0, 229, 255, 0.9) !important; 
 
       box-shadow: 
-        0 25px 50px rgba(0, 229, 255, 0.25), 
-        0 0 20px rgba(0, 229, 255, 0.15) inset,
-        0 0 0 1px rgba(0, 229, 255, 0.5) inset !important;
-        
-      background: linear-gradient(180deg, rgba(20, 40, 70, 0.95), rgba(15, 25, 50, 0.95)) !important;
-    }
+        0 20px 40px rgba(0, 229, 255, 0.25), 
+        0 0 20px rgba(0, 229, 255, 0.15) inset !important;
 
-    .interactive-glow:hover, .product-card:hover {
-      transform: translate3d(0, -6px, 0) !important;
-      border-color: rgba(0, 229, 255, 0.8) !important;
-      box-shadow: 0 15px 35px rgba(0, 229, 255, 0.2) !important;
+      background: linear-gradient(180deg, rgba(20, 40, 70, 0.95), rgba(15, 25, 50, 0.95)) !important;
+      z-index: 50;
     }
 
     .phase-modal-content {
