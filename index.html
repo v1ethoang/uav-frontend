@@ -485,11 +485,20 @@
       will-change: transform !important;
     }
 
+    .interactive-glow::before, .bg-panel::before, .bg-panel2::before, .product-card::before, .hover-smooth::before {
+      content: "";
+      position: absolute;
+      top: -15px; left: -15px; right: -15px; bottom: -30px;
+      background: transparent;
+      z-index: -1;
+    }
+
     .interactive-glow:hover, .bg-panel:hover, .bg-panel2:hover, .product-card:hover, .hover-smooth:hover {
       transform: translateY(-8px) !important;
       box-shadow: none !important;
       border-color: rgba(255,255,255,0.08) !important;
       background: inherit !important;
+      z-index: 50 !important;
     }
 
     .interactive-glow::after, .bg-panel::after, .bg-panel2::after, .product-card::after, .hover-smooth::after {
@@ -502,7 +511,7 @@
       background: linear-gradient(180deg, rgba(20, 40, 70, 0.5), transparent);
       opacity: 0;
       transition: opacity 0.3s ease !important;
-      pointer-events: none;
+      pointer-events: none !important;
       z-index: 10;
       will-change: opacity;
     }
@@ -513,6 +522,11 @@
 
     #story .space-y-12::before,
     #story .absolute.rounded-full {
+      pointer-events: none !important;
+    }
+
+    #phaseModal:not(.opacity-100), #authModal:not(.modal-open) {
+      visibility: hidden !important;
       pointer-events: none !important;
     }
 
