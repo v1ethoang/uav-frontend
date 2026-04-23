@@ -449,17 +449,27 @@
       transform: translateY(0) scale(1);
     }
 
-    .interactive-glow, .bg-panel, .bg-panel2, .product-card {
+    .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
       transform: translate3d(0, 0, 0); 
       backface-visibility: hidden;
-
-      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out, border-color 0.25s ease-out, background-color 0.25s ease-out !important;
+      transform-style: preserve-3d; 
+ 
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  box-shadow 0.3s ease-out, 
+                  border-color 0.3s ease-out, 
+                  background-color 0.3s ease-out !important;
     }
 
-    .hover-smooth:hover {
-      transform: translate3d(0, -4px, 0); /* Nổi lên */
-      box-shadow: 0 15px 35px rgba(0, 229, 255, 0.12) !important; /* Tỏa sáng */
-      border-color: rgba(0, 229, 255, 0.4) !important; /* Viền sáng lên */
+    .hover-smooth:hover, .interactive-glow:hover {
+      transform: translate3d(0, -6px, 0) !important; 
+      
+      box-shadow: 0 25px 50px rgba(0, 229, 255, 0.25), 
+                  0 0 15px rgba(0, 229, 255, 0.1) inset !important; 
+                  
+      border-color: rgba(0, 229, 255, 0.85) !important; 
+      
+      background: linear-gradient(180deg, rgba(20, 40, 70, 0.95), rgba(15, 25, 50, 0.95)) !important;
+      z-index: 20; 
     }
 
     .phase-modal-content {
