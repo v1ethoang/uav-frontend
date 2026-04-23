@@ -480,24 +480,12 @@
 
     .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
       position: relative !important;
-      transform: translateZ(0) !important;
+      transform: translateZ(0);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-      will-change: transform !important;
-    }
-
-    .interactive-glow::before, .bg-panel::before, .bg-panel2::before, .product-card::before, .hover-smooth::before {
-      content: "";
-      position: absolute;
-      top: -15px; left: -15px; right: -15px; bottom: -30px;
-      background: transparent;
-      z-index: -1;
     }
 
     .interactive-glow:hover, .bg-panel:hover, .bg-panel2:hover, .product-card:hover, .hover-smooth:hover {
       transform: translateY(-8px) !important;
-      box-shadow: none !important;
-      border-color: rgba(255,255,255,0.08) !important;
-      background: inherit !important;
       z-index: 50 !important;
     }
 
@@ -506,23 +494,33 @@
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      border: 1px solid rgba(0, 229, 255, 0.9) !important;
-      box-shadow: 0 25px 50px rgba(0, 229, 255, 0.25), 0 0 20px rgba(0, 229, 255, 0.15) inset !important;
-      background: linear-gradient(180deg, rgba(20, 40, 70, 0.5), transparent);
+      border: 1px solid rgba(0, 229, 255, 0.9);
+      box-shadow: 0 20px 40px rgba(0, 229, 255, 0.25);
+      background: #131b2e; 
       opacity: 0;
-      transition: opacity 0.3s ease !important;
-      pointer-events: none !important;
-      z-index: 10;
-      will-change: opacity;
+      transition: opacity 0.3s ease;
+      z-index: -1; 
     }
 
     .interactive-glow:hover::after, .bg-panel:hover::after, .bg-panel2:hover::after, .product-card:hover::after, .hover-smooth:hover::after {
-      opacity: 1 !important;
+      opacity: 1;
     }
 
-    #story .space-y-12::before,
-    #story .absolute.rounded-full {
-      pointer-events: none !important;
+    #how .relative.z-10:hover .w-24.h-24 {
+      transform: translateY(-5px);
+      border-color: #00e5ff;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    #how .relative.z-10:hover p, #how .relative.z-10:hover h4 {
+      color: white;
+    }
+
+    footer .interactive-glow:hover span {
+      color: #0b1326 !important;
+      position: relative;
+      z-index: 2;
     }
 
     #phaseModal:not(.opacity-100), #authModal:not(.modal-open) {
