@@ -850,6 +850,7 @@
             <button class="sidebar-tab active rounded-2xl py-3.5 bg-cyan-500/15 text-white border border-cyan-400/20" onclick="switchSidebarTab('user')">User</button>
             <button class="sidebar-tab rounded-2xl py-3.5 text-slate-300 border border-white/5 bg-white/[0.03]" onclick="switchSidebarTab('order')">Order</button>
             <button class="sidebar-tab rounded-2xl py-3.5 text-slate-300 border border-white/5 bg-white/[0.03]" onclick="switchSidebarTab('history')">History</button>
+            <button class="sidebar-tab rounded-2xl py-3.5 text-slate-300 border border-white/5 bg-white/[0.03]" onclick="switchSidebarTab('log')">Log</button>
           </div>
         </section>
 
@@ -1010,6 +1011,15 @@
             <div id="myOrdersBox" class="space-y-3 max-h-[760px] overflow-y-auto"></div>
           </section>
         </div>
+        <div id="sidebar-tab-log" class="sidebar-tab-panel hidden-el space-y-5">
+          <section class="glass-panel console-accent-ring rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-black tracking-tight">Log hệ thống</h3>
+              <span class="text-xs text-slate-300">Live</span>
+            </div>
+            <div id="sys-log" class="space-y-3 max-h-[760px] overflow-y-auto pr-2"></div>
+          </section>
+        </div>
       </aside>
 
       <section class="min-w-0 space-y-5">
@@ -1112,13 +1122,6 @@
           <div id="missionsBox" class="space-y-3 max-h-72 overflow-y-auto"></div>
         </section>
 
-        <section class="glass-panel console-accent-ring rounded-3xl p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-black tracking-tight">Log hệ thống</h3>
-            <span class="text-xs text-slate-300">Live</span>
-          </div>
-          <div id="sys-log" class="space-y-2 max-h-72 overflow-y-auto"></div>
-        </section>
       </aside>
     </main>
   </div>
@@ -1366,7 +1369,7 @@
 
       document.querySelectorAll('.sidebar-tab-panel').forEach(panel => panel.classList.add('hidden-el'));
 
-      const tabOrder = { user: 0, order: 1, history: 2 };
+      const tabOrder = { user: 0, order: 1, history: 2, log: 3 };
       const btns = document.querySelectorAll('.sidebar-tab');
       const btn = btns[tabOrder[tabName]];
 
