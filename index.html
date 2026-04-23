@@ -448,6 +448,16 @@
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+
+    .interactive-glow, .bg-panel, .bg-panel2, .product-card {
+      transform: translateZ(0); 
+      will-change: transform, box-shadow, border-color;
+    }
+
+    .phase-modal-content {
+      max-width: 90% !important;
+      width: 1200px !important;
+    }
   </style>
 </head>
 <body class="bg-surface text-white selection:bg-accent selection:text-surface">
@@ -640,58 +650,79 @@
 
         <div class="space-y-12 relative before:absolute before:left-4 md:before:left-1/2 before:w-px before:h-full before:bg-white/10">
   
-        <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
-          <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all"></div>
-          
-          <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-            <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:bg-[#131e36] hover:border-[#00e5ff] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,229,255,0.15)] transition-all duration-300 group" 
-                onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng auth, orders, telemetry, missions và bản đồ trong một file frontend gốc.', 'Nội dung chi tiết về Phase 1: Chúng tôi đã tập trung vào việc thiết lập cốt lõi của hệ thống, đảm bảo các chức năng cơ bản như xác thực người dùng, quản lý đơn hàng, theo dõi telemetry của drone và lập kế hoạch mission hoạt động đồng bộ. Bản đồ Leaflet đã được tích hợp để hiển thị vị trí thời gian thực.')">
-              <span class="text-primary text-[10px] font-black group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all">PHASE 01</span>
-              <h5 class="text-lg font-bold mb-2 group-hover:text-white transition-colors">Logic hệ thống ổn định</h5>
-              <p class="text-sm text-slate-300">Xây dựng auth, orders, telemetry, missions và bản đồ trong một file frontend gốc.</p>
+          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1...')">
+                <span class="text-primary text-[10px] font-black">PHASE 01</span>
+                <h5 class="text-lg font-bold mb-2">Logic hệ thống ổn định</h5>
+                <p class="text-sm text-slate-300">Xây dựng auth, orders, telemetry...</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8">
-          <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all"></div>
-          
-          <div class="pl-12 md:pl-0 md:w-1/2">
-            <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:bg-[#131e36] hover:border-[#00e5ff] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,229,255,0.15)] transition-all duration-300 group" 
-                onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế bộ nhận diện JANUS mới theo hướng dark glass hiện đại và đậm chất UAV.', 'Nội dung chi tiết về Phase 2: Tập trung hoàn toàn vào UI/UX. Chúng tôi đã thiết kế lại toàn bộ giao diện theo phong cách Modern Dark Glass, sử dụng hiệu ứng backdrop-blur và gradient để tạo cảm giác công nghệ cao. Bộ nhận diện thương hiệu mới với logo JANUS được tối ưu hóa cho các thiết bị bay không người lái (UAV).')">
-              <span class="text-primary text-[10px] font-black group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all">PHASE 02</span>
-              <h5 class="text-lg font-bold mb-2 group-hover:text-white transition-colors">Nâng cấp thẩm mỹ</h5>
-              <p class="text-sm text-slate-300">Thiết kế bộ nhận diện JANUS mới theo hướng dark glass hiện đại và đậm chất UAV.</p>
+          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2...')">
+                <span class="text-primary text-[10px] font-black">PHASE 02</span>
+                <h5 class="text-lg font-bold mb-2">Nâng cấp thẩm mỹ</h5>
+                <p class="text-sm text-slate-300">Thiết kế bộ nhận diện JANUS mới.</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
-          <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all"></div>
-          
-          <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-            <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:bg-[#131e36] hover:border-[#00e5ff] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,229,255,0.15)] transition-all duration-300 group" 
-                onclick="openPhaseModal('PHASE 03', 'Chuyển giao chức năng', 'Giữ nguyên API cũ và di chuyển đầy đủ logic sang giao diện mới.', 'Nội dung chi tiết về Phase 3: Đây là giai đoạn quan trọng để đảm bảo tính ổn định. Chúng tôi đã di chuyển toàn bộ logic nghiệp vụ phức tạp từ file frontend gốc sang giao diện mới mà không thay đổi bất kỳ API backend nào. Giai đoạn này bao gồm việc kiểm thử kỹ lưỡng để đảm bảo các tính năng như dispatch mission, theo dõi ETA và lịch sử đơn hàng hoạt động chính xác.')">
-              <span class="text-primary text-[10px] font-black group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all">PHASE 03</span>
-              <h5 class="text-lg font-bold mb-2 group-hover:text-white transition-colors">Chuyển giao chức năng</h5>
-              <p class="text-sm text-slate-300">Giữ nguyên API cũ và di chuyển đầy đủ logic sang giao diện mới.</p>
+          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3...')">
+                <span class="text-primary text-[10px] font-black">PHASE 03</span>
+                <h5 class="text-lg font-bold mb-2">Tối ưu hóa Backend</h5>
+                <p class="text-sm text-slate-300">Nâng cấp tốc độ phản hồi Socket.io.</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8">
-          <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all"></div>
-          
-          <div class="pl-12 md:pl-0 md:w-1/2">
-            <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:bg-[#131e36] hover:border-[#00e5ff] hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,229,255,0.15)] transition-all duration-300 group" 
-                onclick="openPhaseModal('CURRENT', 'JANUS Console', 'Landing page marketing + console vận hành trong cùng một frontend single-file.', 'Nội dung chi tiết về Current Phase: Hiện tại, JANUS Console là một giải pháp All-in-One, kết hợp cả Landing Page marketing chuyên nghiệp để giới thiệu dịch vụ và Console vận hành thời gian thực để quản lý đội bay. Hệ thống đang được tối ưu hóa để chạy ổn định dưới dạng single-file frontend, dễ dàng triển khai.')">
-              <span class="text-primary text-[10px] font-black group-hover:drop-shadow-[0_0_8px_rgba(195,245,255,0.8)] transition-all">CURRENT</span>
-              <h5 class="text-lg font-bold mb-2 group-hover:text-white transition-colors">JANUS Console</h5>
-              <p class="text-sm text-slate-300">Landing page marketing + console vận hành trong cùng một frontend single-file.</p>
+          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4...')">
+                <span class="text-primary text-[10px] font-black">PHASE 04</span>
+                <h5 class="text-lg font-bold mb-2">Thử nghiệm thực tế</h5>
+                <p class="text-sm text-slate-300">Kiểm tra độ chính xác của GPS và hạ cánh.</p>
+              </div>
             </div>
           </div>
+
+          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5...')">
+                <span class="text-primary text-[10px] font-black">PHASE 05</span>
+                <h5 class="text-lg font-bold mb-2">Tích hợp AI</h5>
+                <p class="text-sm text-slate-300">Sử dụng Computer Vision để né vật cản.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
+            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
+            <div class="pl-12 md:pl-0 md:w-1/2">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover:border-accent hover:-translate-y-1 transition-all duration-300 shadow-soft" 
+                  onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại...')">
+                <span class="text-primary text-[10px] font-black">CURRENT</span>
+                <h5 class="text-lg font-bold mb-2">JANUS Console V2</h5>
+                <p class="text-sm text-slate-300">Hệ thống vận hành All-in-one chuyên nghiệp.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
       </section>
     </main>
 
