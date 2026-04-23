@@ -479,25 +479,41 @@
     }
 
     .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
-      transform: translateY(0); 
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                  box-shadow 0.3s ease, 
-                  border-color 0.3s ease,
-                  background-color 0.3s ease !important;
-      position: relative; 
+      position: relative !important;
+      transform: translateZ(0) !important;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      will-change: transform !important;
     }
 
-    .interactive-glow:hover, .product-card:hover, .hover-smooth:hover {
-      transform: translateY(-8px) !important; 
+    .interactive-glow:hover, .bg-panel:hover, .bg-panel2:hover, .product-card:hover, .hover-smooth:hover {
+      transform: translateY(-8px) !important;
+      box-shadow: none !important;
+      border-color: rgba(255,255,255,0.08) !important;
+      background: inherit !important;
+    }
 
-      border-color: rgba(0, 229, 255, 0.9) !important; 
+    .interactive-glow::after, .bg-panel::after, .bg-panel2::after, .product-card::after, .hover-smooth::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid rgba(0, 229, 255, 0.9) !important;
+      box-shadow: 0 25px 50px rgba(0, 229, 255, 0.25), 0 0 20px rgba(0, 229, 255, 0.15) inset !important;
+      background: linear-gradient(180deg, rgba(20, 40, 70, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease !important;
+      pointer-events: none;
+      z-index: 10;
+      will-change: opacity;
+    }
 
-      box-shadow: 
-        0 20px 40px rgba(0, 229, 255, 0.25), 
-        0 0 20px rgba(0, 229, 255, 0.15) inset !important;
+    .interactive-glow:hover::after, .bg-panel:hover::after, .bg-panel2:hover::after, .product-card:hover::after, .hover-smooth:hover::after {
+      opacity: 1 !important;
+    }
 
-      background: linear-gradient(180deg, rgba(20, 40, 70, 0.95), rgba(15, 25, 50, 0.95)) !important;
-      z-index: 50;
+    #story .space-y-12::before,
+    #story .absolute.rounded-full {
+      pointer-events: none !important;
     }
 
     .phase-modal-content {
