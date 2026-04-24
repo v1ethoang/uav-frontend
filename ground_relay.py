@@ -12,7 +12,7 @@ DRONE_ID = "drone_1"
 MAVLINK_IN = "udpin:127.0.0.1:14552"
 
 TELEMETRY_INTERVAL = 0.2  # 5Hz - Giúp bản đồ mượt như app gọi xe
-CONNECT_TIMEOUT = 5
+CONNECT_TIMEOUT = 20
 
 sio = socketio.Client(reconnection=True, reconnection_attempts=0, reconnection_delay=2)
 
