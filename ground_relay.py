@@ -4,21 +4,15 @@ import threading
 import socketio
 from pymavlink import mavutil
 
-# =========================================================
-# CẤU HÌNH HỆ THỐNG
-# =========================================================
-BACKEND = "https://uav-backend-zbti.onrender.com"  # Đổi thành URL Server của bạn khi bay thật
+BACKEND = "https://uav-backend-zbti.onrender.com"  
 DRONE_ID = "drone_1"
 MAVLINK_IN = "udpin:127.0.0.1:14552"
 
-TELEMETRY_INTERVAL = 0.2  # 5Hz - Giúp bản đồ mượt như app gọi xe
-CONNECT_TIMEOUT = 20
+TELEMETRY_INTERVAL = 0.2  
+CONNECT_TIMEOUT = 60
 
 sio = socketio.Client(reconnection=True, reconnection_attempts=0, reconnection_delay=2)
 
-# =========================================================
-# QUẢN LÝ TRẠNG THÁI
-# =========================================================
 state = {
     "lat": None,
     "lng": None,
@@ -29,13 +23,12 @@ state = {
     "armed": False,
 }
 
-# Các cờ (flag) để Ground Station tự suy luận event khi Pi mất mạng
 mission_tracker = {
     "is_flying": False,
     "arrived_sent": False,
     "delivered_sent": False,
     "completed_sent": False,
-    "home_lat": None,  # <-- LƯU TỌA ĐỘ HOME ĐỘNG VÀO ĐÂY
+    "home_lat": None,  
     "home_lng": None,
 }
 
@@ -57,9 +50,6 @@ def haversine(lat1, lon1, lat2, lon2):
     a = math.sin(dphi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2)**2
     return 2 * R * math.asin(math.sqrt(a))
 
-# =========================================================
-# SOCKET.IO EVENTS
-# =========================================================
 @sio.event
 def connect():
     print(f"[SOCKET] ⚡ Đã kết nối thành công tới Backend: {BACKEND}")
@@ -76,7 +66,7 @@ def emit_event(event_type, detail=None):
 
     payload = {
         "drone_id": DRONE_ID,
-        "mission_id": "", # Trạm mặt đất không biết chính xác ID, Backend sẽ tự map
+        "mission_id": "", 
         "type": event_type,
         "detail": detail,
         "ts_ms": now_ms()
@@ -87,17 +77,13 @@ def emit_event(event_type, detail=None):
     except Exception as e:
         print(f"[EVENT ERROR] {e}")
 
-# =========================================================
-# VÒNG LẶP SUY LUẬN NHIỆM VỤ (HEURISTIC LOGIC)
-# =========================================================
 def check_mission_events():
     """Tự động phân tích telemetry để bắn event DELIVERED / COMPLETED"""
     global mission_tracker
 
     if state["lat"] is None or state["lng"] is None:
         return
-        
-    # NẾU CHƯA CÓ HOME (CHƯA CẤT CÁNH LẦN NÀO) THÌ BỎ QUA KIỂM TRA
+
     if mission_tracker["home_lat"] is None or mission_tracker["home_lng"] is None:
         return
 
@@ -105,7 +91,6 @@ def check_mission_events():
     alt = state["alt_m"]
     speed = state["groundspeed_mps"]
 
-    # 1. Phát hiện cất cánh (Bắt đầu một chuyến bay mới)
     if state["armed"] and alt > 2.0 and not mission_tracker["is_flying"]:
         mission_tracker["is_flying"] = True
         mission_tracker["arrived_sent"] = False
@@ -116,7 +101,6 @@ def check_mission_events():
     if not mission_tracker["is_flying"]:
         return
 
-    # 2. Phát hiện đến điểm giao hàng (ARRIVED) & Đang thả hàng (DELIVERED)
     if dist_to_home > 5.0 and speed < 1.0:
         if alt < 8.0 and not mission_tracker["arrived_sent"]:
             emit_event("ARRIVED", "Đã đến tọa độ giao, đang hạ độ cao")
@@ -126,17 +110,12 @@ def check_mission_events():
             emit_event("DELIVERED", "Đã thả hàng thành công (Xác nhận từ Relay)")
             mission_tracker["delivered_sent"] = True
 
-    # 3. Phát hiện bay về kho thành công (COMPLETED)
-    # So sánh khoảng cách với tọa độ HOME ĐỘNG
     if dist_to_home < 15.0 and (state["mode"] == "LAND" or not state["armed"]):
         if alt < 2.0 and not mission_tracker["completed_sent"]:
             emit_event("COMPLETED", "Đã hạ cánh tại HOME (Xác nhận từ Relay)")
             mission_tracker["completed_sent"] = True
-            mission_tracker["is_flying"] = False # Kết thúc chuyến bay
+            mission_tracker["is_flying"] = False
 
-# =========================================================
-# VÒNG LẶP GỬI TELEMETRY (CHẠY NGẦM)
-# =========================================================
 def telemetry_worker():
     while True:
         if sio.connected and state["lat"] is not None and state["lng"] is not None:
@@ -159,9 +138,6 @@ def telemetry_worker():
         
         time.sleep(TELEMETRY_INTERVAL) 
 
-# =========================================================
-# LUỒNG CHÍNH ĐỌC MAVLINK
-# =========================================================
 def main():
     print(f"[INFO] Kết nối MAVLink tại {MAVLINK_IN}")
     master = mavutil.mavlink_connection(MAVLINK_IN)
@@ -201,7 +177,7 @@ def main():
 
                     if new_mode != last_mode or new_armed != last_armed:
                         
-                        # LOGIC LẤY HOME ĐỘNG: Bắt khoảnh khắc chuyển từ Disarm sang Arm
+                        
                         if new_armed == True and last_armed == False:
                             if state["lat"] is not None and state["lng"] is not None:
                                 mission_tracker["home_lat"] = state["lat"]
@@ -216,7 +192,6 @@ def main():
                     state["lat"] = msg.lat / 1e7
                     state["lng"] = msg.lon / 1e7
                     
-                    # Fix hiển thị độ cao khi chưa arm
                     raw_alt = msg.relative_alt / 1000.0 
                     if not state["armed"] and abs(raw_alt) < 5.0:
                         state["alt_m"] = 0.0
@@ -234,7 +209,6 @@ def main():
                     if getattr(msg, "battery_remaining", -1) not in (-1, 255):
                         state["battery_percent"] = float(msg.battery_remaining)
 
-                # Kiểm tra và tự động bắn event
                 check_mission_events()
 
 if __name__ == "__main__":

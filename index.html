@@ -275,9 +275,17 @@
     }
 
     #map {
-      min-height: 760px;
+      /* Chiều cao mặc định cho mobile (khoảng nửa màn hình) */
+      min-height: 50vh; 
       height: 100%;
       width: 100%;
+    }
+    
+    /* Trả lại 760px khi ở màn hình lớn (tablet/desktop) */
+    @media (min-width: 1024px) {
+      #map {
+        min-height: 760px;
+      }
     }
 
     .hidden-el { display: none !important; }
@@ -543,7 +551,7 @@
 <body class="bg-surface text-white selection:bg-accent selection:text-surface">
   <div id="landingPage">
     <header class="fixed top-0 inset-x-0 z-50 bg-[#0b1326]/60 backdrop-blur-xl border-b border-white/5">
-      <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
           <span class="text-2xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase">JANUS</span>
@@ -558,8 +566,22 @@
         </nav>
 
         <div class="flex items-center gap-3">
-          <button id="landingAuthBtn" class="gradient-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-tighter uppercase active:scale-95 duration-150 interactive-glow" onclick="handleLandingAuthAction()">Đăng nhập</button>
+          <button id="landingAuthBtn" class="gradient-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold tracking-tighter uppercase active:scale-95 duration-150 interactive-glow" onclick="handleLandingAuthAction()">Đăng nhập</button>
+          
+          <button id="mobileMenuBtn" class="lg:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl active:scale-95 transition" onclick="toggleMobileMenu()">
+            <span class="block w-5 h-0.5 bg-white rounded-full transition-transform duration-300"></span>
+            <span class="block w-5 h-0.5 bg-white rounded-full transition-opacity duration-300"></span>
+            <span class="block w-5 h-0.5 bg-white rounded-full transition-transform duration-300"></span>
+          </button>
         </div>
+      </div>
+
+      <div id="mobileMenu" class="absolute top-full left-0 w-full bg-[#0b1326]/95 backdrop-blur-xl border-b border-white/5 shadow-2xl hidden flex-col font-headline uppercase font-bold text-sm tracking-tighter divide-y divide-white/5 transition-all origin-top duration-300 opacity-0 scale-y-0">
+        <a class="block px-6 py-4 text-[#c3f5ff] hover:bg-white/5 transition" href="#hero" onclick="toggleMobileMenu()">Giải pháp</a>
+        <a class="block px-6 py-4 text-[#849396] hover:text-[#c3f5ff] hover:bg-white/5 transition" href="#how" onclick="toggleMobileMenu()">Cách hoạt động</a>
+        <a class="block px-6 py-4 text-[#849396] hover:text-[#c3f5ff] hover:bg-white/5 transition" href="#features" onclick="toggleMobileMenu()">Tính năng</a>
+        <a class="block px-6 py-4 text-[#849396] hover:text-[#c3f5ff] hover:bg-white/5 transition" href="#story" onclick="toggleMobileMenu()">Hành trình</a>
+        <a class="block px-6 py-4 text-[#849396] hover:text-[#c3f5ff] hover:bg-white/5 transition" href="#footer" onclick="toggleMobileMenu()">Liên hệ</a>
       </div>
     </header>
 
@@ -996,7 +1018,7 @@
       </div>
     </header>
 
-    <main class="max-w-screen-[1800px] mx-auto px-4 md:px-6 py-6 grid xl:grid-cols-[300px_minmax(0,1fr)_330px] gap-6 items-start">
+    <main class="max-w-screen-[1800px] mx-auto px-4 md:px-6 py-6 flex flex-col xl:grid xl:grid-cols-[300px_minmax(0,1fr)_330px] gap-6 items-start">
       <aside class="space-y-5">
         <section class="glass-panel console-accent-ring rounded-3xl p-2">
         <div class="grid grid-cols-4 gap-1.5">
@@ -2752,6 +2774,31 @@
       else showLanding();
       refreshLandingAuthButton();
     })();
+
+    // Toggle Mobile Menu
+    let isMobileMenuOpen = false;
+    function toggleMobileMenu() {
+      const menu = qs('mobileMenu');
+      const lines = qs('mobileMenuBtn').querySelectorAll('span');
+      isMobileMenuOpen = !isMobileMenuOpen;
+
+      if (isMobileMenuOpen) {
+        menu.classList.remove('hidden', 'opacity-0', 'scale-y-0');
+        menu.classList.add('flex', 'opacity-100', 'scale-y-100');
+        // Hamburger to X animation
+        lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+        lines[1].style.opacity = '0';
+        lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+      } else {
+        menu.classList.remove('opacity-100', 'scale-y-100');
+        menu.classList.add('opacity-0', 'scale-y-0');
+        setTimeout(() => menu.classList.add('hidden'), 300); // Đợi animtion xong mới ẩn
+        // X to Hamburger animation
+        lines[0].style.transform = 'translateY(0) rotate(0)';
+        lines[1].style.opacity = '1';
+        lines[2].style.transform = 'translateY(0) rotate(0)';
+      }
+    }
   </script>
 </body>
 </html>
