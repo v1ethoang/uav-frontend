@@ -550,18 +550,22 @@
     /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
       .mobile-tab-section:not(.active-tab) {
-        display: none !important; /* Ẩn các section không phải tab hiện tại */
+        display: none !important; /* Ẩn các phần không phải tab đang chọn */
       }
-      
-      /* Đẩy footer lên một chút để không bị thanh Bottom Nav che mất thông tin */
       #footer {
-        padding-bottom: 100px !important;
+        padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
       }
     }
 
-    /* Hiệu ứng mượt cho nút ở Bottom Nav */
     .mobile-nav-btn {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Màu xanh chuẩn của web cho nút đang active */
+    .mobile-nav-btn.active {
+      background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
+      color: #031722 !important;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
     }
   </style>
 </head>
@@ -589,7 +593,7 @@
     </header>
 
     <main class="pt-24">
-      <section id="hero" data-tab="home" class="px-6 py-12 md:py-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
+      <section id="hero" data-tab="hero" class="mobile-tab-section active-tab px-6 py-12 md:py-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-panel2 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
@@ -641,7 +645,7 @@
         </div>
       </section>
 
-      <section data-tab="home" class="mobile-tab-section active-tab bg-[#10192d] py-24">
+      <section data-tab="hero" class="mobile-tab-section active-tab bg-[#10192d] py-24">
         <div class="px-6 max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">location_on</span>
@@ -666,7 +670,7 @@
         </div>
       </section>
 
-      <section id="how" data-tab="home" class="mobile-tab-section active-tab py-24 px-6 max-w-screen-xl mx-auto">
+      <section id="how" data-tab="how" class="mobile-tab-section py-24 px-6 max-w-screen-xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">Cách Janus hoạt động</h2>
           <div class="h-1 w-24 bg-accent mx-auto rounded-full"></div>
@@ -831,26 +835,27 @@
       </section>
     </main>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 lg:hidden w-[90%] max-w-[360px]">
-      <div class="bg-[#1f222a]/95 backdrop-blur-2xl border border-white/5 rounded-full p-2 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 lg:hidden w-[92%] max-w-[400px]">
+      <div class="bg-[#131b2e]/95 backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
         
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[#4ade80] text-[#0b1326] transition-all duration-300" onclick="switchMobileTab('home', this)">
-          <span class="material-symbols-outlined text-[24px]">home</span>
-          <span class="text-sm font-extrabold nav-text whitespace-nowrap overflow-hidden">Trang Chủ</span>
+        <button class="mobile-nav-btn active flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400" onclick="switchMobileTab('hero', this)">
+          <span class="material-symbols-outlined text-[22px]">rocket_launch</span>
+          <span class="text-sm font-extrabold nav-text whitespace-nowrap overflow-hidden">Giải Pháp</span>
         </button>
 
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200 transition-all duration-300" onclick="switchMobileTab('features', this)">
-          <span class="material-symbols-outlined text-[24px]">dashboard_customize</span>
-          <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Khám Phá</span>
+        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('how', this)">
+          <span class="material-symbols-outlined text-[22px]">account_tree</span>
+          <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Hoạt Động</span>
         </button>
 
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200 transition-all duration-300" onclick="switchMobileTab('story', this)">
-          <span class="material-symbols-outlined text-[24px]">calendar_month</span>
-          <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Lịch Sử</span>
+        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('features', this)">
+          <span class="material-symbols-outlined text-[22px]">dashboard_customize</span>
+          <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Tính Năng</span>
         </button>
 
-        <button class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200 transition-all duration-300" onclick="handleLandingAuthAction()">
-          <span class="material-symbols-outlined text-[24px]">person</span>
+        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('story', this)">
+          <span class="material-symbols-outlined text-[22px]">history</span>
+          <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Hành Trình</span>
         </button>
 
       </div>
@@ -2805,34 +2810,33 @@
 
     // === XỬ LÝ CHUYỂN TAB TRÊN MOBILE ===
     function switchMobileTab(tabId, btnElement) {
-      // Nếu đang dùng máy tính thì hàm này không làm gì cả
-      if (window.innerWidth >= 1024) return;
+      if (window.innerWidth >= 1024) return; // Desktop thì không làm gì
 
-      // 1. Ẩn tất cả các khối nội dung
+      // 1. Ẩn tất cả section
       document.querySelectorAll('.mobile-tab-section').forEach(el => {
         el.classList.remove('active-tab');
       });
 
-      // 2. Chỉ hiện những khối thuộc Tab đang chọn
+      // 2. Hiện section của tab được chọn
       document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(el => {
         el.classList.add('active-tab');
       });
 
-      // 3. Đổi màu toàn bộ nút ở Bottom Nav về trạng thái xám
+      // 3. Reset các nút Nav về màu xám, ẩn chữ
       document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        btn.classList.remove('bg-[#4ade80]', 'text-[#0b1326]');
+        btn.classList.remove('active');
         btn.classList.add('text-slate-400', 'hover:text-slate-200');
         btn.querySelector('.nav-text').classList.add('hidden');
       });
 
-      // 4. Bật sáng nút vừa bấm (Màu xanh, bung chữ)
+      // 4. Highlight nút được nhấn (Kích hoạt class .active có gradient)
       if (btnElement) {
+        btnElement.classList.add('active');
         btnElement.classList.remove('text-slate-400', 'hover:text-slate-200');
-        btnElement.classList.add('bg-[#4ade80]', 'text-[#0b1326]');
         btnElement.querySelector('.nav-text').classList.remove('hidden');
       }
 
-      // Đưa góc nhìn lên đầu trang khi chuyển tab
+      // Cuộn lên đầu
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
