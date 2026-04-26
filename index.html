@@ -547,62 +547,21 @@
       width: 1200px !important;
     }
 
-    /* ===== CSS ÉP GIAO DIỆN VỪA KHÍT MOBILE (STICKY FOOTER) ===== */
-    /* Ép khung ngoài cùng luôn cao ít nhất bằng 100% màn hình thiết bị */
-    html, body {
-      height: 100%;
-      min-height: 100dvh; 
-      display: flex;
-      flex-direction: column;
-    }
-
-    #landingPage {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1; /* Ép LandingPage tự giãn ra chiếm hết chiều cao body */
-      min-height: 100dvh;
-    }
-
-    main {
-      flex-grow: 1; /* Khối main chứa tab sẽ tự giãn ra đẩy footer xuống đáy */
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Đảm bảo mỗi Section (Tab) nếu ngắn quá thì cũng tự kéo giãn đẩy footer xuống */
-    .mobile-tab-section {
-      flex-grow: 1; 
-      display: flex;
-      flex-direction: column;
-      justify-content: center; /* Căn giữa nội dung nếu trang quá ngắn */
-    }
-
+    /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
       .mobile-tab-section:not(.active-tab) {
-        display: none !important; /* Ẩn các tab không chọn */
+        display: none !important; /* Ẩn các phần không phải tab đang chọn */
       }
-      
-      /* Tạo vùng đệm dưới cùng để nội dung không bị Bottom Nav che mất */
       #footer {
-        padding-bottom: 90px !important; 
-        margin-top: auto; /* Lực đẩy cuối cùng để Footer luôn bám đáy */
-      }
-      
-      /* Khắc phục khoảng cách đen trên cùng do Header */
-      /* Loại bỏ padding-top 96px (pt-24) của thẻ main trên mobile */
-      main {
-        padding-top: 0 !important;
-      }
-      /* Đẩy padding đó vào từng section để nền xanh phủ lên tận Header */
-      .mobile-tab-section {
-        padding-top: 100px !important;
+        padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
       }
     }
 
-    /* Hiệu ứng thanh Navbar Mobile */
     .mobile-nav-btn {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
+    /* Màu xanh chuẩn của web cho nút đang active */
     .mobile-nav-btn.active {
       background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
       color: #031722 !important;
@@ -634,7 +593,7 @@
     </header>
 
     <main>
-      <section id="hero" data-tab="hero" class="mobile-tab-section active-tab px-6 py-12 md:py-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
+      <section id="hero" data-tab="hero" class="mobile-tab-section active-tab px-6 pt-32 pb-12 lg:pt-40 lg:pb-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-panel2 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
@@ -711,7 +670,7 @@
         </div>
       </section>
 
-      <section id="how" data-tab="how" class="mobile-tab-section py-24 px-6 max-w-screen-xl mx-auto">
+      <section id="how" data-tab="how" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24 px-6 max-w-screen-xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">Cách Janus hoạt động</h2>
           <div class="h-1 w-24 bg-accent mx-auto rounded-full"></div>
@@ -750,7 +709,7 @@
         </div>
       </section>
 
-      <section id="features" data-tab="features" class="mobile-tab-section bg-[#10192d] py-24">
+      <section id="features" data-tab="features" class="mobile-tab-section bg-[#10192d] pt-32 pb-8 lg:pt-24 lg:pb-24">
         <div class="px-6 max-w-screen-xl mx-auto">
           <div class="mb-12">
             <span class="text-primary font-bold uppercase tracking-widest text-xs">Console hiện tại</span>
@@ -792,7 +751,7 @@
         </div>
       </section>
 
-      <section id="story" data-tab="story" class="mobile-tab-section py-24 px-6 max-w-screen-md mx-auto">
+      <section id="story" data-tab="story" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24 px-6 max-w-screen-md mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">Hành trình phát triển</h2>
           <p class="text-slate-300">Thất bại là mẹ đập con.</p>
