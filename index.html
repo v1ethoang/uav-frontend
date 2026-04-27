@@ -549,12 +549,12 @@
 
     /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
-      html, body {
-        overscroll-behavior-y: none; /* Ngăn chặn cuộn lố (rubber-banding) sinh ra khoảng trống dưới footer */
+      body {
+        overscroll-behavior-y: contain; 
       }
-      
+
       #footer {
-        padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
+        padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important; 
       }
     }
 
