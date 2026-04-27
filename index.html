@@ -618,7 +618,6 @@
 
         <nav id="landingNav" class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
           <a class="nav-link active text-[#c3f5ff] transition border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
         </nav>
@@ -2776,15 +2775,25 @@
           this.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
           this.classList.remove('text-[#849396]', 'border-transparent');
 
-          // 2. Ẩn tất cả nội dung đi, chỉ hiện tab được click (dùng lại class của mobile, an toàn 100%)
+          // 2. Ẩn tất cả nội dung đi
           document.querySelectorAll('.mobile-tab-section').forEach(section => {
             section.classList.remove('active-tab');
           });
-          document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(section => {
-            section.classList.add('active-tab');
-          });
 
-          // 3. Cuộn lên đỉnh trang mỗi khi chuyển tab
+          // 3. LOGIC GỘP TAB DÀNH RIÊNG CHO DESKTOP
+          if (tabId === 'features') {
+            // Nếu click vào "Tính năng", bật cả section "how" và "features"
+            document.querySelectorAll('.mobile-tab-section[data-tab="features"], .mobile-tab-section[data-tab="how"]').forEach(section => {
+              section.classList.add('active-tab');
+            });
+          } else {
+            // Các tab khác hoạt động bình thường
+            document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(section => {
+              section.classList.add('active-tab');
+            });
+          }
+
+          // 4. Cuộn lên đỉnh trang mỗi khi chuyển tab
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
