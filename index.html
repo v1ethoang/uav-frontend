@@ -53,10 +53,9 @@
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
       background: #0b1326; 
       color: #dae2fd;
-      overflow-x: hidden; /* Ngăn cuộn ngang nếu hạt bay sát mép */
+      overflow-x: clip; /* Fix triệt để lỗi liệt cảm ứng vuốt giữa màn hình của Chrome */
     }
 
     body {
