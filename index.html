@@ -2,7 +2,7 @@
 <html class="dark" lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover  " />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JANUS | Drone Delivery</title>
   <link rel="icon" type="image/png" href="icon.png" />
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -56,8 +56,7 @@
       /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
       background: #0b1326; 
       color: #dae2fd;
-      overflow-x: hidden; /* Ngăn @media (max-width: 1023px) { cuộn ngang nếu hạt bay sát mép */
-      overscroll-behavior-y: none;
+      overflow-x: hidden; /* Ngăn cuộn ngang nếu hạt bay sát mép */
     }
 
     body {
@@ -551,7 +550,7 @@
     /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
       #footer {
-        padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;/* Tránh bị thanh Nav che text */
+        padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
       }
     }
 
@@ -606,20 +605,6 @@
         transform: translateY(-105vh) scale(1.2); /* Bay vút qua mép trên màn hình */
         opacity: 0;
       }
-    }
-
-    #landingPage {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    #landingPage main {
-      flex-grow: 1; /* Tự động giãn ra lấp đầy khoảng trống */
-    }
-
-    #landingPage footer {
-      flex-shrink: 0; /* Đảm bảo footer không bị bóp méo */
     }
   </style>
 </head>
@@ -888,7 +873,7 @@
       </section>
     </main>
 
-    <div class="fixed left-1/2 -translate-x-1/2 z-[90] lg:hidden w-[92%] max-w-[400px]" style="bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 lg:hidden w-[92%] max-w-[400px]">
       <div class="bg-[#131b2e]/95 backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
         
         <button class="mobile-nav-btn active flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400" onclick="switchMobileTab('hero', this)">
@@ -2856,7 +2841,7 @@
       document.body.prepend(container); // Gắn vào đầu body
 
       // 2. Tùy chỉnh số lượng hạt ở đây (25 là ít và vừa phải)
-      const particleCount = 90; 
+      const particleCount = 70; 
 
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
