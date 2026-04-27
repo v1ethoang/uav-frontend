@@ -53,16 +53,27 @@
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
+      
       background: #0b1326; 
       color: #dae2fd;
-      overflow-x: hidden; /* Ngăn cuộn ngang nếu hạt bay sát mép */
+      overflow-x: hidden; 
+      overscroll-behavior: none;
     }
 
     body {
       font-family: 'Inter', sans-serif;
       background: #0b1326; /* Màu trơn đồng bộ */
       color: #dae2fd;
+    }
+
+    #landingPage {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; 
+    }
+
+    #landingPage main {
+      flex-grow: 1; 
     }
 
     h1, h2, h3, h4, .font-headline, .console-title, .section-title, .sidebar-tab {
@@ -543,11 +554,12 @@
       width: 1200px !important;
     }
 
-    /* Chỉ áp dụng cho Mobile/Tablet */
-    @media (max-width: 1023px) {
-      .mobile-tab-section:not(.active-tab) {
+    .mobile-tab-section:not(.active-tab) {
         display: none !important; /* Ẩn các phần không phải tab đang chọn */
       }
+
+    /* Chỉ áp dụng cho Mobile/Tablet */
+    @media (max-width: 1023px) {
       #footer {
         padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
       }
@@ -624,7 +636,6 @@
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#footer">Liên hệ</a>
         </nav>
 
         <div class="flex items-center gap-3">
@@ -686,7 +697,7 @@
         </div>
       </section>
 
-      <section data-tab="hero" class="mobile-tab-section active-tab bg-[#10192d] py-8 md:py-24">
+      <section data-tab="hero" class="mobile-tab-section active-tab py-8 md:py-24">
         <div class="px-6 max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">location_on</span>
@@ -750,7 +761,7 @@
         </div>
       </section>
 
-      <section id="features" data-tab="features" class="mobile-tab-section bg-[#10192d] pt-32 pb-8 lg:pt-24 lg:pb-24">
+      <section id="features" data-tab="features" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24">
         <div class="px-6 max-w-screen-xl mx-auto">
           <div class="mb-12">
             <span class="text-primary font-bold uppercase tracking-widest text-xs">Console hiện tại</span>
@@ -2759,88 +2770,42 @@
       if (e.key === 'Escape') closeAuthModal();
     });
 
-    function initLandingNavActive() {
+    function initDesktopNavTabs() {
       const navLinks = document.querySelectorAll('#landingNav .nav-link');
       if (!navLinks.length) return;
 
-      function setActiveNav(activeLink) {
-        navLinks.forEach(link => {
-          link.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-          link.classList.add('text-[#849396]', 'border-transparent');
-        });
-
-        if (!activeLink) return;
-
-        activeLink.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-        activeLink.classList.remove('text-[#849396]', 'border-transparent');
-      }
-
-      const sections = [];
       navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (!href || !href.startsWith('#')) return;
+        link.addEventListener('click', function(e) {
+          e.preventDefault(); // Chặn cuộn trang mặc định
+          const href = this.getAttribute('href');
+          if (!href || !href.startsWith('#')) return;
 
-        const section = document.querySelector(href);
-        if (!section) return;
+          const tabId = href.replace('#', '');
 
-        sections.push({
-          link,
-          section,
-          id: href
-        });
+          // 1. Đổi màu cho thanh Navbar Desktop
+          navLinks.forEach(l => {
+            l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+            l.classList.add('text-[#849396]', 'border-transparent');
+          });
+          this.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+          this.classList.remove('text-[#849396]', 'border-transparent');
 
-        link.addEventListener('click', function () {
-          setActiveNav(link);
+          // 2. Ẩn tất cả nội dung đi, chỉ hiện tab được click (dùng lại class của mobile, an toàn 100%)
+          document.querySelectorAll('.mobile-tab-section').forEach(section => {
+            section.classList.remove('active-tab');
+          });
+          document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(section => {
+            section.classList.add('active-tab');
+          });
 
-          setTimeout(() => {
-            updateActiveNavOnScroll();
-          }, 250);
+          // 3. Cuộn lên đỉnh trang mỗi khi chuyển tab
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
-
-      function updateActiveNavOnScroll() {
-        const header = document.querySelector('#landingPage header');
-        const headerHeight = header ? header.offsetHeight : 90;
-
-        const scrollY = window.scrollY;
-        const viewportBottom = scrollY + window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-
-        if (viewportBottom >= docHeight - 10) {
-          const footerItem = sections.find(item => item.id === '#footer');
-          if (footerItem) {
-            setActiveNav(footerItem.link);
-            return;
-          }
-        }
-
-        let bestMatch = null;
-        let bestTop = -Infinity;
-
-        sections.forEach(item => {
-          const rect = item.section.getBoundingClientRect();
-          const sectionTop = rect.top + window.scrollY - headerHeight - 140;
-
-          if (scrollY >= sectionTop && sectionTop > bestTop) {
-            bestTop = sectionTop;
-            bestMatch = item;
-          }
-        });
-
-        if (bestMatch) {
-          setActiveNav(bestMatch.link);
-        }
-      }
-
-      window.addEventListener('scroll', updateActiveNavOnScroll);
-      window.addEventListener('load', updateActiveNavOnScroll);
-      window.addEventListener('resize', updateActiveNavOnScroll);
-
-      updateActiveNavOnScroll();
     }
     
     pollLoop();
-    initLandingNavActive();
+    initDesktopNavTabs();
 
     (async function boot() {
       const ok = await fetchMe();
@@ -2889,7 +2854,7 @@
       document.body.prepend(container); // Gắn vào đầu body
 
       // 2. Tùy chỉnh số lượng hạt ở đây (25 là ít và vừa phải)
-      const particleCount = 25; 
+      const particleCount = 70; 
 
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
