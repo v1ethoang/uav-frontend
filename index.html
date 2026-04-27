@@ -53,16 +53,27 @@
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
+      
       background: #0b1326; 
       color: #dae2fd;
-      overflow-x: hidden; /* Ngăn cuộn ngang nếu hạt bay sát mép */
+      overflow-x: hidden; 
+      overscroll-behavior: none;
     }
 
     body {
       font-family: 'Inter', sans-serif;
       background: #0b1326; /* Màu trơn đồng bộ */
       color: #dae2fd;
+    }
+
+    #landingPage {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; 
+    }
+
+    #landingPage main {
+      flex-grow: 1; 
     }
 
     h1, h2, h3, h4, .font-headline, .console-title, .section-title, .sidebar-tab {
@@ -608,21 +619,6 @@
         transform: translateY(-105vh) scale(1.2); /* Bay vút qua mép trên màn hình */
         opacity: 0;
       }
-    }
-
-    /* Ép Layout đẩy Footer luôn bám đáy màn hình */
-    #landingPage {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh; /* Chiều cao tối thiểu luôn bằng 100% màn hình */
-    }
-
-    #landingPage main {
-      flex-grow: 1; /* Khối main sẽ tự giãn ra lấp kín khoảng trống, đạp footer xuống đáy */
-    }
-
-    #landingPage footer {
-      flex-shrink: 0; /* Đảm bảo footer không bao giờ bị bóp méo */
     }
   </style>
 </head>
