@@ -609,21 +609,6 @@
         opacity: 0;
       }
     }
-
-    /* Ép Layout đẩy Footer luôn bám đáy màn hình */
-    #landingPage {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh; /* Chiều cao tối thiểu luôn bằng 100% màn hình */
-    }
-
-    #landingPage main {
-      flex-grow: 1; /* Khối main sẽ tự giãn ra lấp kín khoảng trống, đạp footer xuống đáy */
-    }
-
-    #landingPage footer {
-      flex-shrink: 0; /* Đảm bảo footer không bao giờ bị bóp méo */
-    }
   </style>
 </head>
 <body class="bg-surface text-white selection:bg-accent selection:text-surface">
