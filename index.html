@@ -56,7 +56,7 @@
       /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
       background: #0b1326; 
       color: #dae2fd;
-      overflow-x: hidden; /* Ngăn@media (max-width: 1023px) { cuộn ngang nếu hạt bay sát mép */
+      overflow-x: hidden; /* Ngăn @media (max-width: 1023px) { cuộn ngang nếu hạt bay sát mép */
       overscroll-behavior-y: none;
     }
 
@@ -606,6 +606,20 @@
         transform: translateY(-105vh) scale(1.2); /* Bay vút qua mép trên màn hình */
         opacity: 0;
       }
+    }
+
+    #landingPage {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    #landingPage main {
+      flex-grow: 1; /* Tự động giãn ra lấp đầy khoảng trống */
+    }
+
+    #landingPage footer {
+      flex-shrink: 0; /* Đảm bảo footer không bị bóp méo */
     }
   </style>
 </head>
