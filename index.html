@@ -575,9 +575,9 @@
     }
 
     /* Đẩy các thành phần nội dung lên trên lớp hạt bay */
-    #landingPage, #consolePage, #authModal, #phaseModal {
+    #landingPage, #consolePage {
       position: relative;
-      z-index: 10; 
+      z-index: 10;
     }
 
     .energy-particle {
@@ -1562,6 +1562,7 @@
       switchTab(tab);
       modal.classList.add('modal-open');
       modal.classList.remove('pointer-events-none');
+      document.body.style.overflow = 'hidden'; // Thêm dòng này để khóa scroll
     }
 
     function closeAuthModal() {
@@ -1571,26 +1572,24 @@
       modal.classList.add('pointer-events-none');
       clearMsg('loginMsg');
       clearMsg('registerMsg');
+      document.body.style.overflow = ''; // Thêm dòng này để mở lại scroll
     }
 
     function openPhaseModal(phase, title, shortDesc, mainContent) {
-    // Điền dữ liệu vào Popup
-    document.getElementById('pm-phase').innerText = phase;
-    document.getElementById('pm-title').innerText = title;
-    document.getElementById('pm-desc').innerText = shortDesc; // Điền mô tả ngắn
-    
-    // Điền nội dung chính (Phần này chỉ hiện khi bấm vô)
-    document.getElementById('pm-main-content').innerText = mainContent;
+      document.getElementById('pm-phase').innerText = phase;
+      document.getElementById('pm-title').innerText = title;
+      document.getElementById('pm-desc').innerText = shortDesc; 
+      document.getElementById('pm-main-content').innerText = mainContent;
 
-    // Hiển thị Popup với hiệu ứng mượt
-    const modal = document.getElementById('phaseModal');
-    modal.classList.remove('opacity-0', 'pointer-events-none');
-    modal.classList.add('opacity-100', 'pointer-events-auto');
+      const modal = document.getElementById('phaseModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100', 'pointer-events-auto');
 
-    // Phóng to nội dung bên trong
-    const content = modal.querySelector('.phase-modal-content');
-    content.classList.remove('scale-95', 'opacity-0');
-    content.classList.add('scale-100', 'opacity-100');
+      const content = modal.querySelector('.phase-modal-content');
+      content.classList.remove('scale-95', 'opacity-0');
+      content.classList.add('scale-100', 'opacity-100');
+      
+      document.body.style.overflow = 'hidden'; // Thêm dòng này để khóa scroll
     }
 
     function closePhaseModal() {
@@ -1601,6 +1600,8 @@
       const content = modal.querySelector('.phase-modal-content');
       content.classList.remove('scale-100', 'opacity-100');
       content.classList.add('scale-95', 'opacity-0');
+      
+      document.body.style.overflow = ''; // Thêm dòng này để mở lại scroll
     }
 
     // Bắt sự kiện click ra ngoài viền đen thì đóng popup
