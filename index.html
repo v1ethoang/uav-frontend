@@ -543,11 +543,12 @@
       width: 1200px !important;
     }
 
-    /* Chỉ áp dụng cho Mobile/Tablet */
-    @media (max-width: 1023px) {
-      .mobile-tab-section:not(.active-tab) {
+    .mobile-tab-section:not(.active-tab) {
         display: none !important; /* Ẩn các phần không phải tab đang chọn */
       }
+
+    /* Chỉ áp dụng cho Mobile/Tablet */
+    @media (max-width: 1023px) {
       #footer {
         padding-bottom: 90px !important; /* Tránh bị thanh Nav che text */
       }
@@ -624,7 +625,6 @@
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#footer">Liên hệ</a>
         </nav>
 
         <div class="flex items-center gap-3">
@@ -2759,88 +2759,42 @@
       if (e.key === 'Escape') closeAuthModal();
     });
 
-    function initLandingNavActive() {
+    function initDesktopNavTabs() {
       const navLinks = document.querySelectorAll('#landingNav .nav-link');
       if (!navLinks.length) return;
 
-      function setActiveNav(activeLink) {
-        navLinks.forEach(link => {
-          link.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-          link.classList.add('text-[#849396]', 'border-transparent');
-        });
-
-        if (!activeLink) return;
-
-        activeLink.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-        activeLink.classList.remove('text-[#849396]', 'border-transparent');
-      }
-
-      const sections = [];
       navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (!href || !href.startsWith('#')) return;
+        link.addEventListener('click', function(e) {
+          e.preventDefault(); // Chặn cuộn trang mặc định
+          const href = this.getAttribute('href');
+          if (!href || !href.startsWith('#')) return;
 
-        const section = document.querySelector(href);
-        if (!section) return;
+          const tabId = href.replace('#', '');
 
-        sections.push({
-          link,
-          section,
-          id: href
-        });
+          // 1. Đổi màu cho thanh Navbar Desktop
+          navLinks.forEach(l => {
+            l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+            l.classList.add('text-[#849396]', 'border-transparent');
+          });
+          this.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+          this.classList.remove('text-[#849396]', 'border-transparent');
 
-        link.addEventListener('click', function () {
-          setActiveNav(link);
+          // 2. Ẩn tất cả nội dung đi, chỉ hiện tab được click (dùng lại class của mobile, an toàn 100%)
+          document.querySelectorAll('.mobile-tab-section').forEach(section => {
+            section.classList.remove('active-tab');
+          });
+          document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(section => {
+            section.classList.add('active-tab');
+          });
 
-          setTimeout(() => {
-            updateActiveNavOnScroll();
-          }, 250);
+          // 3. Cuộn lên đỉnh trang mỗi khi chuyển tab
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
-
-      function updateActiveNavOnScroll() {
-        const header = document.querySelector('#landingPage header');
-        const headerHeight = header ? header.offsetHeight : 90;
-
-        const scrollY = window.scrollY;
-        const viewportBottom = scrollY + window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-
-        if (viewportBottom >= docHeight - 10) {
-          const footerItem = sections.find(item => item.id === '#footer');
-          if (footerItem) {
-            setActiveNav(footerItem.link);
-            return;
-          }
-        }
-
-        let bestMatch = null;
-        let bestTop = -Infinity;
-
-        sections.forEach(item => {
-          const rect = item.section.getBoundingClientRect();
-          const sectionTop = rect.top + window.scrollY - headerHeight - 140;
-
-          if (scrollY >= sectionTop && sectionTop > bestTop) {
-            bestTop = sectionTop;
-            bestMatch = item;
-          }
-        });
-
-        if (bestMatch) {
-          setActiveNav(bestMatch.link);
-        }
-      }
-
-      window.addEventListener('scroll', updateActiveNavOnScroll);
-      window.addEventListener('load', updateActiveNavOnScroll);
-      window.addEventListener('resize', updateActiveNavOnScroll);
-
-      updateActiveNavOnScroll();
     }
     
     pollLoop();
-    initLandingNavActive();
+    initDesktopNavTabs();
 
     (async function boot() {
       const ok = await fetchMe();
