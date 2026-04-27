@@ -53,19 +53,15 @@
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      background:
-        radial-gradient(circle at top left, rgba(0,229,255,.08), transparent 20%),
-        radial-gradient(circle at bottom right, rgba(195,245,255,.08), transparent 24%),
-        #0b1326;
+      /* Đổi sang 1 màu trơn hoàn toàn, xóa các dòng radial-gradient cũ đi */
+      background: #0b1326; 
       color: #dae2fd;
+      overflow-x: hidden; /* Ngăn cuộn ngang nếu hạt bay sát mép */
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(0,229,255,.08), transparent 20%),
-        radial-gradient(circle at bottom right, rgba(195,245,255,.08), transparent 24%),
-        #0b1326;
+      background: #0b1326; /* Màu trơn đồng bộ */
       color: #dae2fd;
     }
 
@@ -494,7 +490,7 @@
 
     .interactive-glow:hover, .bg-panel:hover, .bg-panel2:hover, .product-card:hover, .hover-smooth:hover {
       transform: translateY(-8px) !important;
-      z-index: 50 !important;
+      z-index: 30 !important;
     }
 
     .interactive-glow::after, .bg-panel::after, .bg-panel2::after, .product-card::after, .hover-smooth::after {
@@ -566,6 +562,51 @@
       background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
       color: #031722 !important;
       box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+    }
+
+    /* --- CSS HIỆU ỨNG HẠT NĂNG LƯỢNG --- */
+    #particle-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0; /* Nằm ép sát dưới cùng */
+      pointer-events: none; /* Không chặn các thao tác click chuột của người dùng */
+      overflow: hidden;
+    }
+
+    /* Đẩy các thành phần nội dung lên trên lớp hạt bay */
+    #landingPage, #consolePage, #authModal, #phaseModal {
+      position: relative;
+      z-index: 10; 
+    }
+
+    .energy-particle {
+      position: absolute;
+      bottom: -20px;
+      border-radius: 50%;
+      background: #c3f5ff; /* Màu lõi hạt */
+      box-shadow: 0 0 10px 2px rgba(0, 229, 255, 0.6); /* Quầng sáng cyan tỏa ra xung quanh */
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8; /* Lóe sáng khi vừa bay lên */
+      }
+      80% {
+        opacity: 0.6; 
+      }
+      100% {
+        transform: translateY(-105vh) scale(1.2); /* Bay vút qua mép trên màn hình */
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -2839,6 +2880,42 @@
       // Cuộn lên đầu
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // === HIỆU ỨNG HẠT NĂNG LƯỢNG BAY LÊN ===
+    function initEnergyParticles() {
+      // 1. Tạo container chứa hạt
+      const container = document.createElement('div');
+      container.id = 'particle-container';
+      document.body.prepend(container); // Gắn vào đầu body
+
+      // 2. Tùy chỉnh số lượng hạt ở đây (25 là ít và vừa phải)
+      const particleCount = 25; 
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('energy-particle');
+        
+        // Random kích thước hạt (từ 1px đến 3px)
+        const size = Math.random() * 2 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random vị trí xuất phát theo chiều ngang (0% đến 100% chiều rộng màn hình)
+        particle.style.left = `${Math.random() * 100}vw`;
+        
+        // Random thời gian bay (từ 8s đến 15s để bay từ từ)
+        const duration = Math.random() * 7 + 8;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random độ trễ (delay) để các hạt không bay lên cùng 1 lúc (từ 0s đến 10s)
+        particle.style.animationDelay = `${Math.random() * 10}s`;
+        
+        container.appendChild(particle);
+      }
+    }
+
+    // Chạy hàm tạo hạt ngay khi load xong web
+    document.addEventListener('DOMContentLoaded', initEnergyParticles);
   </script>
 </body>
 </html>
