@@ -534,8 +534,7 @@
     }
 
     #phaseModal:not(.opacity-100), #authModal:not(.modal-open) {
-      visibility: hidden !important;
-      pointer-events: none !important;
+      display: none !important;
     }
 
     .phase-modal-content {
@@ -568,12 +567,9 @@
     /* --- CSS HIỆU ỨNG HẠT NĂNG LƯỢNG --- */
     #particle-container {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0; /* Nằm ép sát dưới cùng */
-      pointer-events: none; /* Không chặn các thao tác click chuột của người dùng */
+      inset: 0; /* Chốt chặt 4 góc màn hình, an toàn tuyệt đối */
+      z-index: 0;
+      pointer-events: none;
       overflow: hidden;
     }
 
