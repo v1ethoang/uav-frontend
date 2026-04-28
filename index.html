@@ -542,9 +542,15 @@
       width: 1200px !important;
     }
 
-    .mobile-tab-section:not(.active-tab) {
-        display: none !important; /* Ẩn các phần không phải tab đang chọn */
+    @media (max-width: 1023px) {
+      .mobile-tab-section:not(.active-tab) {
+        display: none !important; 
       }
+    }
+
+    section[id], footer[id] {
+      scroll-margin-top: 80px; 
+    }
 
     /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
@@ -618,8 +624,10 @@
 
         <nav id="landingNav" class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
           <a class="nav-link active text-[#c3f5ff] transition border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
           <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
+          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#footer">Liên hệ</a>
         </nav>
 
         <div class="flex items-center gap-3">
@@ -2756,47 +2764,43 @@
     });
 
     function initDesktopNavTabs() {
+      if (window.innerWidth < 1024) return; // Nếu là mobile thì không chạy hàm này
+
       const navLinks = document.querySelectorAll('#landingNav .nav-link');
-      if (!navLinks.length) return;
+      const sections = document.querySelectorAll('#landingPage section[id], #landingPage footer[id]');
 
+      // 1. Lắng nghe sự kiện click để đổi màu thủ công (trình duyệt sẽ tự cuộn nhờ href="#id")
       navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault(); // Chặn cuộn trang mặc định
-          const href = this.getAttribute('href');
-          if (!href || !href.startsWith('#')) return;
-
-          const tabId = href.replace('#', '');
-
-          // 1. Đổi màu cho thanh Navbar Desktop
+        link.addEventListener('click', function() {
           navLinks.forEach(l => {
             l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
             l.classList.add('text-[#849396]', 'border-transparent');
           });
           this.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
           this.classList.remove('text-[#849396]', 'border-transparent');
-
-          // 2. Ẩn tất cả nội dung đi
-          document.querySelectorAll('.mobile-tab-section').forEach(section => {
-            section.classList.remove('active-tab');
-          });
-
-          // 3. LOGIC GỘP TAB DÀNH RIÊNG CHO DESKTOP
-          if (tabId === 'features') {
-            // Nếu click vào "Tính năng", bật cả section "how" và "features"
-            document.querySelectorAll('.mobile-tab-section[data-tab="features"], .mobile-tab-section[data-tab="how"]').forEach(section => {
-              section.classList.add('active-tab');
-            });
-          } else {
-            // Các tab khác hoạt động bình thường
-            document.querySelectorAll(`.mobile-tab-section[data-tab="${tabId}"]`).forEach(section => {
-              section.classList.add('active-tab');
-            });
-          }
-
-          // 4. Cuộn lên đỉnh trang mỗi khi chuyển tab
-          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
+
+      // 2. ScrollSpy: Tự động đổi màu Nav khi người dùng cuộn chuột
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            const activeLink = document.querySelector(`#landingNav .nav-link[href="#${id}"]`);
+
+            if (activeLink) {
+              navLinks.forEach(l => {
+                l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+                l.classList.add('text-[#849396]', 'border-transparent');
+              });
+              activeLink.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
+              activeLink.classList.remove('text-[#849396]', 'border-transparent');
+            }
+          }
+        });
+      }, { threshold: 0.3 }); // Section hiển thị 30% trên màn hình là kích hoạt
+
+      sections.forEach(section => observer.observe(section));
     }
     
     pollLoop();
