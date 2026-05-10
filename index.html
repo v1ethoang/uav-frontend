@@ -944,39 +944,29 @@
       <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
         
         <div class="flex-1 flex justify-start">
-          <a href="#hero"
-            class="flex items-center gap-3 cursor-pointer group active:scale-95 transition-transform duration-150 relative z-20">
-            <span
-              class="material-symbols-outlined text-primary text-[32px] drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] group-hover:rotate-12 transition-transform">rocket_launch</span>
+          <a href="#hero" class="flex items-center gap-3 cursor-pointer group active:scale-95 transition-transform duration-150 relative z-20">
+            <span class="material-symbols-outlined text-primary text-[32px] drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] group-hover:rotate-12 transition-transform">rocket_launch</span>
             <span class="text-3xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase drop-shadow-[0_0_10px_rgba(0,229,255,0.3)]">JANUS</span>
           </a>
         </div>
 
-        <div class="hidden lg:flex absolute left-1/2 -translate-x-1/2 z-10 w-max">
-          <nav id="landingNav"
-            class="relative flex items-center gap-1 rounded-full bg-[#131b2e]/80 backdrop-blur-xl border border-white/10 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.3)] font-headline tracking-tighter uppercase font-bold text-sm">
+        <!-- SỬA Z-10 THÀNH Z-30 Ở DÒNG NÀY -->
+        <div class="hidden lg:flex absolute left-1/2 -translate-x-1/2 z-30 w-max">
+          <nav id="landingNav" class="relative flex items-center gap-1 rounded-full bg-[#131b2e]/80 backdrop-blur-xl border border-white/10 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.3)] font-headline tracking-tighter uppercase font-bold text-sm">
 
-            <div id="navCursor"
-              class="absolute z-0 h-[calc(100%-12px)] rounded-full bg-white/10 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) opacity-0 pointer-events-none">
+            <div id="navCursor" class="absolute z-0 h-[calc(100%-12px)] rounded-full bg-white/10 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) opacity-0 pointer-events-none">
             </div>
 
-            <a class="nav-link active relative z-10 px-5 py-2 text-[#c3f5ff] transition-colors duration-300"
-              href="#hero">Giải pháp</a>
-            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
-              href="#how">Cách hoạt động</a>
-            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
-              href="#features">Tính năng</a>
-            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
-              href="#story">Hành trình</a>
-            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
-              href="#footer">Liên hệ</a>
+            <a class="nav-link active relative z-10 px-5 py-2 text-[#c3f5ff] transition-colors duration-300" href="#hero">Giải pháp</a>
+            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300" href="#how">Cách hoạt động</a>
+            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300" href="#features">Tính năng</a>
+            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300" href="#story">Hành trình</a>
+            <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300" href="#footer">Liên hệ</a>
           </nav>
         </div>
 
         <div class="flex-1 flex justify-end relative z-20">
-          <button id="landingAuthBtn"
-            class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold tracking-tighter uppercase transition-all duration-300 active:scale-95 bg-gradient-to-r from-[#c3f5ff] to-[#00e5ff] text-[#031722] shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.6)] hover:brightness-110"
-            onclick="handleLandingAuthAction()">Đăng nhập</button>
+          <button id="landingAuthBtn" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold tracking-tighter uppercase transition-all duration-300 active:scale-95 bg-gradient-to-r from-[#c3f5ff] to-[#00e5ff] text-[#031722] shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.6)] hover:brightness-110" onclick="handleLandingAuthAction()">Đăng nhập</button>
         </div>
 
       </div>
