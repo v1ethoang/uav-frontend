@@ -1,0 +1,30 @@
+{
+  "name": "frontend_web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/v1ethoang/uav-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/v1ethoang/uav-frontend/issues"
+  },
+  "homepage": "https://github.com/v1ethoang/uav-frontend#readme",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
+    "tailwind-merge": "^3.5.0"
+  }
+}

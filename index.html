@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html class="dark" lang="vi">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +10,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
 
   <script>
     tailwind.config = {
@@ -42,33 +46,104 @@
   </script>
 
   <style>
+    #landingNav,
+    #floatingNav {
+      background: rgba(255, 255, 255, 0.03) !important;
+
+      backdrop-filter: blur(20px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+
+      box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 2px rgba(0, 229, 255, 0.1) !important;
+
+      overflow: hidden !important;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    #landingNav::after,
+    #floatingNav::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.0) 30%,
+          rgba(255, 255, 255, 0.12) 50%,
+          rgba(0, 229, 255, 0.08) 70%,
+          transparent 100%);
+      transform: skewX(-35deg);
+      transition: 0.9s cubic-bezier(0.19, 1, 0.22, 1);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #landingNav:hover,
+    #floatingNav:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.6),
+        inset 0 1px 4px rgba(255, 255, 255, 0.3) !important;
+    }
+
+    #landingNav:hover::after,
+    #floatingNav:hover::after {
+      left: 180%;
+    }
+
+    #navCursor {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(195, 245, 255, 0.1)) !important;
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+      backdrop-filter: blur(5px);
+      z-index: 1;
+    }
+
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
     }
 
-    html, body {
+    html,
+    body {
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      background: #0b1326; 
+      background: #0b1326;
       color: #dae2fd;
-      overflow-x: clip; /* Fix triệt để lỗi liệt cảm ứng vuốt giữa màn hình của Chrome */
+      overflow-x: clip;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #0b1326; /* Màu trơn đồng bộ */
+      background: #0b1326;
       color: #dae2fd;
     }
 
-    h1, h2, h3, h4, .font-headline, .console-title, .section-title, .sidebar-tab {
+    h1,
+    h2,
+    h3,
+    h4,
+    .font-headline,
+    .console-title,
+    .section-title,
+    .sidebar-tab {
       font-family: 'Manrope', sans-serif;
     }
 
-    button, input, textarea, select {
+    button,
+    input,
+    textarea,
+    select {
       font-family: 'Inter', sans-serif;
     }
 
@@ -88,13 +163,13 @@
 
     .sidebar-tab.active {
       box-shadow:
-        0 0 0 1px rgba(0,229,255,.18) inset,
-        0 14px 34px rgba(0,229,255,.14);
+        0 0 0 1px rgba(0, 229, 255, .18) inset,
+        0 14px 34px rgba(0, 229, 255, .14);
     }
 
     .sidebar-tab:not(.active):hover {
-      border-color: rgba(0,229,255,.18);
-      background: rgba(255,255,255,.06);
+      border-color: rgba(0, 229, 255, .18);
+      background: rgba(255, 255, 255, .06);
       color: #eef9ff;
     }
 
@@ -109,8 +184,8 @@
       position: relative;
       background: linear-gradient(180deg, rgba(12, 20, 40, 0.88), rgba(9, 15, 32, 0.84));
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(195,245,255,.08);
-      box-shadow: 0 18px 50px rgba(0,0,0,.28);
+      border: 1px solid rgba(195, 245, 255, .08);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
     }
 
     .glass-panel::before {
@@ -119,13 +194,13 @@
       inset: 0;
       border-radius: inherit;
       pointer-events: none;
-      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 24%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), transparent 24%);
     }
 
     .console-accent-ring {
       box-shadow:
-        0 0 0 1px rgba(0,229,255,.12) inset,
-        0 20px 50px rgba(0,0,0,.24);
+        0 0 0 1px rgba(0, 229, 255, .12) inset,
+        0 20px 50px rgba(0, 0, 0, .24);
     }
 
     .gradient-text {
@@ -134,8 +209,10 @@
       -webkit-text-fill-color: transparent;
       display: inline-block;
       filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.4));
-      padding: 0.1em 0; /* Mở rộng khung chữ trên/dưới */
-      line-height: 1.1; /* Nới lỏng chiều cao dòng */
+      padding: 0.1em 0;
+      /* Mở rộng khung chữ trên/dưới */
+      line-height: 1.1;
+      /* Nới lỏng chiều cao dòng */
     }
 
     .gradient-btn {
@@ -144,18 +221,18 @@
       font-family: 'Manrope', sans-serif;
       font-weight: 800;
       letter-spacing: -0.02em;
-      box-shadow: 0 12px 30px rgba(0,229,255,.16);
+      box-shadow: 0 12px 30px rgba(0, 229, 255, .16);
       transition: all .18s ease;
     }
 
     .gradient-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 16px 38px rgba(0,229,255,.22);
+      box-shadow: 0 16px 38px rgba(0, 229, 255, .22);
     }
 
     .soft-btn {
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border: 1px solid rgba(195,245,255,.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
+      border: 1px solid rgba(195, 245, 255, .08);
       color: #eef5ff;
       font-family: 'Manrope', sans-serif;
       font-weight: 800;
@@ -165,8 +242,8 @@
 
     .soft-btn:hover {
       transform: translateY(-1px);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
-      border-color: rgba(195,245,255,.18);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .04));
+      border-color: rgba(195, 245, 255, .18);
     }
 
     .interactive-glow {
@@ -175,8 +252,8 @@
 
     .interactive-glow:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(0,229,255,.12);
-      border-color: rgba(0,229,255,.22);
+      box-shadow: 0 14px 34px rgba(0, 229, 255, .12);
+      border-color: rgba(0, 229, 255, .22);
     }
 
     .interactive-glow:active {
@@ -184,14 +261,14 @@
     }
 
     .dashboard-chip {
-      border: 1px solid rgba(195,245,255,.1);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(195, 245, 255, .1);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
       transition: all .18s ease;
     }
 
     .dashboard-chip:hover {
-      border-color: rgba(0,229,255,.2);
-      box-shadow: 0 12px 28px rgba(0,229,255,.08);
+      border-color: rgba(0, 229, 255, .2);
+      box-shadow: 0 12px 28px rgba(0, 229, 255, .08);
     }
 
     .glass-panel input,
@@ -210,17 +287,17 @@
     .focusable-raise:focus,
     .focusable-raise:focus-visible {
       outline: none;
-      border-color: rgba(0,229,255,.28) !important;
+      border-color: rgba(0, 229, 255, .28) !important;
       box-shadow:
-        0 0 0 3px rgba(0,229,255,.12),
-        0 10px 24px rgba(0,229,255,.08);
+        0 0 0 3px rgba(0, 229, 255, .12),
+        0 10px 24px rgba(0, 229, 255, .08);
     }
 
     .leaflet-popup-content-wrapper,
     .leaflet-popup-tip {
       background: #131b2e;
       color: #fff;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255, 255, 255, .08);
     }
 
     .drone-marker-wrap,
@@ -237,49 +314,49 @@
       width: 42px;
       height: 42px;
       background: rgba(10, 18, 34, .95);
-      border: 2px solid rgba(0,229,255,.7);
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      border: 2px solid rgba(0, 229, 255, .7);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
     }
 
     .user-marker-wrap {
       width: 18px;
       height: 18px;
       background: #22c55e;
-      border: 3px solid rgba(255,255,255,.95);
-      box-shadow: 0 6px 14px rgba(34,197,94,.35);
+      border: 3px solid rgba(255, 255, 255, .95);
+      box-shadow: 0 6px 14px rgba(34, 197, 94, .35);
     }
 
     .warehouse-marker-wrap {
       width: 20px;
       height: 20px;
       background: #f8c146;
-      border: 3px solid rgba(255,255,255,.95);
-      box-shadow: 0 6px 14px rgba(248,193,70,.35);
+      border: 3px solid rgba(255, 255, 255, .95);
+      box-shadow: 0 6px 14px rgba(248, 193, 70, .35);
     }
 
     .drop-marker-wrap {
       width: 18px;
       height: 18px;
       background: #ff6b7d;
-      border: 3px solid rgba(255,255,255,.95);
-      box-shadow: 0 6px 14px rgba(255,107,125,.35);
+      border: 3px solid rgba(255, 255, 255, .95);
+      box-shadow: 0 6px 14px rgba(255, 107, 125, .35);
     }
 
     .active-drop-marker-wrap {
       width: 20px;
       height: 20px;
       background: #00e5ff;
-      border: 4px solid rgba(255,255,255,.98);
-      box-shadow: 0 0 0 8px rgba(0,229,255,.18), 0 6px 18px rgba(0,229,255,.3);
+      border: 4px solid rgba(255, 255, 255, .98);
+      box-shadow: 0 0 0 8px rgba(0, 229, 255, .18), 0 6px 18px rgba(0, 229, 255, .3);
     }
 
     #map {
       /* Chiều cao mặc định cho mobile (khoảng nửa màn hình) */
-      min-height: 50vh; 
+      min-height: 50vh;
       height: 100%;
       width: 100%;
     }
-    
+
     /* Trả lại 760px khi ở màn hình lớn (tablet/desktop) */
     @media (min-width: 1024px) {
       #map {
@@ -287,7 +364,9 @@
       }
     }
 
-    .hidden-el { display: none !important; }
+    .hidden-el {
+      display: none !important;
+    }
 
     .product-grid {
       display: grid;
@@ -299,25 +378,25 @@
       position: relative;
       border-radius: 24px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08);
-      background: linear-gradient(180deg, rgba(23,33,58,.96), rgba(17,26,46,.94));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: linear-gradient(180deg, rgba(23, 33, 58, .96), rgba(17, 26, 46, .94));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03);
       transition: all .22s ease;
       cursor: pointer;
     }
 
     .product-card:hover {
       transform: translateY(-3px);
-      border-color: rgba(0,229,255,.22);
-      box-shadow: 0 18px 40px rgba(0,229,255,.08);
+      border-color: rgba(0, 229, 255, .22);
+      box-shadow: 0 18px 40px rgba(0, 229, 255, .08);
     }
 
     .product-card.active {
       border-color: #3b82f6;
       box-shadow:
-        0 0 0 2px rgba(59,130,246,.5),
-        0 18px 42px rgba(59,130,246,.14);
-      background: linear-gradient(180deg, rgba(20,44,90,.95), rgba(18,31,59,.95));
+        0 0 0 2px rgba(59, 130, 246, .5),
+        0 18px 42px rgba(59, 130, 246, .14);
+      background: linear-gradient(180deg, rgba(20, 44, 90, .95), rgba(18, 31, 59, .95));
     }
 
     .product-thumb {
@@ -327,7 +406,7 @@
       border-radius: 18px;
       overflow: hidden;
       background: #0d1426;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255, 255, 255, .08);
     }
 
     .product-thumb img {
@@ -359,10 +438,10 @@
       border-radius: 999px;
       display: grid;
       place-items: center;
-      background: rgba(3,10,22,.9);
+      background: rgba(3, 10, 22, .9);
       color: white;
-      border: 1px solid rgba(255,255,255,.1);
-      box-shadow: 0 8px 20px rgba(0,0,0,.35);
+      border: 1px solid rgba(255, 255, 255, .1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
       opacity: 0;
       transform: scale(.9);
       transition: all .18s ease;
@@ -372,7 +451,7 @@
       opacity: 1;
       transform: scale(1);
       background: radial-gradient(circle at 30% 30%, #1d4ed8, #0b1326);
-      border-color: rgba(147,197,253,.55);
+      border-color: rgba(147, 197, 253, .55);
     }
 
     .console-primary-btn {
@@ -460,7 +539,7 @@
       background-attachment: fixed !important;
     }
 
-    .space-y-12::before, 
+    .space-y-12::before,
     #how .absolute {
       transform: translateZ(0) !important;
       pointer-events: none;
@@ -479,24 +558,36 @@
       background-attachment: scroll !important;
     }
 
-    .space-y-12::before, 
-    #how .absolute, 
+    .space-y-12::before,
+    #how .absolute,
     #story .z-10.rounded-full {
-      pointer-events: none !important; 
+      pointer-events: none !important;
     }
 
-    .interactive-glow, .bg-panel, .bg-panel2, .product-card, .hover-smooth {
+    .interactive-glow,
+    .bg-panel,
+    .bg-panel2,
+    .product-card,
+    .hover-smooth {
       position: relative !important;
       transform: translateZ(0);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
 
-    .interactive-glow:hover, .bg-panel:hover, .bg-panel2:hover, .product-card:hover, .hover-smooth:hover {
+    .interactive-glow:hover,
+    .bg-panel:hover,
+    .bg-panel2:hover,
+    .product-card:hover,
+    .hover-smooth:hover {
       transform: translateY(-8px) !important;
       z-index: 30 !important;
     }
 
-    .interactive-glow::after, .bg-panel::after, .bg-panel2::after, .product-card::after, .hover-smooth::after {
+    .interactive-glow::after,
+    .bg-panel::after,
+    .bg-panel2::after,
+    .product-card::after,
+    .hover-smooth::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -504,19 +595,28 @@
       border: 1px solid rgba(0, 229, 255, 0.9);
       box-shadow: 0 20px 40px rgba(0, 229, 255, 0.25);
       /* Quan trọng: giữ nền trong suốt để lộ nền gốc của nút */
-      background: transparent; 
+      background: transparent;
       opacity: 0;
       transition: opacity 0.3s ease;
-      z-index: 1; /* Nằm trên nền nhưng dưới nội dung */
+      z-index: 1;
+      /* Nằm trên nền nhưng dưới nội dung */
       pointer-events: none;
     }
 
-    .interactive-glow:hover::after, .bg-panel:hover::after, .bg-panel2:hover::after, .product-card:hover::after, .hover-smooth:hover::after {
+    .interactive-glow:hover::after,
+    .bg-panel:hover::after,
+    .bg-panel2:hover::after,
+    .product-card:hover::after,
+    .hover-smooth:hover::after {
       opacity: 1;
     }
 
     /* Giữ chữ và icon luôn nằm trên cùng */
-    .interactive-glow span, .interactive-glow h1, .interactive-glow h4, .interactive-glow p, .interactive-glow div {
+    .interactive-glow span,
+    .interactive-glow h1,
+    .interactive-glow h4,
+    .interactive-glow p,
+    .interactive-glow div {
       position: relative;
       z-index: 2;
     }
@@ -526,7 +626,8 @@
       transform: translateY(-5px);
       border-color: #00e5ff;
       box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
-      background: #1a233a !important; /* Đổ nền đậm để che line sau lưng */
+      background: #1a233a !important;
+      /* Đổ nền đậm để che line sau lưng */
       transition: all 0.3s ease;
     }
 
@@ -536,7 +637,8 @@
       z-index: 2;
     }
 
-    #phaseModal:not(.opacity-100), #authModal:not(.modal-open) {
+    #phaseModal:not(.opacity-100),
+    #authModal:not(.modal-open) {
       visibility: hidden !important;
       pointer-events: none !important;
     }
@@ -548,25 +650,26 @@
 
     @media (max-width: 1023px) {
       .mobile-tab-section:not(.active-tab) {
-        display: none !important; 
+        display: none !important;
       }
     }
 
-    section[id], footer[id] {
-      scroll-margin-top: 80px; 
+    section[id],
+    footer[id] {
+      scroll-margin-top: 80px;
     }
 
     /* Chỉ áp dụng cho Mobile/Tablet */
     @media (max-width: 1023px) {
       #footer {
-        padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important; 
+        padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
       }
     }
 
     .mobile-nav-btn {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     /* Màu xanh chuẩn của web cho nút đang active */
     .mobile-nav-btn.active {
       background: linear-gradient(135deg, #c3f5ff 0%, #00e5ff 100%);
@@ -577,14 +680,16 @@
     /* --- CSS HIỆU ỨNG HẠT NĂNG LƯỢNG --- */
     #particle-container {
       position: fixed;
-      inset: 0; /* Chốt chặt 4 góc màn hình, an toàn tuyệt đối */
+      inset: 0;
+      /* Chốt chặt 4 góc màn hình, an toàn tuyệt đối */
       z-index: 0;
       pointer-events: none;
       overflow: hidden;
     }
 
     /* Đẩy các thành phần nội dung lên trên lớp hạt bay */
-    #landingPage, #consolePage {
+    #landingPage,
+    #consolePage {
       position: relative;
       z-index: 10;
     }
@@ -593,8 +698,10 @@
       position: absolute;
       bottom: -20px;
       border-radius: 50%;
-      background: #c3f5ff; /* Màu lõi hạt */
-      box-shadow: 0 0 10px 2px rgba(0, 229, 255, 0.6); /* Quầng sáng cyan tỏa ra xung quanh */
+      background: #c3f5ff;
+      /* Màu lõi hạt */
+      box-shadow: 0 0 10px 2px rgba(0, 229, 255, 0.6);
+      /* Quầng sáng cyan tỏa ra xung quanh */
       animation: floatUp linear infinite;
       opacity: 0;
     }
@@ -604,45 +711,273 @@
         transform: translateY(0) scale(0.5);
         opacity: 0;
       }
+
       20% {
-        opacity: 0.8; /* Lóe sáng khi vừa bay lên */
+        opacity: 0.8;
+        /* Lóe sáng khi vừa bay lên */
       }
+
       80% {
-        opacity: 0.6; 
+        opacity: 0.6;
       }
+
       100% {
-        transform: translateY(-105vh) scale(1.2); /* Bay vút qua mép trên màn hình */
+        transform: translateY(-105vh) scale(1.2);
+        /* Bay vút qua mép trên màn hình */
         opacity: 0;
       }
     }
+
+    #hero-title {
+      opacity: 0;
+    }
+
+    #hero-title.is-ready {
+      opacity: 1;
+    }
+
+    .reveal-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      transition-delay: var(--delay);
+      will-change: transform, opacity;
+    }
+
+    #hero-title.loaded .reveal-word {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-up-element {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform, opacity;
+    }
+
+    .fade-up-element.loaded {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- FOOTER GLASS & TEXT HOVER EFFECT --- */
+    .glass-footer {
+      /* Nền trong suốt để lộ blur */
+      background: linear-gradient(135deg, rgba(19, 27, 46, 0.4) 0%, rgba(11, 19, 38, 0.6) 100%);
+      /* Làm mờ như thạch */
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      /* Viền hắt sáng ở mép trên và trái tạo khối kính */
+      box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.05), 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Tăng không gian dưới đáy footer để chứa chữ khổng lồ, scale tự động theo màn hình */
+    /* 1. Nong khoảng trống ở đáy footer ra 20vw để chứa trọn vẹn chữ khổng lồ */
+    #footer .max-w-screen-2xl {
+      padding-bottom: 20vw !important;
+    }
+
+    .giant-text-wrapper {
+      position: absolute;
+      /* Nhích lên 1 chút xíu khỏi đáy để không bị bo góc (overflow-hidden) của footer chém mất chân chữ */
+      bottom: 1vw;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    /* Lớp chữ chìm */
+    .text-stroke-base {
+      font-size: 26vw;
+      /* FIX LỖI NÉT CHỒNG: Hạ từ 900 xuống 800 để trình duyệt dùng nét vector gốc của font, không bị in đậm giả tạo */
+      font-weight: 800;
+      color: transparent;
+      -webkit-text-stroke: 2px rgba(0, 229, 255, 0.25);
+      filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.3));
+
+      line-height: 0.9;
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Lớp chữ sáng (Ánh sáng đèn pin) */
+    .text-reveal-light {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-size: 26vw;
+      /* Bắt buộc đồng bộ font-weight 800 với lớp nền */
+      font-weight: 800;
+      line-height: 0.9;
+      color: transparent;
+
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      letter-spacing: -0.02em;
+
+      background-image: radial-gradient(circle 900px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(0, 229, 255, 1) 0%,
+          rgba(0, 229, 255, 0.6) 30%,
+          rgba(0, 229, 255, 0.1) 70%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #footer:hover .text-reveal-light {
+      opacity: 1;
+    }
+
+    .phase-card {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      width: 340px;
+      height: 320px;
+      border-radius: 24px;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, opacity, filter;
+      background: #131b2e;
+      border: 1px solid rgba(195, 245, 255, 0.15);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      filter: blur(4px);
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .phase-card {
+        width: 540px;
+        height: 350px;
+        border-radius: 28px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .phase-card {
+        width: 820px;
+        height: 520px;
+        border-radius: 32px;
+      }
+    }
+
+    .card-front {
+      transform: translateX(-50%) translateY(0px) scale(1);
+      z-index: 3;
+      opacity: 1;
+      filter: blur(0px);
+      border-color: rgba(0, 229, 255, 0.3);
+      box-shadow: 0 0 50px rgba(0, 229, 255, 0.15), 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+
+    .card-middle {
+      transform: translateX(-50%) translateY(-24px) scale(0.95);
+      z-index: 2;
+      opacity: 0.7;
+      filter: blur(2px);
+    }
+
+    .card-back {
+      transform: translateX(-50%) translateY(-64px) scale(0.9);
+      z-index: 1;
+      opacity: 0.4;
+      filter: blur(6px);
+    }
+
+    .card-hidden {
+      transform: translateX(-50%) translateY(-90px) scale(0.85);
+      z-index: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .card-exit {
+      transform: translateX(-50%) translateY(500px) scale(1.1);
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      filter: blur(10px);
+    }
+
+    /* --- HIỆU ỨNG SÓNG REVEAL SIÊU MƯỢT --- */
+    .reveal-on-scroll {
+      opacity: 0;
+      /* Bắt đầu: thấp hơn 30px, hơi lệch trái 20px, nhỏ hơn 5% và blur */
+      transform: translateY(30px) translateX(-20px) scale(0.95);
+      filter: blur(10px);
+      transition:
+        opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, opacity, filter;
+    }
+
+    /* Khi vào vùng nhìn thấy (Kích hoạt class) */
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0) translateX(0) scale(1);
+      filter: blur(0);
+    }
+
+    /* Logic tính độ trễ cho từng bước sóng */
+    /* Nhân hệ số 0.15s để mỗi card hiện sau card trước một chút */
+    .reveal-on-scroll {
+      transition-delay: calc(var(--stagger-index, 0) * 0.15s);
+    }
   </style>
 </head>
+
 <body class="bg-surface text-white selection:bg-accent selection:text-surface">
   <div id="landingPage">
-    <header class="fixed top-0 inset-x-0 z-50 bg-[#0b1326]/60 backdrop-blur-xl border-b border-white/5">
+    <header class="fixed top-0 inset-x-0 z-50">
       <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
+        <!-- Tìm đoạn flex items-center gap-2 cũ -->
+        <a href="#hero"
+          class="flex items-center gap-2 cursor-pointer group active:scale-95 transition-transform duration-150">
+          <span
+            class="material-symbols-outlined text-primary text-2xl drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] group-hover:rotate-12 transition-transform">rocket_launch</span>
           <span class="text-2xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase">JANUS</span>
-        </div>
+        </a>
 
-        <nav id="landingNav" class="hidden lg:flex items-center gap-8 font-headline tracking-tighter uppercase font-bold text-sm">
-          <a class="nav-link active text-[#c3f5ff] transition border-b-2 border-[#00e5ff] pb-1" href="#hero">Giải pháp</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#how">Cách hoạt động</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#features">Tính năng</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#story">Hành trình</a>
-          <a class="nav-link text-[#849396] hover:text-[#c3f5ff] transition border-b-2 border-transparent pb-1" href="#footer">Liên hệ</a>
+        <nav id="landingNav"
+          class="hidden lg:flex relative items-center gap-1 rounded-full bg-[#131b2e]/80 backdrop-blur-xl border border-white/10 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.3)] font-headline tracking-tighter uppercase font-bold text-sm">
+
+          <div id="navCursor"
+            class="absolute z-0 h-[calc(100%-12px)] rounded-full bg-white/10 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) opacity-0 pointer-events-none">
+          </div>
+
+          <a class="nav-link active relative z-10 px-5 py-2 text-[#c3f5ff] transition-colors duration-300"
+            href="#hero">Giải pháp</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
+            href="#how">Cách hoạt động</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
+            href="#features">Tính năng</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
+            href="#story">Hành trình</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-[#849396] hover:text-white transition-colors duration-300"
+            href="#footer">Liên hệ</a>
         </nav>
 
         <div class="flex items-center gap-3">
-          <button id="landingAuthBtn" class="gradient-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold tracking-tighter uppercase active:scale-95 duration-150 interactive-glow" onclick="handleLandingAuthAction()">Đăng nhập</button>
+          <button id="landingAuthBtn"
+            class="gradient-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold tracking-tighter uppercase active:scale-95 duration-150 interactive-glow"
+            onclick="handleLandingAuthAction()">Đăng nhập</button>
         </div>
       </div>
     </header>
 
     <main>
-      <section id="hero" data-tab="hero" class="mobile-tab-section active-tab px-6 pt-32 pb-12 lg:pt-40 lg:pb-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-panel2 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
+      <section id="hero" data-tab="hero"
+        class="mobile-tab-section active-tab px-6 pt-24 pb-12 lg:pt-32 lg:pb-24 max-w-screen-xl mx-auto flex flex-col items-center text-center">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-panel2 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -650,27 +985,37 @@
           Hệ thống vận hành Drone Delivery
         </div>
 
-        <h1 class="text-4xl md:text-7xl font-extrabold tracking-tighter leading-none mb-6 max-w-5xl">
-          Giao hàng <span class="gradient-text">nhanh</span> bằng drone, <span class="gradient-text"> chính xác</span> và <span class="gradient-text">theo dõi realtime</span>
+        <h1 id="hero-title" class="text-4xl md:text-7xl font-extrabold tracking-tighter leading-none mb-6 max-w-5xl">
+          Giao hàng <span class="gradient-text">nhanh</span> bằng drone, <span class="gradient-text"> chính xác</span>
+          và <span class="gradient-text">theo dõi realtime</span>
         </h1>
 
-        <p class="text-slate-300 text-lg md:text-xl max-w-3xl mb-10 leading-relaxed">
-          Nền tảng giúp người dùng đặt đơn dễ dàng, admin điều phối mission hiệu quả và theo dõi trạng thái bay trực tiếp trên bản đồ.
+        <p class="text-slate-300 text-lg md:text-xl max-w-3xl mb-10 leading-relaxed fade-up-element">
+          Nền tảng giúp người dùng đặt đơn dễ dàng, admin điều phối mission hiệu quả và theo dõi trạng thái bay trực
+          tiếp trên bản đồ.
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-4 mb-20 w-full sm:w-auto">
-          <button class="gradient-btn px-8 py-4 rounded-xl font-bold tracking-tight text-lg shadow-lg shadow-cyan-500/10 hover:scale-[1.02] transition-transform interactive-glow" onclick="openAuthModal('register')">Tạo tài khoản</button>
-          <button class="bg-panel2 px-8 py-4 rounded-xl text-white font-bold tracking-tight text-lg flex items-center justify-center gap-2 hover:bg-[#24304a] transition-colors border border-white/5 interactive-glow" onclick="handleLandingAuthAction()">
+        <div class="flex flex-col sm:flex-row gap-4 mb-20 w-full sm:w-auto fade-up-element">
+          <button
+            class="gradient-btn px-8 py-4 rounded-xl font-bold tracking-tight text-lg shadow-lg shadow-cyan-500/10 hover:scale-[1.02] transition-transform interactive-glow"
+            onclick="openAuthModal('register')">Tạo tài khoản</button>
+          <button
+            class="bg-panel2 px-8 py-4 rounded-xl text-white font-bold tracking-tight text-lg flex items-center justify-center gap-2 hover:bg-[#24304a] transition-colors border border-white/5 interactive-glow"
+            onclick="handleLandingAuthAction()">
             <span class="material-symbols-outlined text-xl">play_circle</span>
             Mở console
           </button>
         </div>
 
-        <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel p-2 shadow-soft">
+        <div
+          class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel p-2 shadow-soft fade-up-element">
           <div class="absolute inset-0 bg-black/30"></div>
-          <img class="w-full h-full object-cover rounded-xl border border-white/10" src="https://cdn.ourcrowd.com/wp-content/uploads/2024/08/540dcf7b-c86b-4ad6-a5aa-49b72a96a412-1024x585.webp" alt="Drone Janus in flight" />
+          <img class="w-full h-full object-cover rounded-xl border border-white/10"
+            src="https://cdn.ourcrowd.com/wp-content/uploads/2024/08/540dcf7b-c86b-4ad6-a5aa-49b72a96a412-1024x585.webp"
+            alt="Drone Janus in flight" />
 
-          <div class="absolute top-8 left-8 p-4 rounded-xl glass-panel border border-white/10 hidden md:block text-left">
+          <div
+            class="absolute top-8 left-8 p-4 rounded-xl glass-panel border border-white/10 hidden md:block text-left">
             <div class="flex items-center gap-3 mb-3">
               <div class="w-2 h-2 rounded-full bg-green-400"></div>
               <span class="text-xs font-bold uppercase tracking-widest text-slate-300">Drone Alpha-12</span>
@@ -679,46 +1024,54 @@
             <div class="text-[10px] text-slate-400 mt-1 uppercase tracking-tighter">Telemetry Dashboard</div>
           </div>
 
-          <div class="absolute bottom-8 right-8 p-6 rounded-xl glass-panel border border-white/10 max-w-xs hidden md:block text-left">
+          <div
+            class="absolute bottom-8 right-8 p-6 rounded-xl glass-panel border border-white/10 max-w-xs hidden md:block text-left">
             <div class="flex justify-between items-start mb-4 gap-4">
-              <span class="px-2 py-1 bg-cyan-500/10 text-accent text-[10px] font-bold rounded uppercase">Live Mission</span>
+              <span class="px-2 py-1 bg-cyan-500/10 text-accent text-[10px] font-bold rounded uppercase">Live
+                Mission</span>
               <span class="text-slate-400 text-[10px]">Orders • Missions • ETA</span>
             </div>
             <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden mb-2">
               <div class="h-full bg-accent w-2/3"></div>
             </div>
             <p class="text-xs text-white font-medium">Đặt đơn và theo dõi hành trình đơn hàng</p>
-            <p class="text-[10px] text-slate-400 mt-1">Theo dõi thông số telemetry, trạng thái drone và lịch sử đơn hàng</p>
+            <p class="text-[10px] text-slate-400 mt-1">Theo dõi thông số telemetry, trạng thái drone và lịch sử đơn hàng
+            </p>
           </div>
         </div>
       </section>
 
       <section data-tab="hero" class="mobile-tab-section active-tab py-8 md:py-24">
         <div class="px-6 max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow reveal-on-scroll">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">location_on</span>
             <h3 class="text-xl font-bold mb-3">Chọn điểm giao bằng bản đồ</h3>
-            <p class="text-slate-300 text-sm leading-relaxed">Click map, tìm địa chỉ hoặc lấy vị trí hiện tại để tạo đơn hàng nhanh.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">Click map, tìm địa chỉ hoặc lấy vị trí hiện tại để tạo đơn
+              hàng nhanh.</p>
           </div>
-          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow reveal-on-scroll">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">near_me</span>
             <h3 class="text-xl font-bold mb-3">Theo dõi drone realtime</h3>
-            <p class="text-slate-300 text-sm leading-relaxed">Hiển thị mode, tốc độ, độ cao, pin, ETA, hành trình trực tiếp.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">Hiển thị mode, tốc độ, độ cao, pin, ETA, hành trình trực
+              tiếp.</p>
           </div>
-          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow reveal-on-scroll">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">dashboard_customize</span>
             <h3 class="text-xl font-bold mb-3">Điều phối cho admin</h3>
-            <p class="text-slate-300 text-sm leading-relaxed">Admin tạo đơn, gán mission, xem mission đang chạy và clear mission đã xong.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">Admin tạo đơn, gán mission, xem mission đang chạy và clear
+              mission đã xong.</p>
           </div>
-          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow">
+          <div class="bg-panel2 p-8 rounded-2xl border border-white/5 interactive-glow reveal-on-scroll">
             <span class="material-symbols-outlined text-primary text-4xl mb-6 block">inventory_2</span>
             <h3 class="text-xl font-bold mb-3">Lịch sử đơn hàng</h3>
-            <p class="text-slate-300 text-sm leading-relaxed">Xem lại, hủy, đặt lại đơn và focus lại điểm giao trên bản đồ.</p>
+            <p class="text-slate-300 text-sm leading-relaxed">Xem lại, hủy, đặt lại đơn và focus lại điểm giao trên bản
+              đồ.</p>
           </div>
         </div>
       </section>
 
-      <section id="how" data-tab="how" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24 px-6 max-w-screen-xl mx-auto">
+      <section id="how" data-tab="how"
+        class="reveal-on-scroll mobile-tab-section pt-20 pb-8 lg:pt-16 lg:pb-24 px-6 max-w-screen-xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">
             <span class="gradient-text">Cách Janus hoạt động</span>
@@ -726,122 +1079,283 @@
           <div class="h-1 w-24 bg-accent mx-auto rounded-full"></div>
         </div>
 
-        <div class="relative grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div class="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-0.5 bg-white/10"></div>
+        <div class="relative grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8">
+          <div class="hidden lg:block absolute top-12 left-[8%] right-[8%] h-0.5 bg-white/10"></div>
 
-          <div class="relative z-10 flex flex-col items-center text-center">
-            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">shopping_cart</span></div>
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">shopping_cart</span>
+            </div>
             <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 01</span>
             <h4 class="font-bold mb-2">User chọn sản phẩm</h4>
             <p class="text-xs text-slate-300">Chọn loại hàng hóa và đánh dấu vị trí nhận trên bản đồ.</p>
           </div>
 
-          <div class="relative z-10 flex flex-col items-center text-center">
-            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">post_add</span></div>
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">post_add</span>
+            </div>
             <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 02</span>
             <h4 class="font-bold mb-2">Hệ thống tạo đơn</h4>
             <p class="text-xs text-slate-300">Order được tạo cùng thông tin điểm giao và ghi chú.</p>
           </div>
 
-          <div class="relative z-10 flex flex-col items-center text-center">
-            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">engineering</span></div>
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">engineering</span>
+            </div>
             <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 03</span>
             <h4 class="font-bold mb-2">Admin điều phối</h4>
             <p class="text-xs text-slate-300">Admin duyệt đơn, gán mission và theo dõi trạng thái chạy.</p>
           </div>
 
-          <div class="relative z-10 flex flex-col items-center text-center">
-            <div class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft"><span class="material-symbols-outlined text-primary text-3xl">flight_takeoff</span></div>
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">flight_takeoff</span>
+            </div>
             <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 04</span>
             <h4 class="font-bold mb-2">Mission thực hiện</h4>
-            <p class="text-xs text-slate-300">Drone bay theo lộ trình, console cập nhật ETA và đường bay trực quan.</p>
+            <p class="text-xs text-slate-300">Drone bay theo lộ trình, console cập nhật ETA và đường bay.</p>
+          </div>
+
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">target</span>
+            </div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 05</span>
+            <h4 class="font-bold mb-2">Hạ cánh chính xác</h4>
+            <p class="text-xs text-slate-300">Drone dùng AI nhận diện Aruco marker để hạ cánh chính xác.</p>
+          </div>
+
+          <div class="relative z-10 flex flex-col items-center text-center reveal-on-scroll">
+            <div
+              class="w-24 h-24 rounded-full bg-panel2 flex items-center justify-center mb-6 border-4 border-surface shadow-soft">
+              <span class="material-symbols-outlined text-primary text-3xl">package_2</span>
+            </div>
+            <span class="text-[10px] font-black uppercase text-primary mb-2">Bước 06</span>
+            <h4 class="font-bold mb-2">Hoàn tất giao hàng</h4>
+            <p class="text-xs text-slate-300">Hệ thống xác nhận hoàn tất và thông báo cho người dùng.</p>
           </div>
         </div>
+
       </section>
 
-      <section id="features" data-tab="features" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24">
-        <div class="px-6 max-w-screen-xl mx-auto">
-          <div class="mb-12">
-            <span class="text-primary font-bold uppercase tracking-widest text-xs">Console hiện tại</span>
-            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mt-2">
-              <span class="gradient-text">Tính năng nổi bật của Janus</span>
+      <section id="features" data-tab="features"
+        class="reveal-on-scroll mobile-tab-section pt-20 pb-8 lg:pt-16 lg:pb-24 relative overflow-hidden">
+        <!-- Background Glows -->
+        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full pointer-events-none">
+          <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+          <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="px-6 max-w-screen-xl mx-auto relative z-10">
+          <div class="text-center mb-16">
+            <span class="text-cyan-400 font-bold uppercase tracking-widest text-xs mb-2 block">Nền tảng JANUS</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mt-2 text-white">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 to-cyan-400">Tính năng nổi bật
+                của Janus</span>
             </h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">map</span>
-              <h4 class="text-lg font-bold mb-2">Bản đồ Leaflet</h4>
-              <p class="text-slate-300 text-sm">Kho cố định, marker drone, marker user, điểm giao, đường giao và đường quay về.</p>
+          <div class="grid grid-cols-6 gap-4 lg:gap-6">
+
+            <!-- Card 1: Tự động hóa -->
+            <div
+              class="col-span-full lg:col-span-2 relative flex overflow-hidden rounded-2xl border border-white/10 bg-[#131b2e]/80 backdrop-blur-xl hover:border-cyan-500/30 transition-all duration-300 group shadow-sm hover:shadow-md reveal-on-scroll">
+              <div class="p-6 pt-8 pb-8 flex flex-col items-center justify-center h-full w-full relative">
+                <div class="relative flex h-24 w-56 items-center justify-center">
+                  <div
+                    class="absolute inset-0 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all">
+                  </div>
+                  <svg class="text-cyan-500/20 absolute inset-0 size-full" viewBox="0 0 254 104" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M112.891 97.7022C140.366 97.0802 171.004 94.6715 201.087 87.5116C210.43 85.2881 219.615 82.6412 228.284 78.2473C232.198 76.3179 235.905 73.9942 239.348 71.3124C241.85 69.2557 243.954 66.7571 245.555 63.9408C249.34 57.3235 248.281 50.5341 242.498 45.6109C239.033 42.7237 235.228 40.2703 231.169 38.3054C219.443 32.7209 207.141 28.4382 194.482 25.534C184.013 23.1927 173.358 21.7755 162.64 21.2989C161.376 21.3512 160.113 21.181 158.908 20.796C158.034 20.399 156.857 19.1682 156.962 18.4535C157.115 17.8927 157.381 17.3689 157.743 16.9139C158.104 16.4588 158.555 16.0821 159.067 15.8066C160.14 15.4683 161.274 15.3733 162.389 15.5286C179.805 15.3566 196.626 18.8373 212.998 24.462C220.978 27.2494 228.798 30.4747 236.423 34.1232C240.476 36.1159 244.202 38.7131 247.474 41.8258C254.342 48.2578 255.745 56.9397 251.841 65.4892C249.793 69.8582 246.736 73.6777 242.921 76.6327C236.224 82.0192 228.522 85.4602 220.502 88.2924C205.017 93.7847 188.964 96.9081 172.738 99.2109C153.442 101.949 133.993 103.478 114.506 103.79C91.1468 104.161 67.9334 102.97 45.1169 97.5831C36.0094 95.5616 27.2626 92.1655 19.1771 87.5116C13.839 84.5746 9.1557 80.5802 5.41318 75.7725C-0.54238 67.7259 -1.13794 59.1763 3.25594 50.2827C5.82447 45.3918 9.29572 41.0315 13.4863 37.4319C24.2989 27.5721 37.0438 20.9681 50.5431 15.7272C68.1451 8.8849 86.4883 5.1395 105.175 2.83669C129.045 0.0992292 153.151 0.134761 177.013 2.94256C197.672 5.23215 218.04 9.01724 237.588 16.3889C240.089 17.3418 242.498 18.5197 244.933 19.6446C246.627 20.4387 247.725 21.6695 246.997 23.615C246.455 25.1105 244.814 25.5605 242.63 24.5811C230.322 18.9961 217.233 16.1904 204.117 13.4376C188.761 10.3438 173.2 8.36665 157.558 7.52174C129.914 5.70776 102.154 8.06792 75.2124 14.5228C60.6177 17.8788 46.5758 23.2977 33.5102 30.6161C26.6595 34.3329 20.4123 39.0673 14.9818 44.658C12.9433 46.8071 11.1336 49.1622 9.58207 51.6855C4.87056 59.5336 5.61172 67.2494 11.9246 73.7608C15.2064 77.0494 18.8775 79.925 22.8564 82.3236C31.6176 87.7101 41.3848 90.5291 51.3902 92.5804C70.6068 96.5773 90.0219 97.7419 112.891 97.7022Z"
+                      fill="currentColor" />
+                  </svg>
+                  <span
+                    class="mx-auto block w-fit text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 z-10 relative">100%</span>
+                </div>
+                <h2 class="mt-8 text-center text-2xl font-bold text-white relative z-10">Tự Động Hóa</h2>
+                <p class="mt-2 text-center text-sm text-slate-400 relative z-10">Quy trình giao hàng không người lái vận
+                  hành độc lập.</p>
+              </div>
             </div>
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">admin_panel_settings</span>
-              <h4 class="text-lg font-bold mb-2">Auth & phân quyền</h4>
-              <p class="text-slate-300 text-sm">Đăng ký, đăng nhập, đăng xuất, user/admin và auto boot bằng token.</p>
+
+            <!-- Card 2: An Toàn Tuyệt Đối -->
+            <div
+              class="col-span-full sm:col-span-3 lg:col-span-2 relative overflow-hidden rounded-2xl border border-white/10 bg-[#131b2e]/80 backdrop-blur-xl hover:border-cyan-500/30 transition-all duration-300 group shadow-sm hover:shadow-md reveal-on-scroll">
+              <div class="p-6 pt-8 flex flex-col h-full justify-between">
+                <div
+                  class="relative mx-auto flex aspect-square size-28 rounded-full border border-white/10 bg-slate-900/50 items-center justify-center shadow-[0_0_30px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_40px_rgba(0,229,255,0.2)] transition-all">
+                  <span class="material-symbols-outlined text-[48px] text-cyan-400">gpp_good</span>
+                </div>
+                <div class="relative z-10 mt-8 text-center">
+                  <h2 class="text-lg font-bold text-white transition">An Toàn Tuyệt Đối</h2>
+                  <p class="text-sm text-slate-400 mt-2">Hệ thống hạ cánh chính xác bằng Aruco marker, đảm bảo an toàn
+                    tối đa cho hàng hóa.</p>
+                </div>
+              </div>
             </div>
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">monitor_heart</span>
-              <h4 class="text-lg font-bold mb-2">Telemetry</h4>
-              <p class="text-slate-300 text-sm">Status, mode, alt, speed, battery, armed, source, age, ETA và log hệ thống.</p>
+
+            <!-- Card 3: Hình ảnh Drone -->
+            <div
+              class="col-span-full sm:col-span-3 lg:col-span-2 relative overflow-hidden rounded-2xl border border-white/10 bg-[#131b2e]/80 backdrop-blur-xl hover:border-cyan-500/30 transition-all duration-300 group shadow-sm hover:shadow-md reveal-on-scroll">
+              <div class="p-0 h-full flex flex-col relative min-h-[300px]">
+                <div class="absolute inset-0 w-full h-full">
+                  <img
+                    src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80"
+                    alt="Drone Delivery"
+                    class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#0b1326] via-[#0b1326]/60 to-transparent"></div>
+                </div>
+                <div class="relative z-10 mt-auto p-6">
+                  <div class="flex items-center gap-2 text-cyan-400 mb-2">
+                    <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest">Tốc độ cao</span>
+                  </div>
+                  <h2 class="text-xl font-bold text-white transition">Giao Hàng Nhanh Chóng</h2>
+                  <p class="text-sm text-slate-300 mt-2 line-clamp-2">Vượt qua mọi rào cản giao thông, đưa gói hàng đến
+                    tận tay người nhận trong thời gian kỷ lục.</p>
+                </div>
+              </div>
             </div>
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">assignment</span>
-              <h4 class="text-lg font-bold mb-2">Mission panel</h4>
-              <p class="text-slate-300 text-sm">Admin quản lý danh sách mission trực quan và map focus theo trạng thái giao.</p>
+
+            <!-- Card 4: Giám Sát Hành Trình -->
+            <div
+              class="col-span-full lg:col-span-3 relative overflow-hidden rounded-2xl border border-white/10 bg-[#131b2e]/80 backdrop-blur-xl hover:border-cyan-500/30 transition-all duration-300 group shadow-sm hover:shadow-md reveal-on-scroll">
+              <div class="p-8 grid h-full sm:grid-cols-2 gap-6 items-center">
+                <div class="relative z-10 flex flex-col justify-center">
+                  <div
+                    class="relative flex aspect-square size-14 rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/20 to-blue-500/10 items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-[24px] text-cyan-400">map</span>
+                  </div>
+                  <h2 class="text-2xl font-bold text-white transition mb-3">Giám Sát Hành Trình</h2>
+                  <p class="text-sm text-slate-400 leading-relaxed">Theo dõi trực tiếp telemetry của drone trên bản đồ
+                    Leaflet. Cập nhật vị trí, vận tốc, độ cao, và thời gian dự kiến (ETA) theo thời gian thực.</p>
+                </div>
+                <div
+                  class="relative h-full min-h-[160px] rounded-xl border border-white/10 bg-slate-900/50 overflow-hidden flex items-center justify-center p-4">
+                  <svg class="w-full h-full text-cyan-500/30" viewBox="0 0 200 100" fill="none">
+                    <path d="M10 90 Q 50 10 100 50 T 190 10" stroke="currentColor" stroke-width="2"
+                      stroke-dasharray="4 4" fill="none" class="animate-[dash_20s_linear_infinite]" />
+                    <circle cx="10" cy="90" r="4" fill="#00e5ff" />
+                    <circle cx="190" cy="10" r="4" fill="#22c55e" />
+                    <circle cx="100" cy="50" r="6" fill="#00e5ff" class="animate-pulse" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">history</span>
-              <h4 class="text-lg font-bold mb-2">Lịch sử đơn hàng</h4>
-              <p class="text-slate-300 text-sm">Xem, đặt lại, hủy đơn, dispatch đơn và cập nhật thống kê theo trạng thái.</p>
+
+            <!-- Card 5: Đội Ngũ Điều Phối -->
+            <div
+              class="col-span-full lg:col-span-3 relative overflow-hidden rounded-2xl border border-white/10 bg-[#131b2e]/80 backdrop-blur-xl hover:border-cyan-500/30 transition-all duration-300 group shadow-sm hover:shadow-md reveal-on-scroll">
+              <div class="p-8 grid h-full sm:grid-cols-2 gap-6 items-center">
+                <div class="relative z-10 flex flex-col justify-center">
+                  <div
+                    class="relative flex aspect-square size-14 rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/20 to-blue-500/10 items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-[24px] text-cyan-400">admin_panel_settings</span>
+                  </div>
+                  <h2 class="text-2xl font-bold text-white transition mb-3">Điều Phối Chuyên Nghiệp</h2>
+                  <p class="text-sm text-slate-400 leading-relaxed">Hệ thống phân quyền Role-Based Access mạnh mẽ. Admin
+                    dễ dàng kiểm soát các nhiệm vụ và tối ưu hóa đường bay an toàn.</p>
+                </div>
+                <div class="relative flex flex-col justify-center space-y-4 pl-4 sm:pl-8 border-l border-white/5">
+                  <div
+                    class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/10 w-fit transform group-hover:translate-x-2 transition-transform">
+                    <img class="size-8 rounded-full object-cover"
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64"
+                      alt="Admin" />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold text-white">Admin 01</span>
+                      <span class="text-[10px] text-cyan-400">Điều hành bay</span>
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/10 w-fit ml-8 transform group-hover:translate-x-2 transition-transform">
+                    <img class="size-8 rounded-full object-cover"
+                      src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64"
+                      alt="Dispatcher" />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold text-white">Dispatcher</span>
+                      <span class="text-[10px] text-green-400">Giám sát kho</span>
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/10 w-fit transform group-hover:translate-x-2 transition-transform">
+                    <img class="size-8 rounded-full object-cover"
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=64&h=64"
+                      alt="Pilot" />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold text-white">Auto-Pilot</span>
+                      <span class="text-[10px] text-slate-400">System AI</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="p-8 rounded-2xl bg-panel2 border border-white/5 interactive-glow">
-              <span class="material-symbols-outlined text-primary text-3xl mb-4 block">person</span>
-              <h4 class="text-lg font-bold mb-2">Hồ sơ người dùng</h4>
-              <p class="text-slate-300 text-sm">Chỉnh sửa hồ sơ, đổi mật khẩu và lưu data theo username.</p>
-            </div>
+
           </div>
         </div>
       </section>
 
-      <section id="story" data-tab="story" class="mobile-tab-section pt-32 pb-8 lg:pt-24 lg:pb-24 px-6 max-w-screen-md mx-auto">
-        <div class="text-center mb-16">
+      <section id="story" data-tab="story"
+        class="reveal-on-scroll mobile-tab-section pt-20 pb-8 lg:pt-16 lg:pb-24 px-6 max-w-screen-xl mx-auto">
+        <div class="text-center mb-4 lg:mb-4">
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tighter mb-4">
             <span class="gradient-text">Hành trình phát triển</span>
           </h2>
           <p class="text-slate-300">Thất bại là mẹ đập con.</p>
         </div>
 
-        <div class="space-y-12 relative before:absolute before:left-4 md:before:left-1/2 before:w-px before:h-full before:bg-white/10">
-  
-          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1: Xây dựng nền tảng.')">
+        <!-- ========================================= -->
+        <!-- GIAO DIỆN MOBILE & TABLET (Giữ nguyên cũ) -->
+        <!-- ========================================= -->
+        <div
+          class="lg:hidden space-y-12 relative before:absolute before:left-4 before:w-px before:h-full before:bg-white/10 max-w-screen-md mx-auto">
+
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1: Xây dựng nền tảng.')">
                 <span class="text-primary text-[10px] font-black">PHASE 01</span>
                 <h5 class="text-lg font-bold mb-2">Nghiên cứu & Thiết kế hệ thống</h5>
-                <p class="text-sm text-slate-300">Phân tích yêu cầu kỹ thuật, tính toán tải trọng và lựa chọn các linh kiện phần cứng.</p>
+                <p class="text-sm text-slate-300">Phân tích yêu cầu kỹ thuật, tính toán tải trọng và lựa chọn các linh
+                  kiện phần cứng.</p>
               </div>
             </div>
           </div>
 
-          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2: Nâng cấp UI/UX hiện đại.')">
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2: Nâng cấp UI/UX hiện đại.')">
                 <span class="text-primary text-[10px] font-black">PHASE 02</span>
                 <h5 class="text-lg font-bold mb-2">Lắp ráp Drone và Mô phỏng Gazebo</h5>
-                <p class="text-sm text-slate-300">Thi công cơ khí, điện; Tuning và Mô phỏng các trường hợp bay cơ bản trên Gazebo.</p>
+                <p class="text-sm text-slate-300">Thi công cơ khí, điện; Tuning và Mô phỏng các trường hợp bay cơ bản
+                  trên Gazebo.</p>
               </div>
             </div>
           </div>
 
-          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3: Giữ API cũ và di chuyển logic.')">
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3: Giữ API cũ và di chuyển logic.')">
                 <span class="text-primary text-[10px] font-black">PHASE 03</span>
                 <h5 class="text-lg font-bold mb-2">Thuật toán Precise Landing</h5>
                 <p class="text-sm text-slate-300">Tiến hành nghiên cứu, lập trình, mô phỏng thử nghiệm và thực tế.</p>
@@ -849,65 +1363,101 @@
             </div>
           </div>
 
-          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4: Kiểm tra độ trễ Telemetry.')">
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4: Kiểm tra độ trễ Telemetry.')">
                 <span class="text-primary text-[10px] font-black">PHASE 04</span>
                 <h5 class="text-lg font-bold mb-2">Thuật toán né vật cản</h5>
-                <p class="text-sm text-slate-300">Sử dụng Lidar 2D C1M1, tiến hành nghiên cứu, lập trình, mô phỏng thử nghiệm và thực tế .</p>
+                <p class="text-sm text-slate-300">Sử dụng Lidar 2D C1M1, tiến hành nghiên cứu, lập trình, mô phỏng thử
+                  nghiệm và thực tế.</p>
               </div>
             </div>
           </div>
 
-          <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2 md:text-right">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5: Bảo mật và phân quyền chặt chẽ.')">
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5: Bảo mật và phân quyền chặt chẽ.')">
                 <span class="text-primary text-[10px] font-black">PHASE 05</span>
-                <h5 class="text-lg font-bold mb-2">Xây dựng Web giao hàng.</h5>
-                <p class="text-sm text-slate-300">Lập trình Frontend, Backend hoàn chỉnh; theo dõi trạng thái bay và thông số Drone realtime.</p>
+                <h5 class="text-lg font-bold mb-2">Xây dựng Web giao hàng</h5>
+                <p class="text-sm text-slate-300">Lập trình Frontend, Backend hoàn chỉnh; theo dõi trạng thái bay và
+                  thông số Drone realtime.</p>
               </div>
             </div>
           </div>
 
-          <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center gap-8 group">
-            <div class="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
-            <div class="pl-12 md:pl-0 md:w-1/2">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group" 
-                  onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại: Hệ thống chạy ổn định trên production.')">
+          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
+            <div
+              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
+            </div>
+            <div class="pl-12 w-full">
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
+                onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại: Hệ thống chạy ổn định trên production.')">
                 <span class="text-primary text-[10px] font-black">Phase 06</span>
                 <h5 class="text-lg font-bold mb-2">Đánh giá và Định hướng phát triển</h5>
-                <p class="text-sm text-slate-300">Tổng hợp kết quả đạt được và đề xuất phương án phát triển trong tương lai.</p>
+                <p class="text-sm text-slate-300">Tổng hợp kết quả đạt được và đề xuất phương án phát triển trong tương
+                  lai.</p>
               </div>
             </div>
           </div>
 
         </div>
+
+        <!-- ============================================== -->
+        <!-- GIAO DIỆN DESKTOP (Hiệu ứng Card Stack mới)    -->
+        <!-- Chỉ hiện ở màn hình lg (>= 1024px) trở lên     -->
+        <!-- ============================================== -->
+        <div class="hidden lg:flex w-full flex-col items-center justify-center -mt-4">
+          <div id="card-stack-container" class="relative h-[630px] w-full max-w-[900px] overflow-hidden">
+            <!-- JS sẽ tự động render HTML các card vào đây -->
+          </div>
+
+          <div
+            class="relative z-10 -mt-px flex w-full max-w-[768px] items-center justify-center border-t border-white/10 py-8">
+            <button onclick="nextPhaseCard()"
+              class="flex h-12 cursor-pointer select-none items-center justify-center gap-1 overflow-hidden rounded-xl border border-cyan-500/30 bg-[#1a233a] px-8 text-sm font-bold text-cyan-100 transition-all hover:bg-cyan-500/20 active:scale-[0.98] shadow-[0_0_15px_rgba(0,229,255,0.1)] hover:-translate-y-1">
+              Next Phase <span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+            </button>
+          </div>
+        </div>
       </section>
     </main>
 
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 lg:hidden w-[92%] max-w-[400px]">
-      <div class="bg-[#131b2e]/95 backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-        
-        <button class="mobile-nav-btn active flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400" onclick="switchMobileTab('hero', this)">
+      <div
+        class="bg-[#131b2e]/95 backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+
+        <button
+          class="mobile-nav-btn active flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400"
+          onclick="switchMobileTab('hero', this)">
           <span class="material-symbols-outlined text-[22px]">rocket_launch</span>
           <span class="text-sm font-extrabold nav-text whitespace-nowrap overflow-hidden">Giải Pháp</span>
         </button>
 
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('how', this)">
+        <button
+          class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200"
+          onclick="switchMobileTab('how', this)">
           <span class="material-symbols-outlined text-[22px]">account_tree</span>
           <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Hoạt Động</span>
         </button>
 
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('features', this)">
+        <button
+          class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200"
+          onclick="switchMobileTab('features', this)">
           <span class="material-symbols-outlined text-[22px]">dashboard_customize</span>
           <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Tính Năng</span>
         </button>
 
-        <button class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200" onclick="switchMobileTab('story', this)">
+        <button
+          class="mobile-nav-btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-slate-200"
+          onclick="switchMobileTab('story', this)">
           <span class="material-symbols-outlined text-[22px]">history</span>
           <span class="text-sm font-extrabold nav-text hidden whitespace-nowrap overflow-hidden">Hành Trình</span>
         </button>
@@ -915,41 +1465,128 @@
       </div>
     </div>
 
-    <footer id="footer" class="bg-[#0b1326] border-t border-white/5">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto py-12 px-8">
-        <div class="flex flex-col items-center md:items-start max-w-sm text-center md:text-left">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined text-primary">rocket_launch</span>
-            <span class="text-lg font-bold text-[#c3f5ff] uppercase tracking-tighter">JANUS DELIVERY</span>
-          </div>
-          <p class="text-sm text-slate-300 leading-relaxed">Nền tảng điều phối UAV cho demo giao hàng realtime với bản đồ, telemetry, order history và mission control.<br>
-          SĐT: <br>
-          Email: </p>
-        </div>
-
-        <div class="flex flex-wrap justify-center gap-8 text-sm tracking-wide">
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#hero">Hero</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#how">Workflow</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#features">Features</a>
-          <a class="text-[#849396] hover:text-[#c3f5ff] transition" href="#story">Story</a>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <button class="w-10 h-10 rounded-full bg-panel2 flex items-center justify-center hover:bg-accent hover:text-surface transition interactive-glow" onclick="handleLandingAuthAction()"><span class="material-symbols-outlined text-xl">login</span></button>
-          <button class="w-10 h-10 rounded-full bg-panel2 flex items-center justify-center hover:bg-accent hover:text-surface transition interactive-glow" onclick="openAuthModal('register')"><span class="material-symbols-outlined text-xl">person_add</span></button>
+    <footer id="footer" class="glass-footer relative rounded-[2rem] overflow-hidden m-4 md:m-8 border border-white/5">
+      <!-- Dòng chữ khổng lồ dưới nền -->
+      <div class="giant-text-wrapper z-0">
+        <div class="relative inline-block w-full">
+          <div class="text-stroke-base tracking-tighter">JANUS</div>
+          <div class="text-reveal-light tracking-tighter">JANUS</div>
         </div>
       </div>
-      <div class="bg-[#131b2e] py-6 px-8 text-center">
-        <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em]">© JANUS UAV DELIVERY CONSOLE</p>
+
+      <!-- Nội dung Footer -->
+      <div class="max-w-screen-2xl mx-auto p-8 md:p-14 z-10 relative">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-14">
+
+          <!-- Cột 1: Brand -->
+          <div class="flex flex-col space-y-5">
+            <div class="flex items-center space-x-2">
+              <span class="material-symbols-outlined text-accent text-3xl">rocket_launch</span>
+              <span class="text-white text-3xl font-black tracking-tighter uppercase font-headline">JANUS</span>
+            </div>
+            <p class="text-[15px] text-slate-300 leading-relaxed pr-4">
+              Nền tảng điều phối UAV cho demo giao hàng realtime với bản đồ, telemetry, order history và mission
+              control.
+            </p>
+          </div>
+
+          <!-- Cột 2: Về chúng tôi -->
+          <div>
+            <h4 class="text-white text-lg font-bold mb-6">Về chúng tôi</h4>
+            <ul class="space-y-4 text-[15px] text-slate-400">
+              <li class="relative w-fit"><a href="#story" class="hover:text-accent transition-colors">Hành trình phát
+                  triển</a></li>
+              <li class="relative w-fit"><a href="#how" class="hover:text-accent transition-colors">Quy trình vận
+                  hành</a></li>
+              <li class="relative w-fit"><a href="#features" class="hover:text-accent transition-colors">Tính năng cốt
+                  lõi</a></li>
+            </ul>
+          </div>
+
+          <!-- Cột 3: Hỗ trợ -->
+          <div>
+            <h4 class="text-white text-lg font-bold mb-6">Hỗ trợ</h4>
+            <ul class="space-y-4 text-[15px] text-slate-400">
+              <li class="relative w-fit"><a href="#" class="hover:text-accent transition-colors">Câu hỏi thường gặp
+                  (FAQs)</a></li>
+              <li class="relative w-fit"><a href="#" class="hover:text-accent transition-colors">Tài liệu API</a></li>
+              <li class="relative w-fit flex items-center gap-2">
+                <a href="#" class="hover:text-accent transition-colors">Live Chat</a>
+                <span class="relative flex h-2 w-2 mt-0.5">
+                  <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Cột 4: Liên hệ -->
+          <div>
+            <h4 class="text-white text-lg font-bold mb-6">Liên hệ</h4>
+            <ul class="space-y-5 text-[15px] text-slate-400">
+              <li class="flex items-center space-x-3 group w-fit">
+                <span class="material-symbols-outlined text-accent text-[22px]">mail</span>
+                <a href="mailto:hello@janus.com" class="group-hover:text-accent transition-colors">hello@janus.com</a>
+              </li>
+              <li class="flex items-center space-x-3 group w-fit">
+                <span class="material-symbols-outlined text-accent text-[22px]">call</span>
+                <a href="tel:+84123456789" class="group-hover:text-accent transition-colors">+84 123 456 789</a>
+              </li>
+              <li class="flex items-center space-x-3">
+                <span class="material-symbols-outlined text-accent text-[22px]">location_on</span>
+                <span>Thủ Đức, TP. Hồ Chí Minh</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Dòng kẻ chia cắt siêu mỏng -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8"></div>
+
+        <!-- Footer Bottom -->
+        <div
+          class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 transform -translate-y-4 md:-translate-y-5 relative z-20">
+          <!-- Icon mạng xã hội góc trái -->
+          <div class="flex space-x-5 text-slate-400">
+            <!-- Twitter X -->
+            <a href="#" class="hover:text-accent transition-colors hover:-translate-y-1 transform duration-200">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <!-- Instagram -->
+            <a href="#" class="hover:text-accent transition-colors hover:-translate-y-1 transform duration-200">
+              <svg class="w-[22px] h-[22px]" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Copyright góc phải -->
+          <p class="text-slate-500 uppercase tracking-widest text-[11px] font-bold">
+            &copy; <span id="current-year"></span> JANUS UAV DELIVERY CONSOLE. ALL RIGHTS RESERVED.
+          </p>
+        </div>
       </div>
     </footer>
+
+    <script>
+      // Tự động cập nhật năm
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
   </div>
 
   <div id="authModal" class="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm p-4 pointer-events-none">
     <div class="max-w-5xl mx-auto min-h-full grid place-items-center">
-      <div class="auth-modal-panel w-full grid lg:grid-cols-[1.2fr_.8fr] rounded-3xl overflow-hidden glass-panel shadow-soft">
-        <div class="hidden lg:block p-10 bg-gradient-to-br from-cyan-500/10 via-transparent to-white/5 border-r border-white/5">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
+      <div
+        class="auth-modal-panel w-full grid lg:grid-cols-[1.2fr_.8fr] rounded-3xl overflow-hidden glass-panel shadow-soft">
+        <div
+          class="hidden lg:block p-10 bg-gradient-to-br from-cyan-500/10 via-transparent to-white/5 border-r border-white/5">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-accent text-[10px] font-bold uppercase tracking-widest mb-6 border border-white/5">
             Control access
           </div>
 
@@ -958,7 +1595,9 @@
           </h2>
 
           <p class="text-slate-300 leading-7 max-w-xl text-justify">
-            Trải nghiệm kỷ nguyên giao hàng không người lái cùng JANUS. Chúng tôi mang đến giải pháp vận hành trực quan, giúp bạn theo dõi lộ trình bay từng giây và đảm bảo mọi đơn hàng luôn đến đích nhanh chóng, an toàn và chính xác nhất.
+            Trải nghiệm kỷ nguyên giao hàng không người lái cùng JANUS. Chúng tôi mang đến giải pháp vận hành trực quan,
+            giúp bạn theo dõi lộ trình bay từng giây và đảm bảo mọi đơn hàng luôn đến đích nhanh chóng, an toàn và chính
+            xác nhất.
           </p>
 
           <div class="grid sm:grid-cols-2 gap-4 mt-8">
@@ -990,7 +1629,9 @@
         </div>
 
         <div class="p-8 md:p-10 relative">
-          <button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 transition-all z-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]" onclick="closeAuthModal()">
+          <button
+            class="absolute top-6 right-6 w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 transition-all z-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
+            onclick="closeAuthModal()">
             <span class="material-symbols-outlined">close</span>
           </button>
 
@@ -1003,8 +1644,11 @@
           </div>
 
           <div class="flex rounded-2xl bg-white/5 p-1 border border-white/5 mb-6">
-            <button id="tabLogin" class="flex-1 py-3 rounded-xl font-semibold bg-cyan-500/15 text-white interactive-glow" onclick="switchTab('login')">Đăng nhập</button>
-            <button id="tabRegister" class="flex-1 py-3 rounded-xl font-semibold text-slate-300 interactive-glow" onclick="switchTab('register')">Đăng ký</button>
+            <button id="tabLogin"
+              class="flex-1 py-3 rounded-xl font-semibold bg-cyan-500/15 text-white interactive-glow"
+              onclick="switchTab('login')">Đăng nhập</button>
+            <button id="tabRegister" class="flex-1 py-3 rounded-xl font-semibold text-slate-300 interactive-glow"
+              onclick="switchTab('register')">Đăng ký</button>
           </div>
 
           <div id="loginForm">
@@ -1014,13 +1658,19 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm mb-2 text-slate-300">Tên đăng nhập</label>
-                <input id="loginUsername" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập tên đăng nhập..." />
+                <input id="loginUsername" type="text"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập tên đăng nhập..." />
               </div>
               <div>
                 <label class="block text-sm mb-2 text-slate-300">Mật khẩu</label>
-                <input id="loginPassword" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu..." />
+                <input id="loginPassword" type="password"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập mật khẩu..." />
               </div>
-              <button class="w-full gradient-btn rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider interactive-glow" onclick="login()">Đăng nhập</button>
+              <button
+                class="w-full gradient-btn rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider interactive-glow"
+                onclick="login()">Đăng nhập</button>
             </div>
 
             <div id="loginMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
@@ -1033,13 +1683,19 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm mb-2 text-slate-300">Tên đăng nhập</label>
-                <input id="regUsername" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: user01" />
+                <input id="regUsername" type="text"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Ví dụ: user01" />
               </div>
               <div>
                 <label class="block text-sm mb-2 text-slate-300">Mật khẩu</label>
-                <input id="regPassword" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Tối thiểu 4 ký tự" />
+                <input id="regPassword" type="password"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Tối thiểu 4 ký tự" />
               </div>
-              <button class="w-full rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider bg-emerald-500 text-white hover:bg-emerald-400 transition interactive-glow" onclick="registerUser()">Đăng ký</button>
+              <button
+                class="w-full rounded-2xl py-3.5 font-bold text-sm uppercase tracking-wider bg-emerald-500 text-white hover:bg-emerald-400 transition interactive-glow"
+                onclick="registerUser()">Đăng ký</button>
             </div>
 
             <div id="registerMsg" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
@@ -1047,34 +1703,47 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 
-  <div id="phaseModal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4" onclick="closePhaseModalOnClickOutside(event)">
-    <div class="phase-modal-content w-full max-w-4xl bg-[#0b1326]/95 border border-[#00e5ff]/30 rounded-3xl p-6 md:p-10 transform scale-95 opacity-0 transition-all duration-300 relative shadow-[0_20px_60px_rgba(0,229,255,0.15)]">
-      
-      <button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 transition-all z-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]" onclick="closePhaseModal()">
+  <div id="phaseModal"
+    class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4"
+    onclick="closePhaseModalOnClickOutside(event)">
+    <div
+      class="phase-modal-content w-full max-w-4xl bg-[#0b1326]/95 border border-[#00e5ff]/30 rounded-3xl p-6 md:p-10 transform scale-95 opacity-0 transition-all duration-300 relative shadow-[0_20px_60px_rgba(0,229,255,0.15)]">
+
+      <button
+        class="absolute top-6 right-6 w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 transition-all z-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
+        onclick="closePhaseModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
 
       <div class="mb-8 pr-12">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-accent text-[10px] font-bold uppercase tracking-widest mb-4 border border-cyan-500/20" id="pm-phase">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-accent text-[10px] font-bold uppercase tracking-widest mb-4 border border-cyan-500/20"
+          id="pm-phase">
           PHASE
         </div>
         <h3 id="pm-title" class="text-3xl md:text-4xl font-black tracking-tight text-white mb-3">Tên Giai Đoạn</h3>
-        
-        <p id="pm-desc" class="text-slate-300 leading-relaxed max-w-2xl mb-5 font-medium">Mô tả chi tiết của giai đoạn này sẽ được truyền vào bằng Javascript.</p>
-        
-        <div id="pm-main-content" class="text-sm text-slate-400 leading-7 text-justify space-y-4 pt-5 border-t border-white/5">
-          </div>
+
+        <p id="pm-desc" class="text-slate-300 leading-relaxed max-w-2xl mb-5 font-medium">Mô tả chi tiết của giai đoạn
+          này sẽ được truyền vào bằng Javascript.</p>
+
+        <div id="pm-main-content"
+          class="text-sm text-slate-400 leading-7 text-justify space-y-4 pt-5 border-t border-white/5">
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="aspect-video bg-[#131b2e] rounded-2xl border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 group hover:border-cyan-500/50 hover:bg-white/5 transition-all cursor-pointer">
-          <span class="material-symbols-outlined text-4xl mb-2 opacity-50 group-hover:text-cyan-400 group-hover:opacity-100 transition-all">add_photo_alternate</span>
+        <div
+          class="aspect-video bg-[#131b2e] rounded-2xl border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 group hover:border-cyan-500/50 hover:bg-white/5 transition-all cursor-pointer">
+          <span
+            class="material-symbols-outlined text-4xl mb-2 opacity-50 group-hover:text-cyan-400 group-hover:opacity-100 transition-all">add_photo_alternate</span>
           <span class="text-xs font-semibold tracking-tight">Thêm kết quả hình ảnh 1</span>
         </div>
-        <div class="aspect-video bg-[#131b2e] rounded-2xl border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 group hover:border-cyan-500/50 hover:bg-white/5 transition-all cursor-pointer">
-          <span class="material-symbols-outlined text-4xl mb-2 opacity-50 group-hover:text-cyan-400 group-hover:opacity-100 transition-all">add_photo_alternate</span>
+        <div
+          class="aspect-video bg-[#131b2e] rounded-2xl border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 group hover:border-cyan-500/50 hover:bg-white/5 transition-all cursor-pointer">
+          <span
+            class="material-symbols-outlined text-4xl mb-2 opacity-50 group-hover:text-cyan-400 group-hover:opacity-100 transition-all">add_photo_alternate</span>
           <span class="text-xs font-semibold tracking-tight">Thêm kết quả hình ảnh 2</span>
         </div>
       </div>
@@ -1083,39 +1752,64 @@
   </div>
 
   <div id="consolePage" class="hidden min-h-screen">
-    <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0b1326]/80 backdrop-blur-xl">
-      <div class="max-w-screen-3xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
-        <div onclick="showLanding()" class="flex items-center gap-3 min-w-0 cursor-pointer group active:scale-95 transition">
-          <div class="w-12 h-12 rounded-2xl gradient-btn grid place-items-center shadow-soft group-hover:scale-105 transition">
-            <span class="material-symbols-outlined text-2xl">rocket_launch</span>
-          </div>
-          <div>
-            <div class="console-title font-black text-2xl tracking-tight group-hover:text-[#c3f5ff] transition">
-              JANUS Console
-            </div>
-            <div class="text-[13px] text-slate-400">
-              Order control, mission dispatch và telemetry realtime
-            </div>
-          </div>
+    <header class="fixed top-6 inset-x-0 z-50 pointer-events-none">
+      <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+
+        <!-- Cụm Logo (Trái) -->
+        <div class="pointer-events-auto flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+          <span
+            class="material-symbols-outlined text-primary text-2xl drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">rocket_launch</span>
+          <span
+            class="text-2xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase drop-shadow-[0_0_10px_rgba(0,229,255,0.3)]">JANUS</span>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap justify-end">
-          <button class="rounded-2xl px-4 py-2.5 text-sm font-black tracking-tight bg-white text-surface hover:bg-primary transition-all shadow-lg shadow-white/5 interactive-glow" onclick="logout()">Đăng xuất</button>
+        <!-- Cụm Nav Viên Thuốc (Giữa) -->
+        <nav id="floatingNav"
+          class="pointer-events-auto hidden lg:flex relative items-center rounded-full bg-[#0d1426]/80 backdrop-blur-2xl border border-white/10 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+          <!-- Cục hover trượt theo chuột (Cursor) -->
+          <div id="navCursor"
+            class="absolute h-[calc(100%-12px)] rounded-full bg-white/10 transition-all duration-300 ease-out opacity-0 pointer-events-none">
+          </div>
+
+          <a class="nav-link relative z-10 px-5 py-2 text-sm font-bold text-[#c3f5ff] transition-colors duration-300"
+            href="#hero">Giải pháp</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors duration-300"
+            href="#how">Cách hoạt động</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors duration-300"
+            href="#features">Tính năng</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors duration-300"
+            href="#story">Hành trình</a>
+          <a class="nav-link relative z-10 px-5 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors duration-300"
+            href="#footer">Liên hệ</a>
+        </nav>
+
+        <!-- Cụm Action (Phải) -->
+        <div class="pointer-events-auto flex items-center">
+          <button id="landingAuthBtn"
+            class="gradient-btn px-6 py-2.5 rounded-full text-xs font-extrabold tracking-tight uppercase active:scale-95 duration-150 interactive-glow"
+            onclick="handleLandingAuthAction()">Đăng nhập</button>
         </div>
+
       </div>
     </header>
 
-    <main class="max-w-screen-[1800px] mx-auto px-4 md:px-6 py-6 grid xl:grid-cols-[300px_minmax(0,1fr)_330px] gap-6 items-start">
+    <main
+      class="max-w-screen-[1800px] mx-auto px-4 md:px-6 py-6 grid xl:grid-cols-[300px_minmax(0,1fr)_330px] gap-6 items-start">
       <aside class="space-y-5">
         <section class="glass-panel console-accent-ring rounded-3xl p-2">
-        <div class="grid grid-cols-4 gap-1.5">
-          <button class="sidebar-tab active rounded-xl py-2.5 text-[13px] bg-cyan-500/15 text-white border border-cyan-400/20" onclick="switchSidebarTab('user')">User</button>
-          
-          <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5" onclick="switchSidebarTab('order')">Order</button>
-          <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5" onclick="switchSidebarTab('history')">History</button>
-          <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5" onclick="switchSidebarTab('log')">Log</button>
-        </div>
-      </section>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button
+              class="sidebar-tab active rounded-xl py-2.5 text-[13px] bg-cyan-500/15 text-white border border-cyan-400/20"
+              onclick="switchSidebarTab('user')">User</button>
+
+            <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5"
+              onclick="switchSidebarTab('order')">Order</button>
+            <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5"
+              onclick="switchSidebarTab('history')">History</button>
+            <button class="sidebar-tab rounded-xl py-2.5 text-[13px] text-slate-200 border border-white/10 bg-white/5"
+              onclick="switchSidebarTab('log')">Log</button>
+          </div>
+        </section>
 
         <div id="sidebar-tab-user" class="sidebar-tab-panel space-y-5">
           <section class="glass-panel console-accent-ring rounded-3xl p-5">
@@ -1127,42 +1821,56 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Tên đăng nhập</label>
-                <input id="profile-username" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
+                <input id="profile-username" type="text" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Vai trò</label>
-                <input id="profile-role" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
+                <input id="profile-role" type="text" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Họ và tên</label>
-                <input id="profile-fullname" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập họ và tên..." />
+                <input id="profile-fullname" type="text" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập họ và tên..." />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Email</label>
-                <input id="profile-email" type="email" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập email..." />
+                <input id="profile-email" type="email" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập email..." />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Số điện thoại</label>
-                <input id="profile-phone" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập số điện thoại..." />
+                <input id="profile-phone" type="text" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập số điện thoại..." />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Địa chỉ mặc định</label>
-                <input id="profile-address" type="text" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ mặc định..." />
+                <input id="profile-address" type="text" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập địa chỉ mặc định..." />
               </div>
             </div>
 
             <div class="profile-inline-actions">
-              <button id="btn-edit-profile" class="gradient-btn rounded-2xl py-3 interactive-glow" onclick="toggleProfileEdit()">Chỉnh sửa thông tin</button>
-              <button id="btn-toggle-password" class="soft-btn rounded-2xl py-3 interactive-glow" onclick="togglePasswordBox()">Đổi mật khẩu</button>
+              <button id="btn-edit-profile" class="gradient-btn rounded-2xl py-3 interactive-glow"
+                onclick="toggleProfileEdit()">Chỉnh sửa thông tin</button>
+              <button id="btn-toggle-password" class="soft-btn rounded-2xl py-3 interactive-glow"
+                onclick="togglePasswordBox()">Đổi mật khẩu</button>
             </div>
 
             <div id="profileActionRow" class="hidden grid grid-cols-2 gap-3 mt-3">
-              <button class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow" onclick="saveProfile()">Lưu thay đổi</button>
+              <button
+                class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow"
+                onclick="saveProfile()">Lưu thay đổi</button>
               <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="cancelProfileEdit()">Hủy</button>
             </div>
 
@@ -1176,21 +1884,29 @@
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Mật khẩu cũ</label>
-                <input id="current-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu cũ..." />
+                <input id="current-password" type="password"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập mật khẩu cũ..." />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Mật khẩu mới</label>
-                <input id="new-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập mật khẩu mới..." />
+                <input id="new-password" type="password"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập mật khẩu mới..." />
               </div>
 
               <div>
                 <label class="block text-sm text-slate-200 mb-2">Xác nhận mật khẩu mới</label>
-                <input id="confirm-password" type="password" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập lại mật khẩu mới..." />
+                <input id="confirm-password" type="password"
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                  placeholder="Nhập lại mật khẩu mới..." />
               </div>
 
               <div class="grid grid-cols-2 gap-3">
-                <button class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow" onclick="changePassword()">Cập nhật</button>
+                <button
+                  class="rounded-2xl py-3 font-black tracking-tight bg-emerald-500 hover:bg-emerald-400 text-white interactive-glow"
+                  onclick="changePassword()">Cập nhật</button>
                 <button class="soft-btn rounded-2xl py-3 interactive-glow" onclick="cancelPasswordChange()">Hủy</button>
               </div>
 
@@ -1207,15 +1923,23 @@
             </div>
             <div>
               <label class="block text-sm text-slate-200 mb-2">Địa chỉ giao hàng</label>
-              <input id="address-input" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ để tìm..." />
+              <input id="address-input" type="text"
+                class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                placeholder="Nhập địa chỉ để tìm..." />
             </div>
             <div class="grid grid-cols-2 gap-3">
-              <button class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow" onclick="useMyLocation()">Lấy vị trí hiện tại</button>
-              <button class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow" onclick="searchAddress()">Tìm địa chỉ</button>
+              <button
+                class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow"
+                onclick="useMyLocation()">Lấy vị trí hiện tại</button>
+              <button
+                class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow"
+                onclick="searchAddress()">Tìm địa chỉ</button>
             </div>
             <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="drop-lat" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
-              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="drop-lng" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="drop-lat" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="drop-lng" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
             </div>
 
             <div>
@@ -1226,9 +1950,12 @@
 
             <div>
               <label class="block text-sm text-slate-200 mb-2">Ghi chú</label>
-              <input id="order-note" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+              <input id="order-note" type="text"
+                class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
             </div>
-            <button id="btn-place-order" class="gradient-btn console-primary-btn interactive-glow" onclick="placeOrderOnly()">Đặt đơn</button>
+            <button id="btn-place-order" class="gradient-btn console-primary-btn interactive-glow"
+              onclick="placeOrderOnly()">Đặt đơn</button>
           </section>
 
           <section id="admin-order-panel" class="glass-panel console-accent-ring rounded-3xl p-5 space-y-4 hidden-el">
@@ -1238,15 +1965,23 @@
             </div>
             <div>
               <label class="block text-sm text-slate-200 mb-2">Địa chỉ giao hàng</label>
-              <input id="admin-address-input" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Nhập địa chỉ để tìm..." />
+              <input id="admin-address-input" type="text"
+                class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                placeholder="Nhập địa chỉ để tìm..." />
             </div>
             <div class="grid grid-cols-2 gap-3">
-              <button class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow" onclick="useMyLocationAdmin()">Lấy vị trí hiện tại</button>
-              <button class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow" onclick="searchAddressAdmin()">Tìm địa chỉ</button>
+              <button
+                class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow"
+                onclick="useMyLocationAdmin()">Lấy vị trí hiện tại</button>
+              <button
+                class="gradient-btn rounded-xl px-4 py-2 text-[11px] font-semibold tracking-tight interactive-glow"
+                onclick="searchAddressAdmin()">Tìm địa chỉ</button>
             </div>
             <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="admin-drop-lat" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
-              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="admin-drop-lng" readonly class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Latitude</label><input id="admin-drop-lat" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
+              <div><label class="block text-sm text-slate-200 mb-2">Longitude</label><input id="admin-drop-lng" readonly
+                  class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" /></div>
             </div>
 
             <div>
@@ -1257,9 +1992,12 @@
 
             <div>
               <label class="block text-sm text-slate-200 mb-2">Ghi chú</label>
-              <input id="admin-order-note" type="text" class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise" placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
+              <input id="admin-order-note" type="text"
+                class="w-full rounded-2xl bg-white/5 border-white/10 text-white focusable-raise"
+                placeholder="Ví dụ: giao gấp, gọi trước khi giao..." />
             </div>
-            <button class="gradient-btn console-primary-btn interactive-glow" onclick="createAdminOrderOnly()">Tạo đơn</button>
+            <button class="gradient-btn console-primary-btn interactive-glow" onclick="createAdminOrderOnly()">Tạo
+              đơn</button>
           </section>
         </div>
 
@@ -1287,10 +2025,12 @@
 
       <section class="min-w-0 space-y-5">
         <div class="glass-panel console-accent-ring rounded-[28px] overflow-hidden border border-white/5 shadow-soft">
-          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
+          <div
+            class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
             <div>
               <h2 class="console-title text-[28px] md:text-[32px] font-black tracking-tight">Bản đồ điều phối bay</h2>
-              <p class="text-[14px] md:text-[15px] text-slate-300 mt-1">Chọn điểm giao, theo dõi drone và quan sát lộ trình vận chuyển trên bản đồ.</p>
+              <p class="text-[14px] md:text-[15px] text-slate-300 mt-1">Chọn điểm giao, theo dõi drone và quan sát lộ
+                trình vận chuyển trên bản đồ.</p>
             </div>
             <div class="flex flex-wrap gap-3">
               <div class="dashboard-chip rounded-2xl px-4 py-2.5 text-sm">
@@ -1307,12 +2047,18 @@
           <div class="relative">
             <div id="map"></div>
             <div class="absolute top-4 right-4 z-[500] flex flex-col gap-3">
-              <button onclick="centerMap()" class="w-11 h-11 bg-white text-slate-700 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group" title="Về kho">
-                <span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">home</span>
+              <button onclick="centerMap()"
+                class="w-11 h-11 bg-white text-slate-700 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group"
+                title="Về kho">
+                <span
+                  class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">home</span>
               </button>
-              
-              <button onclick="centerDrone()" class="w-11 h-11 bg-white text-blue-500 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group" title="Vị trí drone">
-                <span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">my_location</span>
+
+              <button onclick="centerDrone()"
+                class="w-11 h-11 bg-white text-blue-500 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center hover:bg-slate-50 hover:text-blue-600 active:scale-95 transition-all border border-slate-100 group"
+                title="Vị trí drone">
+                <span
+                  class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">my_location</span>
               </button>
             </div>
             <div class="hidden absolute top-4 right-4 z-[500] w-full max-w-sm space-y-3 pointer-events-none">
@@ -1322,10 +2068,22 @@
                   <span class="text-xs text-slate-300">Live</span>
                 </div>
                 <div class="grid grid-cols-2 gap-3 text-sm">
-                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Mode</div><div id="miniMode" class="font-bold mt-1">--</div></div>
-                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Pin</div><div id="miniBattery" class="font-bold mt-1">--</div></div>
-                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Speed</div><div id="miniSpeed" class="font-bold mt-1">0.0 m/s</div></div>
-                  <div class="dashboard-chip rounded-xl p-3"><div class="text-xs text-slate-400">Altitude</div><div id="miniAlt" class="font-bold mt-1">0.0 m</div></div>
+                  <div class="dashboard-chip rounded-xl p-3">
+                    <div class="text-xs text-slate-400">Mode</div>
+                    <div id="miniMode" class="font-bold mt-1">--</div>
+                  </div>
+                  <div class="dashboard-chip rounded-xl p-3">
+                    <div class="text-xs text-slate-400">Pin</div>
+                    <div id="miniBattery" class="font-bold mt-1">--</div>
+                  </div>
+                  <div class="dashboard-chip rounded-xl p-3">
+                    <div class="text-xs text-slate-400">Speed</div>
+                    <div id="miniSpeed" class="font-bold mt-1">0.0 m/s</div>
+                  </div>
+                  <div class="dashboard-chip rounded-xl p-3">
+                    <div class="text-xs text-slate-400">Altitude</div>
+                    <div id="miniAlt" class="font-bold mt-1">0.0 m</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1338,25 +2096,43 @@
           <div class="flex items-center gap-4">
             <div class="relative w-16 h-16 shrink-0">
               <label for="avatarUpload" class="block w-16 h-16 cursor-pointer">
-                <div class="w-16 h-16 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-cyan-500/30 to-white/10 border border-white/10 text-xl font-bold">
+                <div
+                  class="w-16 h-16 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-cyan-500/30 to-white/10 border border-white/10 text-xl font-bold">
                   <img id="profileAvatarImg" class="w-full h-full object-cover hidden" alt="Avatar" />
                   <span id="profileAvatarFallback">U</span>
                 </div>
-                <div class="absolute right-0 bottom-0 w-6 h-6 rounded-full bg-cyan-400 text-surface grid place-items-center border-2 border-surface text-xs font-bold">✎</div>
+                <div
+                  class="absolute right-0 bottom-0 w-6 h-6 rounded-full bg-cyan-400 text-surface grid place-items-center border-2 border-surface text-xs font-bold">
+                  ✎</div>
               </label>
-              <input id="avatarUpload" type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
+              <input id="avatarUpload" type="file" accept="image/*" class="hidden"
+                onchange="handleAvatarUpload(event)" />
             </div>
             <div class="min-w-0">
               <div id="profileTitleName" class="text-2xl font-black tracking-tight truncate">Người dùng</div>
               <div class="text-sm text-slate-300">Console account</div>
-              <div id="profileRoleBadge" class="inline-flex mt-2 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">USER</div>
+              <div id="profileRoleBadge"
+                class="inline-flex mt-2 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                USER</div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-3 mt-5">
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Tổng đơn</div><div id="u-total-orders" class="text-2xl font-black mt-1">0</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Đang xử lý</div><div id="u-processing-orders" class="text-2xl font-black mt-1">0</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Hoàn tất</div><div id="u-completed-orders" class="text-2xl font-black mt-1">0</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Chờ xử lý</div><div id="u-pending-orders" class="text-2xl font-black mt-1">0</div></div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Tổng đơn</div>
+              <div id="u-total-orders" class="text-2xl font-black mt-1">0</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Đang xử lý</div>
+              <div id="u-processing-orders" class="text-2xl font-black mt-1">0</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Hoàn tất</div>
+              <div id="u-completed-orders" class="text-2xl font-black mt-1">0</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Chờ xử lý</div>
+              <div id="u-pending-orders" class="text-2xl font-black mt-1">0</div>
+            </div>
           </div>
         </section>
 
@@ -1366,14 +2142,38 @@
             <span class="text-xs text-slate-300">Realtime</span>
           </div>
           <div class="grid grid-cols-2 gap-3">
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Status</div><div id="t-status" class="text-lg font-black mt-1 text-rose-300">OFFLINE</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Mode</div><div id="t-mode" class="text-lg font-black mt-1">--</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Độ cao</div><div id="t-alt" class="text-lg font-black mt-1">0.0 m</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Vận tốc</div><div id="t-speed" class="text-lg font-black mt-1">0.0 m/s</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Pin</div><div id="t-battery" class="text-lg font-black mt-1">--</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">ETA</div><div id="t-eta" class="text-lg font-black mt-1">--</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Nguồn</div><div id="t-source" class="text-sm font-bold mt-2 break-words">--</div></div>
-            <div class="dashboard-chip rounded-2xl p-3"><div class="text-xs text-slate-400">Độ trễ</div><div id="t-age" class="text-sm font-bold mt-2 break-words">--</div></div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Status</div>
+              <div id="t-status" class="text-lg font-black mt-1 text-rose-300">OFFLINE</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Mode</div>
+              <div id="t-mode" class="text-lg font-black mt-1">--</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Độ cao</div>
+              <div id="t-alt" class="text-lg font-black mt-1">0.0 m</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Vận tốc</div>
+              <div id="t-speed" class="text-lg font-black mt-1">0.0 m/s</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Pin</div>
+              <div id="t-battery" class="text-lg font-black mt-1">--</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">ETA</div>
+              <div id="t-eta" class="text-lg font-black mt-1">--</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Nguồn</div>
+              <div id="t-source" class="text-sm font-bold mt-2 break-words">--</div>
+            </div>
+            <div class="dashboard-chip rounded-2xl p-3">
+              <div class="text-xs text-slate-400">Độ trễ</div>
+              <div id="t-age" class="text-sm font-bold mt-2 break-words">--</div>
+            </div>
           </div>
         </section>
 
@@ -1391,7 +2191,7 @@
 
   <script>
     // 1. Đổi thành localhost để test, và khởi tạo kết nối Realtime
-    const API_URL = 'https://uav-backend-zbti.onrender.com'; 
+    const API_URL = 'https://uav-backend-zbti.onrender.com';
     const socket = io(API_URL);
 
     // Biến phụ để biết lúc nào drone vừa đổi từ Disarm sang Arm
@@ -1400,7 +2200,7 @@
     socket.on('frontend_telemetry', (data) => {
       const t = data;
       const status = String(data.status || 'OFFLINE').toUpperCase();
-      
+
       qs('t-mode').textContent = t.mode ?? '--';
       qs('t-alt').textContent = `${Number(t.alt_m ?? 0).toFixed(1)} m`;
       qs('t-speed').textContent = `${Number(t.groundspeed_mps ?? 0).toFixed(1)} m/s`;
@@ -1408,9 +2208,9 @@
       qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
       qs('t-age').textContent = formatTelemetryAge(data.age_ms ?? 0);
       qs('t-source').textContent = formatTelemetrySource(data.source, '');
-        
+
       if (t.armed && !isDroneArmed && isFinite(t.lat) && isFinite(t.lng)) {
-        if (Number(t.alt_m) < 1.5) { 
+        if (Number(t.alt_m) < 1.5) {
           WAREHOUSE_LAT = Number(t.lat);
           WAREHOUSE_LNG = Number(t.lng);
           if (warehouseMarker) {
@@ -1430,7 +2230,7 @@
 
       const activeOrder = getActiveDeliveryOrder();
       const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(String(t.mode).toUpperCase()) || (!activeOrder && status === 'BUSY');
-      
+
       let targetLat = null;
       let targetLng = null;
 
@@ -1442,7 +2242,7 @@
         targetLat = Number(activeOrder.dropoff.lat);
         targetLng = Number(activeOrder.dropoff.lng);
       }
-      
+
       // Chỉ tính khi có tọa độ đích VÀ drone đang bay nhanh hơn 0.5m/s (tránh chia cho 0 lúc đang hover)
       if (targetLat && targetLng && Number(t.groundspeed_mps) > 0.5) {
         const dist = haversine(Number(t.lat), Number(t.lng), targetLat, targetLng);
@@ -1451,12 +2251,12 @@
       } else {
         qs('t-eta').textContent = '--';
       }
-      
+
       // Update đường kẻ bay (Flight line) & đường quay về
       if (isFinite(t.lat) && isFinite(t.lng)) {
-        updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''), status); 
+        updateMissionVisuals(Number(t.lat), Number(t.lng), String(t.mode || ''), status);
       }
-      
+
       syncTelemetryMirrors({ armed: t.armed, droneId: data.drone_id || DRONE_ID });
     });
 
@@ -1467,7 +2267,7 @@
       } else {
         logSys(`Drone Event: ${eventData.type}`);
       }
-      
+
       // Gọi ngầm API refresh lại danh sách hiển thị
       loadOrders().then(() => {
         loadOrderHistory();
@@ -1594,7 +2394,7 @@
     function openPhaseModal(phase, title, shortDesc, mainContent) {
       document.getElementById('pm-phase').innerText = phase;
       document.getElementById('pm-title').innerText = title;
-      document.getElementById('pm-desc').innerText = shortDesc; 
+      document.getElementById('pm-desc').innerText = shortDesc;
       document.getElementById('pm-main-content').innerText = mainContent;
 
       const modal = document.getElementById('phaseModal');
@@ -1604,7 +2404,7 @@
       const content = modal.querySelector('.phase-modal-content');
       content.classList.remove('scale-95', 'opacity-0');
       content.classList.add('scale-100', 'opacity-100');
-      
+
       document.body.style.overflow = 'hidden'; // Thêm dòng này để khóa scroll
     }
 
@@ -1616,7 +2416,7 @@
       const content = modal.querySelector('.phase-modal-content');
       content.classList.remove('scale-100', 'opacity-100');
       content.classList.add('scale-95', 'opacity-0');
-      
+
       document.body.style.overflow = ''; // Thêm dòng này để mở lại scroll
     }
 
@@ -1730,7 +2530,7 @@
       try {
         const saved = localStorage.getItem(getUserStorageKey('settings'));
         if (saved) appSettings = { ...appSettings, ...JSON.parse(saved) };
-      } catch (_) {}
+      } catch (_) { }
 
       const avatar = localStorage.getItem(getUserStorageKey('avatar'));
       if (avatar) appSettings.avatar = avatar;
@@ -1749,7 +2549,7 @@
       if (!raw) return;
       try {
         currentUser = { ...currentUser, ...JSON.parse(raw) };
-      } catch (_) {}
+      } catch (_) { }
     }
 
     function saveStoredProfile() {
@@ -2090,13 +2890,13 @@
     function updateMissionVisuals(droneLat, droneLng, droneMode = '', droneStatus = '') {
       const hasDrone = isFinite(droneLat) && isFinite(droneLng);
       if (!map || !hasDrone) return clearRealtimeVisuals();
-      
+
       const activeOrder = getActiveDeliveryOrder();
       const mode = String(droneMode || '').toUpperCase();
-      
+
       // LOGIC BẤT BẠI MỚI: Hoặc là mode RTL/LAND, Hoặc là (Không có đơn đang giao + Drone đang nổ máy)
       const isReturningHome = ['RTL', 'RETURN', 'LAND'].includes(mode) || (!activeOrder && droneStatus === 'BUSY');
-      
+
       clearRealtimeVisuals();
 
       // Nếu đang quay về, lập tức vẽ đường nét đứt màu vàng
@@ -2106,11 +2906,11 @@
       }
 
       if (!activeOrder?.dropoff) return;
-      
+
       const targetLat = Number(activeOrder.dropoff.lat);
       const targetLng = Number(activeOrder.dropoff.lng);
       if (!isFinite(targetLat) || !isFinite(targetLng)) return;
-      
+
       showMissionDropoffMarker(targetLat, targetLng, `Điểm giao ${escapeHtml(activeOrder.id || '')}`);
       flightLine = L.polyline([[droneLat, droneLng], [targetLat, targetLng]], { color: '#22c55e', weight: 4, opacity: 0.95, dashArray: '10,8' }).addTo(map);
     }
@@ -2140,7 +2940,7 @@
           const input = qs(isAdminRole() ? 'admin-address-input' : 'address-input');
           if (input) input.value = data.display_name;
         }
-      } catch (_) {}
+      } catch (_) { }
     }
 
     function focusOrderOnMap(lat, lng) {
@@ -2245,7 +3045,7 @@
         if (token) {
           await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
         }
-      } catch (_) {}
+      } catch (_) { }
 
       token = '';
       currentUser = null;
@@ -2665,17 +3465,13 @@
         const res = await fetch(`${API_URL}/drones/${DRONE_ID}`, { headers: { Authorization: `Bearer ${token}` } });
         const droneData = await res.json();
         if (droneData.error) throw new Error(droneData.error);
-        
+
         const t = droneData.last || {};
         let status = String(droneData.status || 'OFFLINE').toUpperCase();
         const source = droneData.telemetry_source || t.source || '--';
         const reason = droneData.telemetry_reason || '';
         const ageMs = Number(droneData.telemetry_age_ms ?? -1);
 
-        // ==========================================
-        // 🛡️ CHỐT CHẶN: ÉP OFFLINE NẾU DỮ LIỆU BỊ CŨ
-        // ==========================================
-        // Nếu không có mạng quá 5 giây (5000 ms) hoặc chưa từng có dữ liệu
         if (ageMs > 5000 || ageMs === -1) {
           qs('t-status').textContent = 'OFFLINE';
           qs('t-status').className = 'text-lg font-black mt-1 text-rose-500';
@@ -2686,7 +3482,7 @@
           qs('t-eta').textContent = '--';
           qs('t-source').textContent = '--';
           qs('t-age').textContent = '--';
-          
+
           clearRealtimeVisuals();
           syncTelemetryMirrors({ armed: false, droneId: droneData.id || DRONE_ID });
           return; // Dừng hàm lại ở đây, KHÔNG hiện dữ liệu cũ
@@ -2701,7 +3497,7 @@
         qs('t-source').textContent = formatTelemetrySource(source, reason);
         qs('t-age').textContent = formatTelemetryAge(ageMs);
         qs('t-status').textContent = status;
-        
+
         qs('t-status').className = `text-lg font-black mt-1 ${status === 'IDLE' ? 'text-emerald-300' : status === 'BUSY' ? 'text-amber-300' : 'text-rose-300'}`;
 
         const sourceLabel = formatTelemetrySource(source, reason);
@@ -2774,45 +3570,56 @@
     });
 
     function initDesktopNavTabs() {
-      if (window.innerWidth < 1024) return; // Nếu là mobile thì không chạy hàm này
-
+      const nav = document.getElementById('landingNav');
+      const cursor = document.getElementById('navCursor');
       const navLinks = document.querySelectorAll('#landingNav .nav-link');
       const sections = document.querySelectorAll('#landingPage section[id], #landingPage footer[id]');
 
-      // 1. Lắng nghe sự kiện click để đổi màu thủ công (trình duyệt sẽ tự cuộn nhờ href="#id")
+      if (!nav || !cursor) return;
+
+      // 1. Hiệu ứng Hover con trỏ (Giữ nguyên logic cũ của bạn)
       navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-          navLinks.forEach(l => {
-            l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-            l.classList.add('text-[#849396]', 'border-transparent');
-          });
-          this.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-          this.classList.remove('text-[#849396]', 'border-transparent');
+        link.addEventListener('mouseenter', (e) => {
+          const rect = e.target.getBoundingClientRect();
+          const navRect = nav.getBoundingClientRect();
+          cursor.style.width = `${rect.width}px`;
+          cursor.style.left = `${rect.left - navRect.left}px`;
+          cursor.style.opacity = '1';
         });
       });
 
-      // 2. ScrollSpy: Tự động đổi màu Nav khi người dùng cuộn chuột
+      nav.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+      });
+
+      // 2. Logic Highlight khi cuộn (ScrollSpy) - ĐÃ ĐƯỢC SỬA LẠI
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+          // Chỉ cần section giao cắt với đường quét ảo
           if (entry.isIntersecting) {
             const id = entry.target.getAttribute('id');
-            const activeLink = document.querySelector(`#landingNav .nav-link[href="#${id}"]`);
 
-            if (activeLink) {
-              navLinks.forEach(l => {
-                l.classList.remove('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-                l.classList.add('text-[#849396]', 'border-transparent');
-              });
-              activeLink.classList.add('active', 'text-[#c3f5ff]', 'border-[#00e5ff]');
-              activeLink.classList.remove('text-[#849396]', 'border-transparent');
-            }
+            navLinks.forEach(link => {
+              const href = link.getAttribute('href').replace('#', '');
+              
+              if (href === id) {
+                link.classList.add('active', 'text-[#c3f5ff]');
+                link.classList.remove('text-[#849396]');
+              } else {
+                link.classList.remove('active', 'text-[#c3f5ff]');
+                link.classList.add('text-[#849396]');
+              }
+            });
           }
         });
-      }, { threshold: 0.3 }); // Section hiển thị 30% trên màn hình là kích hoạt
+      }, {
+        threshold: 0, // Chỉ cần 1 px của section chạm vạch là trigger
+        // Tạo một đường quét (scanline) ở vị trí 30% từ trên xuống màn hình
+        rootMargin: "-30% 0px -70% 0px" 
+      });
 
       sections.forEach(section => observer.observe(section));
     }
-    
     pollLoop();
     initDesktopNavTabs();
 
@@ -2863,33 +3670,222 @@
       document.body.prepend(container); // Gắn vào đầu body
 
       // 2. Tùy chỉnh số lượng hạt ở đây (25 là ít và vừa phải)
-      const particleCount = 70; 
+      const particleCount = 70;
 
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('energy-particle');
-        
+
         // Random kích thước hạt (từ 1px đến 3px)
         const size = Math.random() * 2 + 1;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
+
         // Random vị trí xuất phát theo chiều ngang (0% đến 100% chiều rộng màn hình)
         particle.style.left = `${Math.random() * 100}vw`;
-        
+
         // Random thời gian bay (từ 8s đến 15s để bay từ từ)
         const duration = Math.random() * 7 + 8;
         particle.style.animationDuration = `${duration}s`;
-        
+
         // Random độ trễ (delay) để các hạt không bay lên cùng 1 lúc (từ 0s đến 10s)
         particle.style.animationDelay = `${Math.random() * 10}s`;
-        
+
         container.appendChild(particle);
       }
     }
 
     // Chạy hàm tạo hạt ngay khi load xong web
     document.addEventListener('DOMContentLoaded', initEnergyParticles);
+    // === HIỆU ỨNG JANUS PAGE LOAD REVEAL ===
+    document.addEventListener('DOMContentLoaded', () => {
+      const titleEl = document.getElementById('hero-title');
+      if (titleEl) {
+        const newHTML = [];
+        let delayCount = 0;
+        const staggerTime = 0.06;
+
+        Array.from(titleEl.childNodes).forEach(node => {
+          if (node.nodeType === 3) {
+            const words = node.textContent.split(/(\s+)/);
+            words.forEach(word => {
+              if (word.trim() !== '') {
+                newHTML.push(`<span class="reveal-word" style="--delay: ${delayCount * staggerTime}s">${word}</span>`);
+                delayCount++;
+              } else {
+                newHTML.push(word);
+              }
+            });
+          }
+          else if (node.nodeType === 1) {
+            node.classList.add('reveal-word');
+            node.style.setProperty('--delay', `${delayCount * staggerTime}s`);
+            newHTML.push(node.outerHTML);
+            delayCount++;
+          }
+        });
+
+        titleEl.innerHTML = newHTML.join('');
+
+        titleEl.classList.add('is-ready');
+      }
+
+      setTimeout(() => {
+        if (titleEl) titleEl.classList.add('loaded');
+
+        const fadeElements = document.querySelectorAll('.fade-up-element');
+        fadeElements.forEach((el, index) => {
+          setTimeout(() => {
+            el.classList.add('loaded');
+          }, 200 + (index * 150));
+        });
+      }, 50);
+    });
+
+    // === HIỆU ỨNG ÁNH SÁNG THEO CHUỘT (FOOTER) ===
+    document.addEventListener('DOMContentLoaded', () => {
+      const footer = document.getElementById('footer');
+      if (!footer) return;
+
+      footer.addEventListener('mousemove', (e) => {
+        // Lấy tọa độ của footer so với màn hình
+        const rect = footer.getBoundingClientRect();
+
+        // Tính toán vị trí chuột TƯƠNG ĐỐI bên trong footer
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Cập nhật biến CSS
+        footer.style.setProperty('--mouse-x', `${x}px`);
+        footer.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    // === XỬ LÝ HIỆU ỨNG CARD STACK (HÀNH TRÌNH PHÁT TRIỂN) ===
+    const phasesData = [
+      { id: 1, phase: "PHASE 01", title: "Nghiên cứu & Thiết kế hệ thống", desc: "Phân tích yêu cầu kỹ thuật, tính toán tải trọng và lựa chọn linh kiện.", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 1: Xây dựng nền tảng." },
+      { id: 2, phase: "PHASE 02", title: "Lắp ráp & Mô phỏng Gazebo", desc: "Thi công cơ khí, điện; Tuning và Mô phỏng trên Gazebo.", img: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 2: Nâng cấp UI/UX hiện đại." },
+      { id: 3, phase: "PHASE 03", title: "Precise Landing", desc: "Nghiên cứu, lập trình, mô phỏng thử nghiệm hạ cánh chính xác.", img: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 3: Thuật toán hạ cánh." },
+      { id: 4, phase: "PHASE 04", title: "Thuật toán né vật cản", desc: "Sử dụng Lidar 2D C1M1 lập trình né vật cản.", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 4: Nhận diện vật cản." },
+      { id: 5, phase: "PHASE 05", title: "Xây dựng Web giao hàng", desc: "Lập trình Frontend, Backend theo dõi trạng thái bay realtime.", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 5: Giao diện Web Console." },
+      { id: 6, phase: "CURRENT", title: "Đánh giá & Định hướng", desc: "Hệ thống chạy ổn định trên production.", img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Hiện tại: Đã lên Production." }
+    ];
+
+    let currentCardIndex = 0;
+    let cardElements = [];
+    let autoSlideInterval;
+
+    function initCardStack() {
+      const container = document.getElementById('card-stack-container');
+      if (!container) return;
+
+      phasesData.forEach((data) => {
+        const card = document.createElement('div');
+        // Nội dung card giữ nguyên như bản trước của bạn (dùng flex-1 cho ảnh)
+        card.innerHTML = `
+          <div class="flex h-full w-full flex-col p-1.5 lg:p-2">
+            <div class="-outline-offset-1 flex flex-1 w-full items-center justify-center overflow-hidden rounded-xl lg:rounded-[18px] outline outline-white/10 bg-[#0d1426]">
+              <img src="${data.img}" alt="${data.title}" class="h-full w-full select-none object-cover opacity-70 hover:opacity-100 transition-opacity duration-300" />
+            </div>
+            <div class="flex w-full items-center justify-between gap-2 px-3 lg:px-5 py-4 lg:py-5">
+              <div class="flex min-w-0 flex-1 flex-col text-left">
+                <span class="text-[10px] lg:text-xs font-black tracking-widest text-cyan-400 mb-1 lg:mb-1.5">${data.phase}</span>
+                <span class="truncate font-bold text-white text-base lg:text-2xl">${data.title}</span>
+                <span class="text-xs lg:text-sm text-slate-400 truncate mt-0.5 lg:mt-1">${data.desc}</span>
+              </div>
+              <button onclick="openPhaseModal('${data.phase}', '${data.title}', '${data.desc}', '${data.fullDesc}')" class="flex h-9 lg:h-11 shrink-0 cursor-pointer select-none items-center gap-0.5 rounded-full bg-cyan-400 pl-4 lg:pl-6 pr-3 lg:pr-4 text-xs lg:text-sm font-bold text-[#031722] hover:bg-cyan-300 transition-colors">
+                Read <span class="material-symbols-outlined text-[18px] lg:text-[22px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+        cardElements.push(card);
+
+        // Tạm dừng tự động trượt khi người dùng rà chuột vào card
+        card.addEventListener('mouseenter', stopAutoSlide);
+        card.addEventListener('mouseleave', startAutoSlide);
+      });
+
+      updateCardPositions();
+      startAutoSlide();
+    }
+
+    function updateCardPositions() {
+      const total = phasesData.length;
+      cardElements.forEach((card, i) => {
+        card.className = 'phase-card';
+        let diff = (i - currentCardIndex + total) % total;
+
+        if (diff === 0) card.classList.add('card-front');
+        else if (diff === 1) card.classList.add('card-middle');
+        else if (diff === 2) card.classList.add('card-back');
+        else if (diff === total - 1) card.classList.add('card-exit');
+        else card.classList.add('card-hidden');
+      });
+    }
+
+    function nextPhaseCard() {
+      currentCardIndex = (currentCardIndex + 1) % phasesData.length;
+      updateCardPositions();
+      startAutoSlide();
+    }
+
+    // Logic Auto Slide
+    function startAutoSlide() {
+      if (autoSlideInterval) clearInterval(autoSlideInterval);
+      autoSlideInterval = setInterval(nextPhaseCard, 3000); // 4 giây trượt 1 lần
+    }
+
+    function stopAutoSlide() {
+      clearInterval(autoSlideInterval);
+    }
+
+    document.addEventListener('DOMContentLoaded', initCardStack);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Tự động xử lý Stagger (bước sóng)
+      // Chúng ta tìm tất cả các section hoặc div chứa các item reveal
+      const containers = document.querySelectorAll('.grid, .flex, .mobile-tab-section, #how .relative');
+
+      containers.forEach(container => {
+        // Tìm các phần tử có class reveal nằm trực tiếp bên trong container này
+        const items = container.querySelectorAll('.reveal-on-scroll');
+        items.forEach((item, index) => {
+          // Gán số thứ tự để CSS tính delay (bước sóng)
+          item.style.setProperty('--stagger-index', index);
+        });
+      });
+
+      // 2. Cấu hình Observer
+      const observerOptions = {
+        root: null,
+        threshold: 0.05, // Vừa chạm 5% là hiện ngay cho mượt
+        rootMargin: "0px 0px -50px 0px"
+      };
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Kích hoạt hiệu ứng
+            entry.target.classList.add('is-visible');
+
+            // Ngừng quan sát phần tử này (chạy 1 lần duy nhất)
+            observer.unobserve(entry.target);
+
+            // Sau khi hoàn tất hiệu ứng (khoảng 2s), dọn dẹp class để tối ưu
+            setTimeout(() => {
+              entry.target.style.transitionDelay = '0s'; // Reset delay để ko bị khựng khi click tab
+            }, 2000);
+          }
+        });
+      }, observerOptions);
+
+      // 3. Bắt đầu quan sát
+      const scrollElements = document.querySelectorAll('.reveal-on-scroll');
+      scrollElements.forEach(el => observer.observe(el));
+    });
   </script>
 </body>
+
 </html>
