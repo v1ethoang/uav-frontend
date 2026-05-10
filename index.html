@@ -3554,126 +3554,56 @@
     });
 
     function initDesktopNavTabs() {
+      const nav = document.getElementById('landingNav');
+      const cursor = document.getElementById('navCursor');
       const navLinks = document.querySelectorAll('#landingNav .nav-link');
-      
-      // Xử lý click chuyển tab mượt mà
+      const sections = document.querySelectorAll('#landingPage section[id], #landingPage footer[id]');
+
+      if (!nav || !cursor) return;
+
+      // 1. Hiệu ứng Hover con trỏ (Giữ nguyên logic cũ của bạn)
       navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href');
-          const targetSection = document.querySelector(targetId);
-          if (targetSection) {
-            targetSection.scrollIntoView({ behavior: 'smooth' });
-          }
+        link.addEventListener('mouseenter', (e) => {
+          const rect = e.target.getBoundingClientRect();
+          const navRect = nav.getBoundingClientRect();
+          cursor.style.width = `${rect.width}px`;
+          cursor.style.left = `${rect.left - navRect.left}px`;
+          cursor.style.opacity = '1';
         });
       });
 
-      // Bỏ ScrollSpy bằng IntersectionObserver đi, 
-      // thay bằng Scroll Event đơn giản và ổn định hơn khi có 2 trang ẩn/hiện
-      window.addEventListener('scroll', () => {
-        // Chỉ chạy khi đang ở trang Landing
-        if(document.getElementById('landingPage').classList.contains('hidden')) return;
-
-        let current = '';
-        const sections = document.querySelectorAll('#landingPage section[id], #landingPage footer[id]');
-        
-        sections.forEach(section => {
-          const sectionTop = section.offsetTop;
-          // Quét trước 100px để active sớm hơn
-          if (pageYOffset >= sectionTop - 100) {
-            current = section.getAttribute('id');
-          }
-        });
-
-        navLinks.forEach(link => {
-          link.classList.remove('active', 'text-[#c3f5ff]');
-          link.classList.add('text-[#849396]');
-          if (link.getAttribute('href').includes(current)) {
-            link.classList.add('active', 'text-[#c3f5ff]');
-            link.classList.remove('text-[#849396]');
-            
-            // Xử lý di chuyển cục cursor
-            const nav = document.getElementById('landingNav');
-            const cursor = document.getElementById('navCursor');
-            if (nav && cursor) {
-              const rect = link.getBoundingClientRect();
-              const navRect = nav.getBoundingClientRect();
-              cursor.style.width = `${rect.width}px`;
-              cursor.style.left = `${rect.left - navRect.left}px`;
-              cursor.style.opacity = '1';
-            }
-          }
-        });
+      nav.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
       });
-      
-      // Kích hoạt 1 lần khi load trang
-      window.dispatchEvent(new Event('scroll'));
+
+      // 2. Logic Highlight khi cuộn (ScrollSpy) - ĐÃ ĐƯỢC SỬA LẠI
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          // Chỉ cần section giao cắt với đường quét ảo
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+
+            navLinks.forEach(link => {
+              const href = link.getAttribute('href').replace('#', '');
+              
+              if (href === id) {
+                link.classList.add('active', 'text-[#c3f5ff]');
+                link.classList.remove('text-[#849396]');
+              } else {
+                link.classList.remove('active', 'text-[#c3f5ff]');
+                link.classList.add('text-[#849396]');
+              }
+            });
+          }
+        });
+      }, {
+        threshold: 0, // Chỉ cần 1 px của section chạm vạch là trigger
+        // Tạo một đường quét (scanline) ở vị trí 30% từ trên xuống màn hình
+        rootMargin: "-30% 0px -70% 0px" 
+      });
+
+      sections.forEach(section => observer.observe(section));
     }
-
-    pollLoop();
-    
-    // Đảm bảo DOM load xong mới gán NavTabs
-    document.addEventListener('DOMContentLoaded', initDesktopNavTabs);
-
-    (async function boot() {
-      const ok = await fetchMe();
-      if (ok) await showApp();
-      else showLanding();
-      refreshLandingAuthButton();
-    })();
-
-    // Hàm chuyển trang Landing -> Đã thêm logic kích hoạt lại Scroll
-    function showLanding() {
-      qs('landingPage').classList.remove('hidden');
-      qs('consolePage').classList.add('hidden');
-      closeAuthModal();
-      
-      // Cuộn lên đầu và kích hoạt sự kiện scroll để update Navbar
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        window.dispatchEvent(new Event('scroll'));
-      }, 50);
-
-      if (token && currentUser) {
-        logSys('Đã quay về landing page, phiên đăng nhập vẫn được giữ nguyên.');
-      }
-    }
-    
-    // Hàm chuyển trang Console -> Giữ nguyên logic cũ
-    async function showApp() {
-      qs('landingPage').classList.add('hidden');
-      qs('consolePage').classList.remove('hidden');
-      loadUserPreferences();
-      loadStoredProfile();
-      populateProfile();
-      updateOrderTabByRole();
-      updateFloatingPanelsByRole();
-      updateTopbarByRole();
-      if (!map) initMap();
-      renderProductCards('user-product-grid', 'user-product-select');
-      renderProductCards('admin-product-grid', 'admin-product-select');
-      refreshLandingAuthButton();
-      switchSidebarTab('user');
-      setTimeout(() => map?.invalidateSize(), 200);
-
-      if (isAdminRole()) logSys('Đã đăng nhập bằng tài khoản quản trị viên.');
-      else logSys('Đã đăng nhập bằng tài khoản người dùng. Bạn đã có thể đặt đơn hàng.');
-
-      if (isAdminRole()) {
-        await loadOrders();
-        await loadMissions();
-        await fetchTelemetry();
-        await loadOrderHistory();
-      } else {
-        activeMissions = [];
-        clearRealtimeVisuals();
-        qs('missionsBox').innerHTML = '<div class="rounded-2xl bg-white/5 border border-white/5 px-4 py-3 text-sm">Chỉ admin mới xem mission.</div>';
-        await loadOrders();
-        await fetchTelemetry();
-        await loadOrderHistory();
-      }
-    }
-    
     pollLoop();
     initDesktopNavTabs();
 
