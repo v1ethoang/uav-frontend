@@ -32,6 +32,7 @@ mission_tracker = {
     "home_lng": None,
 }
 
+event_queue = []
 def now_ms():
     return int(time.time() * 1000)
 
@@ -59,11 +60,7 @@ def disconnect():
     print("[SOCKET] ⚠️ Mất kết nối tới Backend, đang thử lại...")
 
 def emit_event(event_type, detail=None):
-    """Hàm gửi Event thay thế cho Pi khi mất wifi"""
-    if not sio.connected:
-        print(f"[EVENT] Không thể gửi {event_type} do mất mạng Server.")
-        return
-
+    """Hàm gửi Event có cơ chế lưu trữ vào hàng đợi khi mất mạng"""
     payload = {
         "drone_id": DRONE_ID,
         "mission_id": "", 
@@ -71,11 +68,29 @@ def emit_event(event_type, detail=None):
         "detail": detail,
         "ts_ms": now_ms()
     }
+    
+    if not sio.connected:
+        print(f"[EVENT QUEUE] ⚠️ Mất mạng! Đã lưu {event_type} vào hàng đợi.")
+        event_queue.append(payload)
+        return
+
     try:
         sio.emit('bridge_event', payload)
-        print(f"[EVENT] -> {event_type} (Gửi bởi Ground Relay)")
+        print(f"[EVENT] -> {event_type} (Gửi trực tiếp)")
     except Exception as e:
-        print(f"[EVENT ERROR] {e}")
+        print(f"[EVENT ERROR] Lỗi gửi {event_type}: {e}. Đã lưu vào hàng đợi.")
+        event_queue.append(payload)
+
+def flush_event_queue():
+    """Kiểm tra và gửi bù các event bị kẹt khi mạng kết nối lại"""
+    while event_queue and sio.connected:
+        payload = event_queue[0] 
+        try:
+            sio.emit('bridge_event', payload)
+            print(f"[EVENT RECOVERY] -> {payload['type']} (Đã gửi bù thành công)")
+            event_queue.pop(0)  
+        except Exception as e:
+            break
 
 def check_mission_events():
     """Tự động phân tích telemetry để bắn event DELIVERED / COMPLETED"""
@@ -118,6 +133,8 @@ def check_mission_events():
 
 def telemetry_worker():
     while True:
+        flush_event_queue()
+
         if sio.connected and state["lat"] is not None and state["lng"] is not None:
             payload = {
                 "drone_id": DRONE_ID,
@@ -134,9 +151,9 @@ def telemetry_worker():
             try:
                 sio.emit('bridge_telemetry', payload)
             except Exception:
-                pass
+                pass 
         
-        time.sleep(TELEMETRY_INTERVAL) 
+        time.sleep(TELEMETRY_INTERVAL)
 
 def main():
     print(f"[INFO] Kết nối MAVLink tại {MAVLINK_IN}")
