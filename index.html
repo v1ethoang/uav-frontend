@@ -368,10 +368,17 @@
     }
 
     #map {
-      /* Chiều cao mặc định cho mobile (khoảng nửa màn hình) */
+      /* Chiều cao mặc định cho thiết bị di động */
       min-height: 50vh;
       height: 100%;
       width: 100%;
+    }
+
+    /* Tối ưu chiều cao vượt trội trên màn hình lớn (Desktop) để khớp với Sidebars */
+    @media (min-width: 1024px) {
+      #map {
+        min-height: 600px !important; /* Tăng kích thước bản đồ lên bằng hoặc hơn 600px tùy ý */
+      }
     }
 
     /* Thêm vào cuối thẻ <style> để tối ưu hóa không gian hiển thị khi co nhỏ trình duyệt */
