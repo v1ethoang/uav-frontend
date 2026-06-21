@@ -2,6 +2,19 @@
 <html class="dark" lang="vi">
 
 <head>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JANUS | Drone Delivery</title>
@@ -361,10 +374,18 @@
       width: 100%;
     }
 
-    /* Trả lại 760px khi ở màn hình lớn (tablet/desktop) */
-    @media (min-width: 1024px) {
+    /* Thêm vào cuối thẻ <style> để tối ưu hóa không gian hiển thị khi co nhỏ trình duyệt */
+    @media (min-width: 768px) and (max-width: 1023px) {
       #map {
-        min-height: 760px;
+        min-height: 500px !important;
+      }
+      .product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      /* Giữ form thông tin rõ ràng, không bị ép chặt */
+      main {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
       }
     }
 
@@ -777,22 +798,35 @@
       box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.05), 0 20px 60px rgba(0, 0, 0, 0.4);
     }
 
-    /* Tăng không gian dưới đáy footer để chứa chữ khổng lồ, scale tự động theo màn hình */
-    /* 1. Nong khoảng trống ở đáy footer ra 20vw để chứa trọn vẹn chữ khổng lồ */
-    #footer .max-w-screen-2xl {
-      padding-bottom: 20vw !important;
+    /* Tìm đoạn class này trong thẻ <style> của bạn và THAY THẾ bằng đoạn dưới đây */
+    .giant-text-wrapper {
+      display: none; /* Mặc định ẨN HOÀN TOÀN trên Mobile để không chiếm không gian */
     }
 
-    .giant-text-wrapper {
-      position: absolute;
-      /* Nhích lên 1 chút xíu khỏi đáy để không bị bo góc (overflow-hidden) của footer chém mất chân chữ */
-      bottom: 1vw;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      pointer-events: none;
-      user-select: none;
-      z-index: 0;
+    /* Chỉ kích hoạt khối chữ khổng lồ và hiệu ứng soi đèn khi lên màn hình Desktop */
+    @media (min-width: 1024px) {
+      .giant-text-wrapper {
+        display: block;
+        position: absolute;
+        bottom: 1vw;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        pointer-events: none;
+        user-select: none;
+        z-index: 0;
+      }
+    }
+
+    /* Tìm đoạn này trong <style> và cập nhật lại số liệu */
+    #footer .max-w-screen-2xl {
+      padding-bottom: 12px !important; /* Giảm tối đa để dòng Copyright sát xuống đáy trên Mobile */
+    }
+
+    @media (min-width: 1024px) {
+      #footer .max-w-screen-2xl {
+        padding-bottom: 20vw !important; /* Giữ nguyên không gian cho Desktop */
+      }
     }
 
     /* Lớp chữ chìm */
@@ -935,6 +969,70 @@
     .reveal-on-scroll {
       transition-delay: calc(var(--stagger-index, 0) * 0.15s);
     }
+
+    .phase-detailed-content, 
+    .phase-detailed-content p, 
+    .phase-detailed-content li {
+      text-align: justify !important;
+      text-justify: inter-word !important;
+    }
+
+    /* CƯỠNG CHẾ CĂN GIỮA TẤT CẢ TEXT CHÚ THÍCH HÌNH ẢNH TRONG MODAL */
+    .phase-detailed-content p.text-center,
+    .phase-detailed-content p[class*="text-slate-400"] {
+      text-align: center !important;
+      display: block !important;
+      width: 100% !important;
+    }
+
+    /* Khối bọc container cho phép cuộn ngang vuốt ngón tay nếu công thức quá dài trên mobile cực chuẩn */
+    .mathjax-mobile-wrapper {
+      width: 100%;
+      overflow-x: auto !important; 
+      overflow-y: hidden;
+      display: block;
+      margin: 1.2rem 0;
+      padding: 0.5rem 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Tự động ép cấu trúc MathJax co dãn linh hoạt, không vỡ layout */
+    .mathjax-mobile-wrapper mjx-container,
+    #modalPhaseDetails mjx-container {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      box-sizing: border-box;
+    }
+
+    /* Định dạng thanh cuộn ngang mỏng tinh tế cho công thức nếu bị tràn trên di động */
+    .mathjax-mobile-wrapper::-webkit-scrollbar {
+      height: 3px;
+    }
+    .mathjax-mobile-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(0, 229, 255, 0.2);
+      border-radius: 99px;
+    }
+
+    /* MEDIA QUERY: Tối ưu hiển thị thu nhỏ font trên thiết bị di động < 768px */
+    @media (max-width: 767px) {
+      /* Nâng kích thước font gốc của MathJax display lên một chút cho rõ nét, không bị quá nhỏ */
+      .mathjax-mobile-wrapper mjx-container[display="true"] {
+        font-size: 15px !important; /* Đã nâng từ 13px lên 15px để vừa trực quan vừa khít màn hình */
+        margin: 0.6rem 0 !important;
+      }
+      
+      /* Nâng cỡ chữ các ma trận cấu trúc phức tạp */
+      mjx-mtable, mjx-mo, mjx-mi, mjx-mn {
+        font-size: 14px !important; /* Đã nâng từ 12px lên 14px */
+      }
+
+      /* Căn lề danh sách bullet points trên di động sát biên */
+      .phase-detailed-content ul, 
+      .phase-detailed-content ol {
+        padding-left: 1.25rem !important;
+      }
+    }
   </style>
 </head>
 
@@ -944,7 +1042,9 @@
       <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
         
         <div class="flex-1 flex justify-start pointer-events-none">
-          <a href="#hero" class="pointer-events-auto flex items-center gap-3 cursor-pointer group active:scale-95 transition-transform duration-150 relative z-20">
+          <a href="javascript:void(0)" 
+            class="pointer-events-auto flex items-center gap-3 cursor-pointer group active:scale-95 transition-transform duration-150 relative z-20"
+            onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
             <span class="material-symbols-outlined text-primary text-[32px] drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] group-hover:rotate-12 transition-transform">rocket_launch</span>
             <span class="text-3xl font-black tracking-tighter text-[#c3f5ff] font-headline uppercase drop-shadow-[0_0_10px_rgba(0,229,255,0.3)]">JANUS</span>
           </a>
@@ -1207,7 +1307,7 @@
               <div class="p-0 h-full flex flex-col relative min-h-[300px]">
                 <div class="absolute inset-0 w-full h-full">
                   <img
-                    src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80"
+                    src="dronebay.png"
                     alt="Drone Delivery"
                     class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
                   <div class="absolute inset-0 bg-gradient-to-t from-[#0b1326] via-[#0b1326]/60 to-transparent"></div>
@@ -1311,94 +1411,52 @@
           <p class="text-slate-300">Mỗi lần cất cánh là một bước tiến, mỗi lần thử nghiệm là một dấu mốc trên hành trình hoàn thiện của JANUS.</p>
         </div>
 
-        <div
-          class="lg:hidden space-y-12 relative before:absolute before:left-4 before:w-px before:h-full before:bg-white/10 max-w-screen-md mx-auto">
+        <div class="lg:hidden space-y-12 relative before:absolute before:left-4 before:w-px before:h-full before:bg-white/10 max-w-screen-md mx-auto">
 
           <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
+            <div class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('PHASE 01', 'Logic hệ thống ổn định', 'Xây dựng core logic...', 'Chi tiết Phase 1: Xây dựng nền tảng.')">
-                <span class="text-primary text-[10px] font-black">PHASE 01</span>
-                <h5 class="text-lg font-bold mb-2">Nghiên cứu & Thiết kế hệ thống</h5>
-                <p class="text-sm text-slate-300">Phân tích yêu cầu kỹ thuật, tính toán tải trọng và lựa chọn các linh
-                  kiện phần cứng.</p>
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group active:scale-[0.98] transition-all"
+                onclick="openPhaseModal(1)">
+                <span class="text-primary text-[10px] font-black tracking-widest block mb-1">PHASE 01</span>
+                <h5 class="text-lg font-bold mb-2 text-white group-hover:text-accent transition-colors">Thiết kế hệ thống</h5>
+                <p class="text-sm text-slate-300">Tính toán tải trọng, lựa chọn linh kiện phần cứng và thi công lắp ráp mô hình thực tế.</p>
               </div>
             </div>
           </div>
 
           <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
+            <div class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('PHASE 02', 'Nâng cấp thẩm mỹ', 'Thiết kế Dark Glass...', 'Chi tiết Phase 2: Nâng cấp UI/UX hiện đại.')">
-                <span class="text-primary text-[10px] font-black">PHASE 02</span>
-                <h5 class="text-lg font-bold mb-2">Lắp ráp Drone và Mô phỏng Gazebo</h5>
-                <p class="text-sm text-slate-300">Thi công cơ khí, điện; Tuning và Mô phỏng các trường hợp bay cơ bản
-                  trên Gazebo.</p>
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group active:scale-[0.98] transition-all"
+                onclick="openPhaseModal(2)">
+                <span class="text-primary text-[10px] font-black tracking-widest block mb-1">PHASE 02</span>
+                <h5 class="text-lg font-bold mb-2 text-white group-hover:text-accent transition-colors">Thuật toán Precision Landing</h5>
+                <p class="text-sm text-slate-300">Nghiên cứu giải thuật hạ cánh chính xác với ArUco Marker bằng phép giải PnP và mô hình hình học phối cảnh.</p>
               </div>
             </div>
           </div>
 
           <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
+            <div class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('PHASE 03', 'Tối ưu hóa Backend', 'Refactor API...', 'Chi tiết Phase 3: Giữ API cũ và di chuyển logic.')">
-                <span class="text-primary text-[10px] font-black">PHASE 03</span>
-                <h5 class="text-lg font-bold mb-2">Thuật toán Precise Landing</h5>
-                <p class="text-sm text-slate-300">Tiến hành nghiên cứu, lập trình, mô phỏng thử nghiệm và thực tế.</p>
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group active:scale-[0.98] transition-all"
+                onclick="openPhaseModal(3)">
+                <span class="text-primary text-[10px] font-black tracking-widest block mb-1">PHASE 03</span>
+                <h5 class="text-lg font-bold mb-2 text-white group-hover:text-accent transition-colors">Thuật toán né vật cản</h5>
+                <p class="text-sm text-slate-300">Nghiên cứu thuật toán phát hiện rìa Gradient và tìm góc trống di chuyển an toàn bằng cảm biến RPLiDAR C1M1.</p>
               </div>
             </div>
           </div>
 
           <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
+            <div class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all"></div>
             <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('PHASE 04', 'Thử nghiệm thực tế', 'Bay demo ngoài trời...', 'Chi tiết Phase 4: Kiểm tra độ trễ Telemetry.')">
-                <span class="text-primary text-[10px] font-black">PHASE 04</span>
-                <h5 class="text-lg font-bold mb-2">Thuật toán né vật cản</h5>
-                <p class="text-sm text-slate-300">Sử dụng Lidar 2D C1M1, tiến hành nghiên cứu, lập trình, mô phỏng thử
-                  nghiệm và thực tế.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
-            <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('PHASE 05', 'Tích hợp AI', 'Nhận diện vật cản...', 'Chi tiết Phase 5: Bảo mật và phân quyền chặt chẽ.')">
-                <span class="text-primary text-[10px] font-black">PHASE 05</span>
-                <h5 class="text-lg font-bold mb-2">Xây dựng Web giao hàng</h5>
-                <p class="text-sm text-slate-300">Lập trình Frontend, Backend hoàn chỉnh; theo dõi trạng thái bay và
-                  thông số Drone realtime.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="relative flex flex-col items-start gap-8 group reveal-on-scroll">
-            <div
-              class="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-accent z-10 border-4 border-surface group-hover:shadow-[0_0_15px_#00e5ff] transition-all">
-            </div>
-            <div class="pl-12 w-full">
-              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group"
-                onclick="openPhaseModal('CURRENT', 'JANUS Console V2', 'Phiên bản hoàn thiện...', 'Chi tiết Hiện tại: Hệ thống chạy ổn định trên production.')">
-                <span class="text-primary text-[10px] font-black">Phase 06</span>
-                <h5 class="text-lg font-bold mb-2">Đánh giá và Định hướng phát triển</h5>
-                <p class="text-sm text-slate-300">Tổng hợp kết quả đạt được và đề xuất phương án phát triển trong tương
-                  lai.</p>
+              <div class="bg-panel p-6 rounded-2xl border border-white/5 cursor-pointer hover-smooth group active:scale-[0.98] transition-all"
+                onclick="openPhaseModal(4)">
+                <span class="text-primary text-[10px] font-black tracking-widest block mb-1">PHASE 04</span>
+                <h5 class="text-lg font-bold mb-2 text-white group-hover:text-accent transition-colors">Đánh giá &amp; Định hướng</h5>
+                <p class="text-sm text-slate-300">Đánh giá độ ổn định của hệ thống trên thực nghiệm ngoài trời và định hướng tích hợp trí tuệ nhân tạo tương lai.</p>
               </div>
             </div>
           </div>
@@ -1467,19 +1525,20 @@
       <div class="max-w-screen-2xl mx-auto p-8 md:p-14 z-10 relative">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-14">
 
-          <!-- Cột 1: Brand -->
           <div class="flex flex-col space-y-5">
             <div class="flex items-center space-x-2">
               <span class="material-symbols-outlined text-accent text-3xl">rocket_launch</span>
               <span class="text-white text-3xl font-black tracking-tighter uppercase font-headline">JANUS</span>
             </div>
+            
             <p class="text-[15px] text-slate-300 leading-relaxed pr-4">
               <strong class="text-[17px] text-slate-300 leading-relaxed pr-4">
                 GVHD: PGS.TS. Lê Mỹ Hà
               </strong><br>
-              KLTN CNKT Điều khiển và Tự động hóa<br>
-              2022-2026<br>
-              07/2026
+              Đại học Công nghệ Kỹ thuật Tp.HCM<br>
+              Khóa luận Tốt nghiệp <br>
+              CNKT Điều khiển và Tự động hóa<br>
+              Khóa 2022-2026
             </p>
           </div>
 
@@ -1700,35 +1759,346 @@
     </div>
   </div>
 
-  <div id="phaseModal"
-    class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4"
-    onclick="closePhaseModalOnClickOutside(event)">
-    <div
-      class="phase-modal-content w-full max-w-4xl bg-[#0b1326]/95 border border-[#00e5ff]/30 rounded-3xl p-6 md:p-10 transform scale-95 opacity-0 transition-all duration-300 relative shadow-[0_20px_60px_rgba(0,229,255,0.15)] overflow-y-auto max-h-[85vh]">
+  <div id="phaseModal" class="fixed inset-0 z-[100] hide-scrollbar opacity-0 pointer-events-none transition-all duration-300 backdrop-blur-sm" onclick="closePhaseModal(event)">
+  <div class="fixed inset-0 bg-black/70"></div> <div class="relative bg-[#0b1120] border border-white/10 w-[92%] max-w-5xl h-[85vh] max-h-[750px] rounded-[2rem] shadow-[0_20px_70px_rgba(0,0,0,0.7)] mx-auto mt-[7vh] md:mt-[10vh] overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+    
+    <button onclick="closePhaseModal()" 
+            class="absolute top-5 right-5 z-50 flex items-center justify-center rounded-full bg-red-600/90 border border-red-500 text-white hover:bg-red-500 active:scale-95 transition-all duration-150 backdrop-blur-sm shadow-md"
+            style="width: 44px; height: 44px; padding: 0;"> <span class="material-symbols-outlined text-[24px]">close</span>
+    </button>
 
-      <button
-        class="absolute top-6 right-6 w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 transition-all z-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
-        onclick="closePhaseModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+    <div class="flex-1 overflow-y-auto p-7 md:p-12 hide-scrollbar">
+      
+      <div class="mb-6 pr-12"> <span id="modalPhaseBadge" class="inline-block bg-primary/10 text-primary text-[10px] font-black tracking-widest px-3 py-1 rounded-full mb-3 uppercase border border-primary/20">Phase --</span>
+        <h3 id="modalPhaseTitle" class="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight font-headline">Title --</h3>
+      </div>
 
-      <div class="pr-2">
-        <div
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-accent text-[10px] font-bold uppercase tracking-widest mb-4 border border-cyan-500/20"
-          id="pm-phase">
-          PHASE
+      <div class="prose prose-sm prose-invert max-w-none text-slate-300 leading-relaxed space-y-5">
+        <p id="modalPhaseDesc" class="text-base text-slate-200"></p>
+        
+        <div class="w-full h-px bg-white/5 my-6"></div>
+
+        <div id="modalPhaseDetails" class="phase-detailed-content mt-6">
+          </div>
+
+      </div> </div> </div> </div> 
+
+  <script id="raw-phase-1" type="text/template">
+    <div class="space-y-6 text-slate-300">
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">1. Cấu trúc phần cứng tổng thể</h4>
+        <p class="leading-relaxed text-justify mb-2">
+          Hệ thống được phân chia thành hai khối chức năng chính: <strong>Ground Station Control</strong> (Trạm điều khiển mặt đất) và <strong>On-board System</strong> (Hệ thống thiết bị trên máy bay).
+        </p>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="thietke/tongquan.png" alt="Tổng quan hệ thống phần cứng" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.1: Tổng quan hệ thống phần cứng</p>
         </div>
-        <h3 id="pm-title" class="text-3xl md:text-4xl font-black tracking-tight text-white mb-3">Tên Giai Đoạn</h3>
+        <ul class="list-disc pl-5 space-y-1 mb-4">
+          <li><strong>Ground Station Control:</strong> Sử dụng máy tính PC chạy giao diện vận hành Web Console qua mạng Không dây $2.4\text{ GHz}$ kết nối với Raspberry Pi 5, đồng thời kết nối MAVLink trực tiếp để giám sát các dữ liệu Telemetry quan trọng.</li>
+          <li><strong>On-board System:</strong> Máy tính nhúng <strong>Raspberry Pi 5 (8GB)</strong> đảm nhiệm tác vụ xử lý ảnh nhận diện ArUco Marker từ Camera và quét môi trường từ cảm biến <strong>RPLiDAR C1M1</strong>. Bộ điều khiển bay trung tâm <strong>Pixhawk 6C</strong> thu thập dữ liệu cảm biến (GPS M10, IMU, Barometer, Compass) để xuất xung PWM điều khiển tốc độ động cơ qua các ESC.</li>
+          <li><strong>Cơ cấu thả hàng:</strong> Tách biệt bằng một mạch <strong>Arduino Nano</strong> điều khiển Servo SG90, được kích hoạt thông qua cách ly quang (Opto) từ Raspberry Pi 5 để bảo đảm an toàn hệ thống.</li>
+        </ul>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="thietke/solid.png" alt="Thiết kế mô hình trên SolidWorks" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.2: Thiết kế mô hình trên SolidWorks</p>
+        </div>
+      </div>
+      <div class="w-full h-px bg-white/10 my-4"></div>
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">2. Tính toán tải trọng &amp; Động lực học</h4>
+        <p class="leading-relaxed text-justify mb-2">
+          Hệ thống động lực sử dụng cấu hình Quadcopter với <strong>4 động cơ E-Power X3115 900KV</strong> kết hợp cánh quạt $10\times4.5\text{ inch}$. Tại mức điện áp $25\text{ V}$ (Pin LiPo 6S) và mức ga cất cánh khuyến nghị, các thông số động lực học được tính toán chính xác như sau:
+        </p>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2 tabular-nums">
+          <div>• Tổng lực đẩy tối đa tạo ra: <span class="text-white font-bold">$T_{total} = 4 \times 1.925 = 7.7\text{ kgf}$</span></div>
+          <div>• Khối lượng bản thân UAV (No payload): <span class="text-white font-bold">$m_{drone} = 2.3\text{ kg}$</span></div>
+          <div>• Tỷ số lực đẩy / trọng lượng khi không tải: <span class="text-white font-bold">$K_{no\_payload} = \frac{7.7}{2.3} \approx 3.35$</span> (Bảo đảm khả năng cất cánh cơ động cao)</div>
+          <div>• Khối lượng cất cánh tối đa an toàn (Hệ số an toàn $K = 2$): <span class="text-white font-bold">$m_{takeoff\_max} = \frac{7.7}{2} = 3.85\text{ kg}$</span></div>
+          <div>• <strong>Tải trọng hữu ích an toàn thiết kế: <span class="text-cyan-400 font-bold">$m_{payload\_safe} = 3.85 - 2.3 = 1.55\text{ kg} \approx 1.5\text{ kg}$</span></strong></div>
+          <div>• Tỷ số lực đẩy / trọng lượng khi mang tải full $1.5\text{ kg}$: <span class="text-white font-bold">$K_{payload} = \frac{7.7}{3.8} \approx 2.03$</span> (Bảo đảm duy trì dự trữ lực đẩy để kháng gió và giữ tư thế ổn định tốt)</div>
+        </div>
+      </div>
+      <div class="w-full h-px bg-white/10 my-4"></div>
+      <div>
+        <h4 class="text-white font-bold text-lg mb-3 flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-accent rounded-full"></span> 3. Danh mục vật tư &amp; Thiết bị phần cứng
+        </h4>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="thietke/linhkien.png" alt="Lựa chọn linh kiện cho hệ thống" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.3: Lựa chọn linh kiện cho hệ thống</p>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-white/10 shadow-lg mb-4">
+          <table class="w-full text-left border-collapse text-xs bg-panel/60 backdrop-blur-md">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/5 text-white font-bold">
+                <th class="p-3 text-center w-12">STT</th>
+                <th class="p-3 w-1/3">Linh kiện / Thiết bị chính</th>
+                <th class="p-3 text-center w-16">SL</th>
+                <th class="p-3">Thông số kỹ thuật / Vai trò hệ thống</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-slate-300 tabular-nums">
+              <tr><td class="p-2.5 text-center text-slate-500">1</td><td class="p-2.5 font-semibold text-white">Khung F450</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Khung quadcopter cơ bản, tích hợp mạch phân phối nguồn (PDB).</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">2</td><td class="p-2.5 font-semibold text-white">Động cơ E-Power X3115 900KV</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Động cơ Brushless hiệu suất cao, lực kéo lớn.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">3</td><td class="p-2.5 font-semibold text-white">ESC Hobbywing Skywalker 60A V2</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Bộ điều tốc động cơ chịu dòng tải cao.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">4</td><td class="p-2.5 font-semibold text-white">Cánh quạt 1045</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Cánh quạt tối ưu lực nâng cho động cơ KV thấp.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">5</td><td class="p-2.5 font-semibold text-white">Pin LiPo Ovonic 5300mAh 6S 75C</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Nguồn cấp chính $22.2\text{ V}$ - dòng xả cực đại 75C.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">6</td><td class="p-2.5 font-semibold text-white">Pixhawk 6C + PM07</td><td class="p-2.5 text-center">1 bộ</td><td class="p-2.5 text-slate-400">Flight Controller lái chính, ổn định vòng lặp kín.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">7</td><td class="p-2.5 font-semibold text-white">GPS M10</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Module định vị vệ tinh độ chính xem cao.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">8</td><td class="p-2.5 font-semibold text-white">Raspberry Pi 5 (8GB)</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Companion Computer xử lý thuật toán thị giác và LiDAR.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">9</td><td class="p-2.5 font-semibold text-white">Raspberry Pi Camera Module V2</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Thu luồng video hướng xuống mặt đất để phục vụ hạ cánh.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">10</td><td class="p-2.5 font-semibold text-white">Holybro SiK Telemetry V3 433MHz</td><td class="p-2.5 text-center">1 cặp</td><td class="p-2.5 text-slate-400">Mạch truyền thông xa, đồng bộ gói telemetry MAVLink.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">11</td><td class="p-2.5 font-semibold text-white">RadioMaster Pocket ELRS 2.4GHz</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Tay điều khiển RC can thiệp thủ công khẩn cấp.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">12</td><td class="p-2.5 font-semibold text-white">RPLIDAR C1M1</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Cảm biến quét laser xoay 2D phục vụ thuật toán né vật cản.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">13</td><td class="p-2.5 font-semibold text-white">Arduino Nano</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Khối phụ lái cơ cấu đóng mở chốt thả hàng.</td></tr>
+              <tr><td class="p-2.5 text-center text-slate-500">14</td><td class="p-2.5 font-semibold text-white">Servo SG90</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Động cơ cơ khí chấp hành kéo chốt thả hàng hóa.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="thietke/thucte.png" alt="Mô hình thực tế hoàn thiện" class="w-full h-full object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.4: Mô hình thực tế hoàn thiện</p>
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426] p-2 flex justify-center">
+            <img src="thietke/sododaunoi.png" alt="Mô hình thực tế hoàn thiện" class="max-w-full h-auto object-cover opacity-90 mx-auto block" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.5: Sơ đồ đấu nối của hệ thống</p>
+        </div>
+      </div>
+    </div>
+  </script>
 
-        <p id="pm-desc" class="text-slate-300 leading-relaxed max-w-2xl mb-5 font-medium">Mô tả ngắn</p>
-
-        <div id="pm-main-content"
-          class="text-sm text-slate-400 leading-7 text-justify space-y-4 pt-5 border-t border-white/5">
+  <script id="raw-phase-2" type="text/template">
+    <div class="space-y-6 text-slate-300">
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">1. Định nghĩa các hệ trục tọa độ không gian</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Bài toán hạ cánh chính xác (Precision Landing) yêu cầu xác định sai số vị trí động giữa UAV và vị trí đáp cố định. Các hệ trục tọa độ tham chiếu được thiết lập bao gồm:
+        </p>
+        <ul class="list-disc pl-5 space-y-1 text-sm mb-4">
+          <li><strong>Local NED frame {N}:</strong> Hệ tọa độ phẳng mặt đất cục bộ Đông-Bắc-Xuống.</li>
+          <li><strong>Body frame {B}:</strong> Hệ tọa độ gắn liền với trọng tâm thân máy bay (Trục $x_b$ hướng tới, $y_b$ hướng sang phải, $z_b$ hướng vuông góc xuống dưới).</li>
+          <li><strong>Camera frame {C}:</strong> Hệ tọa độ quang học của camera hướng xuống dưới ($z_c$ trùng trục quang học hướng xuống, $x_c$ và $y_c$ tương ứng các phương ảnh).</li>
+          <li><strong>Marker frame {M}:</strong> Hệ tọa độ chuẩn hóa của tấm đáp ArUco Marker đặt tại trung tâm điểm đích.</li>
+        </ul>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="precise/hetruc.png" alt="Mô tả hệ trục tọa độ trong bài toán precise landing" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 2.1: Các hệ trục trong bài toán precise landing với ArUco marker</p>
         </div>
       </div>
 
+      <div class="w-full h-px bg-white/10 my-4"></div>
+
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">2. Giải bài toán Pose Estimation (PnP Solver)</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Khi Camera trên máy bay phát hiện được ArUco Marker, 4 đỉnh góc ảnh tỷ lệ pixel $(q_0, q_1, q_2, q_3)$ được trích xuất trực tiếp. Vì kích thước thực vật lý của marker đã biết trước, ta tiến hành ánh xạ tương ứng 4 điểm 3D không gian không đổi $(p_0, p_1, p_2, p_3)$ thuộc hệ trục **{M}** vào mặt phẳng ảnh phẳng **{I}**.
+        </p>
+        <p class="leading-relaxed text-justify mb-3">
+          Áp dụng thuật toán giải hình học **Perspective-n-Point (PnP)**, hệ thống ước lượng được tư thế và vị trí tương đối của tấm đáp so với tâm cảm biến Camera, biểu diễn bởi ma trận xoay $R_M^C$ và vector tịnh tiến không gian:
+        </p>
+        
+        $$d_M^C = \begin{bmatrix} x_{marker} \\ y_{marker} \\ z_{marker} \end{bmatrix}$$
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="precise/hetoado.png" alt="Mô tả Homogeneous Transformation giữa các hệ tọa độ" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 2.2: Phép biến đổi không gian Homogeneous Transformation</p>
+        </div>
+        <p class="leading-relaxed text-justify mb-3">
+          Để đưa dữ liệu này về hệ điều khiển vòng kín của UAV, ta chuyển đổi $d_M^C$ từ hệ trục **{C}** sang hệ trục thân **{B}** thông qua ma trận biến đổi đồng nhất cấu trúc Homogeneous:
+        </p>
+        
+        $$H_M^B = H_C^B H_M^C = \begin{bmatrix} R_C^B & d_C^B \\ \mathbf{0}_{1\times3} & 1 \end{bmatrix} \begin{bmatrix} R_M^C & d_M^C \\ \mathbf{0}_{1\times3} & 1 \end{bmatrix} = \begin{bmatrix} R_C^B R_M^C & R_C^B d_M^C + d_C^B \\ \mathbf{0}_{1\times3} & 1 \end{bmatrix}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Với góc đặt vuông góc hướng xuống của camera, ma trận xoay cố định hình học $R_C^B$ được xác định cụ thể là:
+        </p>
+
+        $$R_C^B = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Khai triển tích ma trận trên phương trình hình học, ta thu được vị trí ArUco marker quy đổi chuẩn trong hệ trục thân máy bay **{B}**:
+        </p>
+
+        $$d_M^B = \begin{bmatrix} x_b \\ y_b \\ z_b \end{bmatrix} = R_C^B d_M^C = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x_{marker} \\ y_{marker} \\ z_{marker} \end{bmatrix} = \begin{bmatrix} -y_{marker} \\ x_{marker} \\ z_{marker} \end{bmatrix}$$
+      </div>
+
+      <div class="w-full h-px bg-white/10 my-4"></div>
+
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">3. Phương pháp hình học chiếu phối cảnh (Camera Pinhole)</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Song song với phép giải PnP trực tiếp, hệ thống tích hợp giải thuật tính góc lệch dựa trên mô hình Camera lỗ kim lý tưởng nhằm gia tăng độ mượt và giảm độ trễ tính toán. Mối quan hệ phép chiếu phối cảnh giữa điểm không gian $P(X_c, Y_c, Z_c)$ và điểm pixel ảnh $(u, v)$ được xác định qua ma trận nội tại Camera (Intrinsic Matrix):
+        </p>
+
+        $$\begin{bmatrix} u \\ v \\ 1 \end{bmatrix} = \begin{bmatrix} f_x & 0 & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} X_c \\ Y_c \\ Z_c \end{bmatrix}$$
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="precise/camlokim.png" alt="Mô hình camera lỗ kim và phép chiếu phối cảnh" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 2.3: Mô hình camera lỗ kim và phép chiếu phối cảnh</p>
+        </div>
+        <p class="leading-relaxed text-justify mb-3">
+          Từ tọa độ 4 góc pixel trích xuất từ camera, tọa độ tâm thực tế $(u_m, v_m)$ của ArUco Marker được tính bằng trung bình cộng hình học:
+        </p>
+
+        $$u_m = \frac{u_1+u_2+u_3+u_4}{4}, \quad v_m = \frac{v_1+v_2+v_3+v_4}{4}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Hệ phương trình suy rộng tọa độ góc chiếu:
+        </p>
+
+        $$\frac{X_c}{Z_c} = \frac{u_m - c_x}{f_x}, \quad \frac{Y_c}{Z_c} = \frac{v_m - c_y}{f_y}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Góc lệch trục quang học theo 2 phương ảnh $(\theta_x, \theta_y)$ được tính bằng hàm lượng giác ngược:
+        </p>
+
+        $$\theta_x = \tan^{-1}\left(\frac{u_m - c_x}{f_x}\right), \quad \theta_y = \tan^{-1}\left(\frac{v_m - c_y}{f_y}\right)$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Bằng cách kết hợp kết quả góc lệch này với thông số độ cao thực tế $Z_c$ phản hồi từ cảm biến khoảng cách tầm xa (Rangefinder/LiDAR), hệ thống tính toán ngược ra chính xác giá trị thực tế $X_c$ và $Y_c$ không đổi.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-white/10 my-4"></div>
+
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">4. Vòng điều khiển phản hồi kín (Precise Landing Controller)</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Sai số khoảng cách trên trục Body $(\Delta x_b, \Delta y_b)$ sau khi tính toán tiếp tục được đồng bộ hóa ngược về ma trận xoay góc tư thế $R_b^N$ (Tích các góc xoay Euler Yaw $\psi$, Pitch $\theta$, Roll $\phi$) để chuyển đổi thành sai số hệ trục tọa độ phẳng phẳng cục bộ mặt đất $(\Delta x_n, \Delta y_n)$:
+        </p>
+
+        $$\begin{bmatrix} \Delta x_n \\ \Delta y_n \\ z_n \end{bmatrix} = R_b^N \begin{bmatrix} \Delta x_b \\ \Delta y_b \\ z_b \end{bmatrix} = \begin{bmatrix} \cos\psi\cos\theta & \cos\psi\sin\phi\sin\theta - \cos\phi\sin\psi & \cos\phi\cos\psi\sin\theta + \sin\phi\sin\psi \\ \sin\psi\cos\theta & \sin\phi\sin\psi\sin\theta + \cos\phi\cos\psi & \cos\phi\sin\psi\sin\theta - \cos\psi\sin\phi \\ -\sin\theta & \cos\theta\sin\phi & \cos\phi\cos\theta \end{bmatrix} \begin{bmatrix} \Delta x_b \\ \Delta y_b \\ z_b \end{bmatrix}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-3">
+          Tín hiệu sai số $(\Delta x_n, \Delta y_n)$ đóng vai trò đầu vào trực tiếp cho mạch vòng **POSITION CONTROL (Bộ điều khiển vị trí)** nhằm xuất góc đặt lệnh Pitch, Roll $(\phi, \theta)$ mong muốn cho mạch vòng **ATTITUDE CONTROL**. Từ đó, lệnh điều khiển xuất qua Motors Mixers điều tốc các ESC thay đổi vận tốc quay động cơ, triệt tiêu hoàn toàn sai số lệch tâm, giúp UAV hạ cánh chính xác tuyệt đối vào tâm điểm chỉ định.
+        </p>
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="precise/vongdk.png" alt="Sơ đồ khối vòng điều khiển Precision Landing" class="w-full h-auto object-cover opacity-95" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 2.4: Tổng quan vòng điều khiển Precision Landing</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </script>
+
+  <script id="raw-phase-3" type="text/template">
+    <div class="space-y-6 text-slate-300">
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">1. Thiết lập hệ trục tọa độ cảm biến</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Trước khi xây dựng thuật toán né vật cản, hệ thống tiến hành đồng bộ hệ trục tọa độ giữa cảm biến radar gương xoay 2D <strong>RPLiDAR C1M1</strong> và thân máy bay (UAV Body). Cảm biến được lắp đặt cố định trên đỉnh của drone, hướng góc quét 0° (trục x_lidar) trùng khớp hoàn toàn với trục hướng về phía trước của drone (trục x_body). Hệ phương trình chuyển đổi hệ trục được thiết lập như sau:
+        </p>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-3 font-mono text-center text-accent text-sm mb-4">
+          x_drone = x_lidar; &nbsp;&nbsp;&nbsp;&nbsp; y_drone = -y_lidar; &nbsp;&nbsp;&nbsp;&nbsp; z_drone = -z_lidar
+        </div>
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="nevatcan/truclidar.png" alt="Hệ trục tọa độ cảm biến LiDAR và Drone" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.1: Hệ trục tọa độ cảm biến LiDAR và Drone</p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-white/10 my-4"></div>
+
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">2. Thuật toán phát hiện rìa và tìm góc trống (Gaps)</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Để xác định được các khoảng không an toàn cho drone di chuyển, hệ thống áp dụng phép tính <strong>Gradient toán học</strong> trên toàn bộ tập dữ liệu khoảng cách hình quạt (ranges) quét về từ LiDAR. Tại những vị trí có sự biến thiên đột ngột về khoảng cách giữa các tia đo liền kề, hệ thống sẽ cắm mốc để nhận diện đường rìa (biên góc) của vật cản.
+        </p>
+        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-300 mb-4">
+          <li><strong>Phân biệt biên cạnh:</strong> Dựa vào dấu của giá trị Gradient (Dương hay Âm), thuật toán phân tích chính xác đâu là rìa bên trái và đâu là rìa bên phải của chướng ngại vật, khoanh vùng tọa độ góc của chướng ngại vật đó.</li>
+          <li><strong>Thuật toán Fusion (Kết hợp):</strong> Hệ thống kết hợp song song giữa phương pháp phát hiện rìa bằng Gradient và phương pháp phân tích đặc tính phân bố khoảng cách lân cận. Việc tối ưu hóa này giúp triệt tiêu các nhiễu đo vật lý môi trường, nâng cao độ tin cậy khi lập kế hoạch đường bay hành trình ngắn.</li>
+        </ul>
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="nevatcan/xacdinh.png" alt="Đồ thị dữ liệu khoảng cách thô và Gradient biên vật cản" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.2: Đồ thị dữ liệu khoảng cách thô và Gradient biên vật cản</p>
+        </div>
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="nevatcan/dulieu.png" alt="Luồng thuật toán xác định vùng khoảng trống di chuyển" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.3: Luồng thuật toán xác định vùng khoảng trống di chuyển</p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-white/10 my-4"></div>
+
+      <div>
+        <h4 class="text-white font-bold text-lg mb-2">3. Tính toán góc bay tối ưu (Best Angle) &amp; Vòng điều khiển</h4>
+        <p class="leading-relaxed text-justify mb-3">
+          Sau khi xác định được danh sách các góc trống khả dụng (Real Gaps) trong tầm quét từ -90° đến 90° phía trước, thuật toán thực hiện tính toán khoảng cách an toàn (Safe Distance) và cấu trúc hình học vật cản để lựa chọn ra một <strong>Góc bay tối ưu nhất (Best Gap Angle - ký hiệu α)</strong> hướng thẳng về đích đơn hàng mà không va chạm.
+        </p>
+
+        <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="nevatcan/bestangle.png" alt="Phương pháp xác định góc thoát Best Angle" class="w-full h-auto object-cover opacity-90" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.4: Phương pháp hình học xác định góc thoát Best Angle</p>
+        </div>
+
+        <p class="leading-relaxed text-justify mt-4 mb-2 font-semibold text-white">
+          Đối với trường hợp góc được tính từ khoảng cách an toàn từ mép ngoài rìa của vật cản:
+        </p>
+        $$angle\_gap\_1 = \text{atan2}(d_1 \cdot \sin\theta_1 + safe\_dist, d_1 \cdot \cos\theta_1)$$
+        $$angle\_gap\_2 = \text{atan2}(d_2 \cdot \sin\theta_2 - safe\_dist, d_2 \cdot \cos\theta_2)$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-2 font-semibold text-white">
+          Trường hợp khoảng trống (gap) nằm giữa hai vật cản kế cận:
+        </p>
+        $$dist\_gap = \sqrt{d_1^2 + d_2^2 - 2d_1d_2\cos(\theta_1 - \theta_2)} > thresh\_gap$$
+        $$angle\_gap\_3 = \frac{\theta_1 + \theta_2}{2}$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-2 font-semibold text-white">
+          Phương pháp điều khiển theo vận tốc thực tế của thân máy bay (vx, vy):
+        </p>
+        $$v_{x\_body} = v_{groundspeed} \cdot \cos(bestgap\_angle)$$
+        $$v_{y\_body} = v_{groundspeed} \cdot \sin(bestgap\_angle)$$
+
+        <p class="leading-relaxed text-justify mt-4 mb-2 font-semibold text-white">
+          Phương pháp làm mượt vận tốc bằng bộ lọc trung bình động lũy thừa EMA (Exponential Moving Average) để chống rung lắc khi UAV thay đổi trạng thái điều hướng liên tục:
+        </p>
+        $$v_x^{EMA}(t) = \alpha \cdot v_x(t) + (1 - \alpha) \cdot v_x(t-1)$$
+        $$v_y^{EMA}(t) = \alpha \cdot v_y(t) + (1 - \alpha) \cdot v_y(t-1)$$
+
+        <div class="w-full my-6 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
+            <img src="nevatcan/vongdk.png" alt="Sơ đồ khối cấu trúc vòng điều khiển thuật toán né vật cản" class="w-full h-auto object-cover opacity-95 mx-auto" />
+          </div>
+          <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.5: Sơ đồ khối cấu trúc vòng điều khiển thuật toán né vật cản</p>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script id="raw-phase-4" type="text/template">
+    <div class="space-y-4">
+      <p class="text-slate-300 text-justify">
+        Hệ thống được đưa vào vận hành thử nghiệm trên môi trường production thực tế, chạy ổn định, đồng bộ dữ liệu thời gian thực mượt mà. Trong tương lai, dự án định hướng tích hợp thêm các giải thuật học sâu (Deep Learning) tối ưu quỹ đạo bay nâng cao.
+      </p>
+    </div>
+  </script>
 
   <div id="consolePage" class="hidden min-h-screen">
     <header class="fixed top-0 inset-x-0 z-50 bg-[#0b1326]/90 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
@@ -2348,7 +2718,6 @@
     }
 
     function openPhaseModal(id) {
-      // Ép kiểu về số để so khớp chính xác với id trong mảng phasesData
       const phaseId = parseInt(id);
       const data = phasesData.find(p => p.id === phaseId);
       
@@ -2357,34 +2726,73 @@
         return;
       }
 
-      // Đổ dữ liệu vào Modal công nghệ
-      document.getElementById('pm-phase').innerText = data.phase;
-      document.getElementById('pm-title').innerText = data.title;
-      document.getElementById('pm-desc').innerText = data.desc;
-      document.getElementById('pm-main-content').innerHTML = data.fullDesc;
+      // Đổ tiêu đề và mô tả ngắn vào cấu trúc Modal mới
+      document.getElementById('modalPhaseBadge').innerText = data.phase;
+      document.getElementById('modalPhaseTitle').innerText = data.title;
+      document.getElementById('modalPhaseDesc').innerText = data.desc;
+      
+      // Đọc chuỗi nguyên bản từ thẻ script mẫu ẩn
+      const rawTemplate = document.getElementById(`raw-phase-${phaseId}`);
+      const mainContentEl = document.getElementById('modalPhaseDetails');
+      
+      if (rawTemplate && mainContentEl) {
+        let rawHTML = rawTemplate.innerHTML;
 
-      // Kích hoạt hiệu ứng mở Modal
+        // BIẾN ĐỔI TỰ ĐỘNG: Tìm tất cả khối công thức $$ để tự động bọc class co giãn trên mobile
+        if (window.innerWidth < 1024) {
+          // Bọc các cặp $$...$$ vào khối div có định dạng cấu trúc .mathjax-mobile-wrapper
+          rawHTML = rawHTML.replace(/\$\$([\s\S]*?)\$\$/g, '<div class="mathjax-mobile-wrapper">$$$$$1$$$$</div>');
+        }
+
+        mainContentEl.innerHTML = rawHTML;
+      } else if (mainContentEl) {
+        mainContentEl.innerHTML = "Đang cập nhật nội dung chi tiết...";
+      }
+
+      // ================= KÍCH HOẠT QUÉT LẠI TOÁN CỤC BỘ (MathJax 3.x) =================
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([mainContentEl]).catch(err => console.log(err));
+      } 
+      else if (window.MathJax && MathJax.Hub) {
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, mainContentEl]);
+      }
+      // =================================================================
+
+      // Kích hoạt hiệu ứng mở Modal chuẩn xác
       const modal = document.getElementById('phaseModal');
       modal.classList.remove('opacity-0', 'pointer-events-none');
       modal.classList.add('opacity-100', 'pointer-events-auto');
 
-      const content = modal.querySelector('.phase-modal-content');
-      content.classList.remove('scale-95', 'opacity-0');
-      content.classList.add('scale-100', 'opacity-100');
+      const content = modal.querySelector('.relative');
+      if (content) {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }
 
-      document.body.style.overflow = 'hidden'; // Khóa cuộn trang nền
+      document.body.style.overflow = 'hidden'; 
     }
 
     function closePhaseModal() {
       const modal = document.getElementById('phaseModal');
+      if (!modal) return;
+      
       modal.classList.remove('opacity-100', 'pointer-events-auto');
       modal.classList.add('opacity-0', 'pointer-events-none');
 
-      const content = modal.querySelector('.phase-modal-content');
-      content.classList.remove('scale-100', 'opacity-100');
-      content.classList.add('scale-95', 'opacity-0');
+      const content = modal.querySelector('.relative');
+      if (content) {
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+      }
 
-      document.body.style.overflow = ''; // Thêm dòng này để mở lại scroll
+      document.body.style.overflow = ''; // Mở lại cuộn trang chính
+    }
+
+    // Bổ sung hàm đóng khi click ra ngoài vùng Modal cho cấu trúc mới
+    function closePhaseModalOnClickOutside(event) {
+      if (event.target.id === 'phaseModal') {
+        closePhaseModal();
+      }
     }
 
     // Bắt sự kiện click ra ngoài viền đen thì đóng popup
@@ -3733,205 +4141,10 @@
     // === XỬ LÝ HIỆU ỨNG CARD STACK (HÀNH TRÌNH PHÁT TRIỂN) ===
     // === XỬ LÝ HIỆU ỨNG CARD STACK (HÀNH TRÌNH PHÁT TRIỂN) ===
     const phasesData = [
-      { id: 1, phase: "PHASE 01", title: "Thiết kế hệ thống", desc: "Tính toán tải trọng, lựa chọn linh kiện và thi công mô hình.", img: "thietke/thietke.png", fullDesc: `
-      <div class="space-y-6 text-slate-300">
-        <div>
-          <h4 class="text-white font-bold text-lg mb-2">1. Cấu trúc phần cứng tổng thể</h4>
-          <p class="leading-relaxed text-justify mb-2">
-            Hệ thống được phân chia thành hai khối chức năng chính: <strong>Ground Station Control</strong> (Trạm điều khiển mặt đất) và <strong>On-board System</strong> (Hệ thống thiết bị trên máy bay).
-          </p>
-          
-          <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-            <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-              <img src="thietke/tongquan.png" alt="Tổng quan hệ thống phần cứng" class="w-full h-auto object-cover opacity-90" />
-            </div>
-            <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.1: Tổng quan hệ thống phần cứng</p>
-          </div>
-
-          <ul class="list-disc pl-5 space-y-1 mb-4">
-            <li><strong>Ground Station Control:</strong> Sử dụng máy tính PC chạy giao diện vận hành Web Console qua mạng Không dây 2.4GHz kết nối với Raspberry Pi 5, đồng thời kết nối MAVLink trực tiếp để giám sát các dữ liệu Telemetry quan trọng.</li>
-            <li><strong>On-board System:</strong> Máy tính nhúng <strong>Raspberry Pi 5 (8GB)</strong> đảm nhiệm tác vụ xử lý ảnh nhận diện ArUco Marker từ Camera và quét môi trường từ cảm biến <strong>RPLiDAR C1M1</strong>. Bộ điều khiển bay trung tâm <strong>Pixhawk 6C</strong> thu thập dữ liệu cảm biến (GPS M10, IMU, Barometer, Compass) để xuất xung PWM điều khiển tốc độ động cơ qua các ESC.</li>
-            <li><strong>Cơ cấu thả hàng:</strong> Tách biệt bằng một mạch <strong>Arduino Nano</strong> điều khiển Servo SG90, được kích hoạt thông qua cách ly quang (Opto) từ Raspberry Pi 5 để bảo đảm an toàn hệ thống.</li>
-          </ul>
-          
-          <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-            <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-              <img src="thietke/solid.png" alt="Thiết kế mô hình trên SolidWorks" class="w-full h-auto object-cover opacity-90" />
-            </div>
-            <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.2: Thiết kế mô hình trên SolidWorks</p>
-          </div>
-        </div>
-
-        <div class="w-full h-px bg-white/10 my-4"></div>
-
-        <div>
-          <h4 class="text-white font-bold text-lg mb-2">2. Tính toán tải trọng &amp; Động lực học</h4>
-          <p class="leading-relaxed text-justify mb-2">
-            Hệ thống động lực sử dụng cấu hình Quadcopter với <strong>4 động cơ E-Power X3115 900KV</strong> kết hợp cánh quạt 10x4.5 inch. Tại mức điện áp 25V (Pin LiPo 6S) và mức ga cất cánh khuyến nghị, các thông số động lực học được tính toán chính xác như sau:
-          </p>
-          <div class="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2 tabular-nums">
-            <div>• Tổng lực đẩy tối đa tạo ra: <span class="text-white font-bold">T_total = 4 × 1.925 = 7.7 kgf</span></div>
-            <div>• Khối lượng bản thân UAV (No payload): <span class="text-white font-bold">m_drone = 2.3 kg</span></div>
-            <div>• Tỷ số lực đẩy / trọng lượng khi không tải: <span class="text-white font-bold">K_no_payload = 7.7 / 2.3 ≈ 3.35</span> (Bảo đảm khả năng cất cánh cơ động cao)</div>
-            <div>• Khối lượng cất cánh tối đa an toàn (Hệ số an toàn K = 2): <span class="text-white font-bold">m_takeoff_max = 7.7 / 2 = 3.85 kg</span></div>
-            <div>• <strong>Tải trọng hữu ích an toàn thiết kế: <span class="text-cyan-400 font-bold">m_payload_safe = 3.85 - 2.3 = 1.55 kg (~1.5 kg)</span></strong></div>
-            <div>• Tỷ số lực đẩy / trọng lượng khi mang tải full 1.5kg: <span class="text-white font-bold">K_payload = 7.7 / 3.8 ≈ 2.03</span> (Bảo đảm duy trì dự trữ lực đẩy để kháng gió và giữ tư thế ổn định tốt)</div>
-          </div>
-        </div>
-
-        <div class="w-full h-px bg-white/10 my-4"></div>
-
-        <div>
-          <h4 class="text-white font-bold text-lg mb-3 flex items-center gap-2">
-            <span class="w-1.5 h-5 bg-accent rounded-full"></span> 3. Danh mục vật tư & Thiết bị phần cứng
-          </h4>
-          
-          <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-            <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-              <img src="thietke/linhkien.png" alt="Lựa chọn linh kiện cho hệ thống" class="w-full h-auto object-cover opacity-90" />
-            </div>
-            <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.3: Lựa chọn linh kiện cho hệ thống</p>
-          </div>
-
-          <div class="overflow-x-auto rounded-2xl border border-white/10 shadow-lg mb-4">
-            <table class="w-full text-left border-collapse text-xs bg-panel/60 backdrop-blur-md">
-              <thead>
-                <tr class="border-b border-white/10 bg-white/5 text-white font-bold">
-                  <th class="p-3 text-center w-12">STT</th>
-                  <th class="p-3 w-1/3">Linh kiện / Thiết bị chính</th>
-                  <th class="p-3 text-center w-16">SL</th>
-                  <th class="p-3">Thông số kỹ thuật / Vai trò hệ thống</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-white/5 text-slate-300 tabular-nums">
-                <tr><td class="p-2.5 text-center text-slate-500">1</td><td class="p-2.5 font-semibold text-white">Khung F450</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Khung quadcopter cơ bản, tích hợp mạch phân phối nguồn (PDB).</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">2</td><td class="p-2.5 font-semibold text-white">Động cơ E-Power X3115 900KV</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Động cơ Brushless hiệu suất cao, cho lực kéo lớn lên tới 1.925 kgf/motor.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">3</td><td class="p-2.5 font-semibold text-white">ESC Hobbywing Skywalker 60A V2</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Bộ điều tốc động cơ chịu dòng tải cao, tích hợp mạch ổn áp UBEC.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">4</td><td class="p-2.5 font-semibold text-white">Cánh quạt 1045</td><td class="p-2.5 text-center">4</td><td class="p-2.5 text-slate-400">Cánh quạt kích thước 10x4.5 inch, tối ưu lực nâng cho động cơ KV thấp.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">5</td><td class="p-2.5 font-semibold text-white">Pin LiPo Ovonic 5300mAh 6S 75C</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Nguồn cấp chính 22.2V - dòng xả cực đại 75C đảm bảo dòng xả tức thời.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">6</td><td class="p-2.5 font-semibold text-white">Pixhawk 6C + PM07</td><td class="p-2.5 text-center">1 bộ</td><td class="p-2.5 text-slate-400">Flight Controller lái chính, thu thập IMU và điều khiển vòng lặp kín.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">7</td><td class="p-2.5 font-semibold text-white">GPS M10</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Module định vị vệ tinh đa thế hệ độ chính xác cao, cập nhật tọa độ realtime.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">8</td><td class="p-2.5 font-semibold text-white">Raspberry Pi 5 (8GB)</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Máy tính nhúng trung tâm chạy Companion Computer xử lý Vision và Lidar.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">9</td><td class="p-2.5 font-semibold text-white">Raspberry Pi Camera Module V2</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Thu ảnh luồng video hướng xuống mặt đất để phục vụ Precise Landing.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">10</td><td class="p-2.5 font-semibold text-white">Holybro SiK Telemetry V3 433MHz</td><td class="p-2.5 text-center">1 cặp</td><td class="p-2.5 text-slate-400">Mạch truyền thông không diện xa, truyền gói telemetry MAVLink về trạm đất.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">11</td><td class="p-2.5 font-semibold text-white">RadioMaster Pocket ELRS 2.4GHz</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Tay điều khiển RC mặt đất hỗ trợ can thiệp manual khẩn cấp khi có sự cố.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">12</td><td class="p-2.5 font-semibold text-white">RPLIDAR C1M1</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Cảm biến quét laser xoay 2D phục vụ thuật toán nhận biết né vật cản.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">13</td><td class="p-2.5 font-semibold text-white">Arduino Nano</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Khối vi điều khiển phụ tách dòng điều khiển chấp hành đóng mở chốt.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">14</td><td class="p-2.5 font-semibold text-white">Servo SG90</td><td class="p-2.5 text-center">1</td><td class="p-2.5 text-slate-400">Cơ cấu động cơ servo kéo chốt cơ khí thả hộp hàng hóa.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">15</td><td class="p-2.5 font-semibold text-white">Giá đỡ camera & Cơ cấu thả hàng</td><td class="p-2.5 text-center">1 bộ</td><td class="p-2.5 text-slate-400">Các cấu trúc module tối ưu khối lượng được thiết kế 3D và in nhựa PETG.</td></tr>
-                <tr><td class="p-2.5 text-center text-slate-500">16</td><td class="p-2.5 font-semibold text-white">Bộ phụ kiện phụ trợ</td><td class="p-2.5 text-center">1 bộ</td><td class="p-2.5 text-slate-400">Giảm chấn cao su Pixhawk, trụ đồng, đầu nối XT60, dây tín hiệu chống nhiễu.</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-            <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-              <img src="thietke/thucte.png" alt="Mô hình thực tế hoàn thiện" class="w-full h-auto object-cover opacity-90" />
-            </div>
-            <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.4: Mô hình thực tế hoàn thiện</p>
-          </div>
-
-          <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col items-center">
-            <div class="max-w-2xl w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-              <img src="thietke/sododaunoi.png" alt="Sơ đồ đấu nối dây của hệ thống" class="w-full h-auto object-cover opacity-95 mx-auto" />
-            </div>
-            <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 1.5: Sơ đồ đấu nối dây của hệ thống</p>
-          </div>
-
-        </div>
-      </div>` 
-      },
-      { id: 2, phase: "PHASE 02", title: "Thuật toán Precision Landing", desc: "Nghiên cứu thuật toán hạ cánh chính xác với ArUco Marker.", img: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 2..." },
-      { 
-        id: 3, 
-        phase: "PHASE 03", 
-        title: "Thuật toán né vật cản", 
-        desc: "Nghiên cứu thuật toán né vật cản Obstacle Avoidance dùng RPLidar C1M1.", 
-        img: "nevatcan/ne.png", 
-        fullDesc: `
-        <div class="space-y-6 text-slate-300">
-          <div>
-            <h4 class="text-white font-bold text-lg mb-2">1. Thiết lập hệ trục tọa độ cảm biến</h4>
-            <p class="leading-relaxed text-justify mb-3">
-              Trước khi xây dựng thuật toán né vật cản, hệ thống tiến hành đồng bộ hệ trục tọa độ giữa cảm biến radar gương xoay 2D <strong>RPLiDAR C1M1</strong> và thân máy bay (UAV Body). Cảm biến được lắp đặt cố định trên đỉnh của drone, hướng góc quét 0° (trục x_lidar) trùng khớp hoàn toàn với trục hướng về phía trước của drone (trục x_body). Hệ phương trình chuyển đổi hệ trục được thiết lập như sau:
-            </p>
-            <div class="bg-white/5 border border-white/10 rounded-xl p-3 font-mono text-center text-accent text-sm mb-4">
-              x_drone = x_lidar; &nbsp;&nbsp;&nbsp;&nbsp; y_drone = -y_lidar; &nbsp;&nbsp;&nbsp;&nbsp; z_drone = -z_lidar
-            </div>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/truclidar.png" alt="Hệ trục tọa độ cảm biến LiDAR và Drone" class="w-full h-auto object-cover opacity-90" />
-              </div>
-              <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.1: Hệ trục tọa độ cảm biến LiDAR và Drone</p>
-            </div>
-          </div>
-
-          <div class="w-full h-px bg-white/10 my-4"></div>
-
-          <div>
-            <h4 class="text-white font-bold text-lg mb-2">2. Thuật toán phát hiện rìa và tìm góc trống (Gaps)</h4>
-            <p class="leading-relaxed text-justify mb-3">
-              Để xác định được các khoảng không an toàn cho drone di chuyển, hệ thống áp dụng phép tính <strong>Gradient toán học</strong> trên toàn bộ tập dữ liệu khoảng cách hình quạt (ranges) quét về từ LiDAR. Tại những vị trí có sự biến thiên đột ngột về khoảng cách giữa các tia đo liền kề, hệ thống sẽ cắm mốc để nhận diện đường rìa (biên góc) của vật cản.
-            </p>
-            <ul class="list-disc pl-5 space-y-2 text-sm text-slate-300 mb-4">
-              <li><strong>Phân biệt biên cạnh:</strong> Dựa vào dấu của giá trị Gradient (Dương hay Âm), thuật toán phân tích chính xác đâu là rìa bên trái và đâu là rìa bên phải của chướng ngại vật, khoanh vùng tọa độ góc của chướng ngại vật đó.</li>
-              <li><strong>Thuật toán Fusion (Kết hợp):</strong> Hệ thống kết hợp song song giữa phương pháp phát hiện rìa bằng Gradient và phương pháp phân tích đặc tính phân bố khoảng cách lân cận. Việc tối ưu hóa này giúp triệt tiêu các nhiễu đo vật lý môi trường, nâng cao độ tin cậy khi lập kế hoạch đường bay hành trình ngắn.</li>
-            </ul>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/xacdinh.png" alt="Đồ thị dữ liệu khoảng cách thô và Gradient biên vật cản" class="w-full h-auto object-cover opacity-90" />
-              </div>
-              <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.2: Đồ thị dữ liệu khoảng cách thô và Gradient biên vật cản</p>
-            </div>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/dulieu.png" alt="Luồng thuật toán xác định vùng khoảng trống di chuyển" class="w-full h-auto object-cover opacity-90" />
-              </div>
-              <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.3: Luồng thuật toán xác định vùng khoảng trống di chuyển</p>
-            </div>
-          </div>
-
-          <div class="w-full h-px bg-white/10 my-4"></div>
-
-          <div>
-            <h4 class="text-white font-bold text-lg mb-2">3. Tính toán góc bay tối ưu (Best Angle) & Vòng điều khiển</h4>
-            <p class="leading-relaxed text-justify mb-3">
-              Sau khi xác định được danh sách các góc trống khả dụng (Real Gaps) trong tầm quét từ -90° đến 90° phía trước, thuật toán thực hiện tính toán khoảng cách an toàn (Safe Distance) và cấu trúc hình học vật cản để lựa chọn ra một <strong>Góc bay tối ưu nhất (Best Gap Angle - ký hiệu α)</strong> hướng thẳng về đích đơn hàng mà không va chạm.
-            </p>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/bestangle.png" alt="Phương pháp hình học xác định góc thoát Best Angle" class="w-full h-auto object-cover opacity-90" />
-              </div>
-              <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.4: Phương pháp hình học xác định góc thoát Best Angle</p>
-            </div>
-
-            <p class="leading-relaxed text-justify mb-4">
-              Góc lệnh điều hướng <span class="text-accent">α</span> sau đó được phân tách vận tốc tư thế sang hệ trục tọa độ Drone Body thành vận tốc tiến (v_fwd) và vận tốc ngang (v_lat) qua các hàm lượng giác. Toàn bộ tín hiệu điều tốc được làm mịn qua bộ lọc trung bình động lũy thừa <strong>EMA (Exponential Moving Average)</strong>, chuyển đổi sang hệ tọa độ NED (North-East-Down) rồi đẩy thẳng vào bộ điều khiển vòng kín Position Control của Pixhawk để điều khiển tốc độ quay động cơ thông qua ESC.
-            </p>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col items-center">
-              <div class="max-w-2xl w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/phuongphap.png" alt="Sơ đồ khối cấu trúc vòng điều khiển thuật toán né vật cản" class="w-full h-auto object-cover opacity-95 mx-auto" />
-               
-              </div>
-            </div>
-
-            <div class="w-full my-4 p-2 bg-white/[0.02] border border-white/5 rounded-2xl">
-              <div class="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0d1426]">
-                <img src="nevatcan/vongdk.png" alt="Sơ đồ khối cấu trúc vòng điều khiển thuật toán né vật cản" class="w-full h-auto object-cover opacity-95 mx-auto" />
-              </div>
-              <p class="text-center text-xs text-slate-400 mt-2 font-medium">Hình 3.5: Sơ đồ khối cấu trúc vòng điều khiển thuật toán né vật cản</p>
-            </div>
-          </div>
-        </div>`
-      },
-      { id: 4, phase: "PHASE 04", title: "Xây dựng Web giao hàng", desc: "Thiết kế, lập trình Web giao hàng và điều phối bay.", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 4..." },
-      { id: 5, phase: "PHASE 05", title: "Mô phỏng bay trên Gazebo 11", desc: "Mô phỏng kiếm chứng trước khi bay thực nghiệm.", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 5..." },
-      { id: 6, phase: "PHASE 06", title: "Đánh giá & Định hướng", desc: "Đánh giá hệ thống trên thực nghiệm and định hướng phát triển.", img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80", fullDesc: "Chi tiết Phase 6..." }
+      { id: 1, phase: "PHASE 01", title: "Thiết kế hệ thống", desc: "Tính toán tải trọng, lựa chọn linh kiện và thi công mô hình.", img: "thietke/thietke.png" },
+      { id: 2, phase: "PHASE 02", title: "Thuật toán Precision Landing", desc: "Nghiên cứu thuật toán hạ cánh chính xác với ArUco Marker bằng phép giải PnP và mô hình hình học phối cảnh.", img: "precise/precision.png" },
+      { id: 3, phase: "PHASE 03", title: "Thuật toán né vật cản", desc: "Nghiên cứu thuật toán né vật cản Obstacle Avoidance dùng RPLidar C1M1.", img: "nevatcan/ne.png" },
+      { id: 4, phase: "PHASE 04", title: "Đánh giá & Định hướng", desc: "Đánh giá hệ thống trên thực nghiệm và định hướng phát triển.", img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80" }
     ];
 
     let currentCardIndex = 0;
@@ -3959,7 +4172,7 @@
                 <span class="text-xs lg:text-sm text-slate-400 truncate mt-0.5 lg:mt-1">${data.desc}</span>
               </div>
               <button onclick="openPhaseModal(${data.id})" class="flex h-9 lg:h-11 shrink-0 cursor-pointer select-none items-center gap-0.5 rounded-full bg-cyan-400 pl-4 lg:pl-6 pr-3 lg:pr-4 text-xs lg:text-sm font-bold text-[#031722] hover:bg-cyan-300 transition-colors">
-                Read <span class="material-symbols-outlined text-[18px] lg:text-[22px]">chevron_right</span>
+                Khám phá <span class="material-symbols-outlined text-[18px] lg:text-[22px]">chevron_right</span>
               </button>
             </div>
           </div>
