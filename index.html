@@ -3321,9 +3321,10 @@
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`);
         const data = await res.json();
-        if (data?.display_name) {
-          const input = qs(isAdminRole() ? 'admin-address-input' : 'address-input');
-          if (input) input.value = data.display_name;
+        if (data.error || !data.token) {
+          // SỬA LẠI: Nếu có data.error cụ thể từ hệ thống thì hiện ra, ngược lại mới hiện sai mật khẩu
+          const errorMsg = data.error ? `Lỗi hệ thống: ${data.error}` : 'Sai tên đăng nhập hoặc mật khẩu.';
+          return showMsg('loginMsg', errorMsg, false);
         }
       } catch (_) { }
     }
