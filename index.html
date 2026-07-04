@@ -3321,10 +3321,9 @@
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`);
         const data = await res.json();
-        if (data.error || !data.token) {
-          // SỬA LẠI: Nếu có data.error cụ thể từ hệ thống thì hiện ra, ngược lại mới hiện sai mật khẩu
-          const errorMsg = data.error ? `Lỗi hệ thống: ${data.error}` : 'Sai tên đăng nhập hoặc mật khẩu.';
-          return showMsg('loginMsg', errorMsg, false);
+        if (data?.display_name) {
+          const input = qs(isAdminRole() ? 'admin-address-input' : 'address-input');
+          if (input) input.value = data.display_name;
         }
       } catch (_) { }
     }
@@ -3401,7 +3400,13 @@
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
         });
         const data = await res.json();
-        if (data.error || !data.token) return showMsg('loginMsg', 'Sai tên đăng nhập hoặc mật khẩu.', false);
+        
+        // SỬA LẠI: Hiển thị lỗi hệ thống chi tiết từ Backend nếu có, thay vì gộp chung
+        if (data.error || !data.token) {
+          const errorMsg = data.error ? `Lỗi: ${data.error}` : 'Sai tên đăng nhập hoặc mật khẩu.';
+          return showMsg('loginMsg', errorMsg, false);
+        }
+        
         token = data.token;
         localStorage.setItem('token', token);
         currentUser = data.user || { username };
@@ -3409,7 +3414,7 @@
         closeAuthModal();
         await showApp();
       } catch (e) {
-        showMsg('loginMsg', `Không kết nối được tới server: ${e}`, false);
+        showMsg('loginMsg', `Không kết nối được tới server: ${e.message}`, false);
       }
     }
 
